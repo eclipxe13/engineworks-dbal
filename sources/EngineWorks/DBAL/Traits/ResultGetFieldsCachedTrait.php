@@ -1,6 +1,6 @@
 <?php namespace EngineWorks\DBAL\Traits;
 
-trait SettingsCachedGetFieldsTrait
+trait ResultGetFieldsCachedTrait
 {
     /*
      * getFields implementation using the cached variable
