@@ -175,15 +175,15 @@ class Recordset
 
     /**
      * Return the original value of a field
-     * @param string $fieldname
-     * @param mixed $default
+     * @param string $fieldName
+     * @param mixed $defaultValue
      * @return mixed
      */
-    final public function getOriginalValue($fieldname, $default = "")
+    final public function getOriginalValue($fieldName, $defaultValue = "")
     {
-        return (!$this->eof() and array_key_exists($fieldname, $this->originalValues))
-            ? $this->originalValues[$fieldname]
-            : $default;
+        return (!$this->eof() and array_key_exists($fieldName, $this->originalValues))
+            ? $this->originalValues[$fieldName]
+            : $defaultValue;
     }
 
     /**
