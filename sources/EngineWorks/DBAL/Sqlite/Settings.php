@@ -6,8 +6,9 @@ use EngineWorks\DBAL\Abstracts\SettingsMap;
  * Settings for a sqlite connection
  *
  * - filename: database resource
+ * - enable-exceptions: sqlite will throw \Exceptions instead of errors
  * - prefix: tables prefix
- * - flags: null
+ * - flags: 6 => SQLITE3_OPEN_CREATE + SQLITE3_OPEN_READWRITE
  * - dump: '' => nothing, 'info' => '-- info messages',  'debug' => SELECT... + info
  *
  * @package EngineWorks\DBAL\Sqlite
@@ -16,8 +17,9 @@ class Settings extends SettingsMap
 {
     protected $map = [
         'filename' => '',
+        'enable-exceptions' => false,
         'prefix' => '',
-        'flags' => null,
+        'flags' => SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE,
         'dump' => '',
     ];
 }
