@@ -1,26 +1,15 @@
 <?php namespace EngineWorks\DBAL;
 
-use \Psr\Log\LoggerInterface;
-use \Psr\Log\LoggerAwareTrait;
-use \Psr\Log\NullLogger;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\NullLogger;
 
 /**
  * Database Abstraction Layer Abstract Class
  */
-abstract class DBAL
+abstract class DBAL implements CommonTypes, LoggerAwareInterface
 {
-
-    /* -----
-     * Public constants about common types
-     */
-
-    const TDATE = "DATE";
-    const TTIME = "TIME";
-    const TDATETIME = "DATETIME";
-    const TTEXT = "TEXT";
-    const TNUMBER = "NUMBER";
-    const TINT = "INT";
-    const TBOOL = "BOOL";
 
     /* -----
      * Logger
@@ -132,24 +121,37 @@ abstract class DBAL
 
     /**
      * Parses a value to secure SQL
+     *
      * @param mixed $variable
      * @param string $commontype
      * @param bool $includenull
      * @return string
      */
-    abstract public function sqlQuote($variable, $commontype = DBAL::TTEXT, $includenull = false);
+    abstract public function sqlQuote($variable, $commontype = CommonTypes::TTEXT, $includenull = false);
 
     /**
-     * Parses a value to secure SQL for IN operator
+     * Parses values to secure SQL for IN operator
+     *
      * @param array $array
      * @param string $commontype
      * @param bool $includenull
-     * @return string example "(1, 3, 5, 7, 11)"
+     * @return string example "(1, 3, 5)"
      */
-    abstract public function sqlQuoteIn($array, $commontype = DBAL::TTEXT, $includenull = false);
-
+    final public function sqlQuoteIn(array $array, $commontype = CommonTypes::TTEXT, $includenull = false)
+    {
+        if (!is_array($array) or count($array) == 0) {
+            return false;
+        }
+        $return = "";
+        for ($i = 0; $i < count($array); $i++) {
+            $return .= (($i > 0) ? ", " : "") . $this->sqlQuote($array[$i], $commontype, $includenull);
+        }
+        return "(" . $return . ")";
+    }
+    
     /**
-     * Force to quote as string
+     * Quote as string
+     *
      * @param string $variable
      * @return string
      */
