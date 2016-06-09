@@ -17,7 +17,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $dbal = $factory->dbal($settings);
         $this->assertNotNull($dbal);
     }
-    
+
     public function testSettingWhenClassDoesNotExists()
     {
         $namespace = __NAMESPACE__ . '\Sample';
@@ -46,7 +46,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $dbalname = 'SettingsClass';
         $factory = new Factory($namespace, $dbalname, 'X');
         /** @var Settings $mockSettings */
-        $mockSettings = $this->getMock(Settings::class);
+        $mockSettings = $this->createMock(Settings::class);
 
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessage("Class $namespace\\$dbalname does not exists");
@@ -60,7 +60,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $dbalname = 'EmptyObject';
         $factory = new Factory($namespace, $dbalname, 'X');
         /** @var Settings $mockSettings */
-        $mockSettings = $this->getMock(Settings::class);
+        $mockSettings = $this->createMock(Settings::class);
 
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessage("Class $namespace\\$dbalname does not extends " . DBAL::class);
