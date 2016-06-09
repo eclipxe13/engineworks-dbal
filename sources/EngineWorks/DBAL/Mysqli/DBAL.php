@@ -25,12 +25,9 @@ class DBAL extends AbstractDBAL
     public function connect()
     {
         // disconnect
-        if ($this->isConnected()) {
-            $this->disconnect();
-        }
+        $this->disconnect();
         // create the mysqli object without error reporting
-        $prevErrorReporting = error_reporting(0);
-//        This code result in problems with mysqli after disconnect
+        $errorLevel = error_reporting(0);
         $this->mysqli = mysqli_init();
         $this->mysqli->options(MYSQLI_OPT_CONNECT_TIMEOUT, $this->settings->get('connect-timeout'));
         $this->mysqli->real_connect(
@@ -42,15 +39,14 @@ class DBAL extends AbstractDBAL
             $this->settings->get('socket'),
             $this->settings->get('flags')
         );
-        // $this->mi = new mysqli($this->configHost, $this->configUser, $this->configPassword, $this->configCatalog);
-        error_reporting($prevErrorReporting);
+        error_reporting($errorLevel);
         // check for a instance of mysqli
         if (!$this->mysqli instanceof mysqli) {
             $this->logger->info("-- Connection fail");
             $this->logger->error("Cannot create mysqli object");
             return false;
         }
-        // check there is not connection errors
+        // check there are no connection errors
         if ($this->mysqli->connect_errno) {
             $errormsg = "Connection fail [{$this->mysqli->connect_errno}] {$this->mysqli->connect_error}";
             $this->logger->info("-- " . $errormsg);
@@ -63,17 +59,16 @@ class DBAL extends AbstractDBAL
         // set encoding if needed
         if ('' !== $encoding = $this->settings->get('encoding')) {
             $this->logger->info("-- Setting encoding to $encoding;");
-            $this->mysqli->query("SET character_set_client = $encoding;");
-            $this->mysqli->query("SET character_set_results = $encoding;");
-            $this->mysqli->query("SET character_set_connection = $encoding;");
-            $this->mysqli->query("SET names $encoding;");
+            if (! $this->mysqli->set_charset($encoding)) {
+                $this->logger->warning("-- Unable to set encoding to $encoding");
+            }
         }
         return true;
     }
 
     public function disconnect()
     {
-        if ($this->mysqli instanceof mysqli) {
+        if ($this->isConnected()) {
             $this->logger->info("-- Disconnection");
             @$this->mysqli->close();
         }
