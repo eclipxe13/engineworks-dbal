@@ -85,7 +85,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * Get the last inserted id, use it after an insert
-     * @return int
+     * @return float
      */
     abstract public function lastInsertedID();
 
@@ -110,6 +110,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     /**
      * Escapes a table name and optionally renames it
      * This function use the prefix setting
+     *
      * @param string $tableName
      * @param string $asTable
      * @return string
@@ -135,11 +136,11 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param array $array
      * @param string $commonType
      * @param bool $includeNull
-     * @return string example "(1, 3, 5)"
+     * @return string|false example "(1, 3, 5)", false if the array is empty
      */
     final public function sqlQuoteIn(array $array, $commonType = CommonTypes::TTEXT, $includeNull = false)
     {
-        if (!is_array($array) or count($array) == 0) {
+        if (count($array) == 0) {
             return false;
         }
         $return = "";
@@ -189,8 +190,10 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     abstract public function sqlIfNull($fieldName, $nullValue);
 
     /**
-     * limit function
-     * @param string $query The SQL Query to limit
+     * Transform a SELECT query to be paged
+     * This function add a semicolon at the end of the sentence
+     *
+     * @param string $query
      * @param int $requestedPage
      * @param int $recordsPerPage
      * @return string
@@ -217,18 +220,15 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      */
     final public function sqlLikeSearch($fieldName, $searchString, $someWords = true, $separator = ' ')
     {
-        $return = "";
+        $conditions = [];
         if (! is_string($searchString)) {
-            return $return;
+            return '';
         }
-        $strings = explode($separator, $searchString);
-        for ($i = 0; $i < count($strings); $i++) {
-            if ($strings[$i] != "") {
-                $return .= ($return != "" ? (($someWords) ? " OR " : " AND ") : "")
-                    . "(" . $this->sqlLike($fieldName, $strings[$i]) . ")";
-            }
+        $strings = array_filter(explode($separator, $searchString));
+        foreach ($strings as $term) {
+            $conditions[] = '(' . $this->sqlLike($fieldName, $term) . ')';
         }
-        return $return;
+        return implode(($someWords) ? " OR " : " AND ", $conditions);
     }
 
     /**
