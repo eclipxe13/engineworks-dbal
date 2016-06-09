@@ -1,0 +1,574 @@
+<?php
+/*
+ * Recordset Class
+ *
+ * Author: Carlos C Soto <csoto@sia-solutions.com>
+ * Licence: LGPL version 3.0
+ */
+
+
+namespace EngineWorks\DBAL;
+
+use Psr\Log\LoggerInterface;
+
+/**
+ * Recordset class
+ * Hint: Use DBAL->queryRecordset instead of using this class directly
+ */
+class Recordset
+{
+
+    const RSMODE_NOTCONNECTED = 0;
+    const RSMODE_CONNECTED_EDIT = 1;
+    const RSMODE_CONNECTED_ADDNEW = 2;
+
+    /**
+     * Associative array of the current record
+     * @var array
+     */
+    public $values;
+
+    /**
+     * @var DBAL
+     */
+    private $dbal;
+
+    /** @var LoggerInterface */
+    private $logger;
+
+    /**
+     * @var Result
+     */
+    private $result;
+
+    /**
+     * Array of original values
+     * @var array
+     */
+    private $originalvalues;
+
+    /**
+     * source sql query
+     * @var string
+     */
+    private $source;
+    private $mode;
+
+    /**
+     * Has the name of the current entity
+     * @var string
+     */
+    private $entity;
+
+    /**
+     * This array is a local copy of $this->result->getFields()
+     * @var array
+     */
+    private $datafields;
+
+    /**
+     * Recordset constructor.
+     * @param DBAL $dbal
+     * @param LoggerInterface|null $logger, If not provided it uses the DBAL Logger
+     */
+    public function __construct(DBAL $dbal, LoggerInterface $logger = null)
+    {
+        $this->dbal = $dbal;
+        $this->logger = ($logger instanceof LoggerInterface) ? $logger : $dbal->getLogger();
+        $this->initialize();
+    }
+
+    /**
+     * Executes a SQL Query and connect the object with that query in order to operate the recordset
+     * @param string $sql
+     * @return boolean
+     */
+    final public function query($sql)
+    {
+        $this->initialize();
+        if (!$this->hasDBAL()) {
+            throw new \LogicException("Recordset: object does not have a connected DBAL");
+        }
+        $result = $this->dbal->query($sql);
+        if (!$result instanceof Result) {
+            throw new \LogicException("Recordset: Unable to perform query $sql");
+        }
+        $this->mode = self::RSMODE_CONNECTED_EDIT;
+        $this->result = $result;
+        $this->source = $sql;
+        $this->datafields = [];
+        // get fields into a temporary array
+        $tmpfields = $this->result->getFields();
+        for ($i = 0; $i < count($tmpfields); $i++) {
+            $this->datafields[$tmpfields[$i]["name"]] = $tmpfields[$i];
+        }
+        // set the entity name, remove if more than one table exists
+        $this->entity = $tmpfields[0]["table"];
+        if (count(array_unique(array_column($tmpfields, "table"))) > 1) {
+            $this->entity = "";
+        }
+        // if has records then load first
+        if ($this->getRecordCount() > 0) {
+            $this->moveNext();
+        }
+        return true;
+    }
+
+    /**
+     * Internal procedure to initiate all the variables
+     */
+    private function initialize()
+    {
+        $this->entity = "";
+        $this->source = "";
+        $this->mode = self::RSMODE_NOTCONNECTED;
+        $this->result = null;
+        $this->originalvalues = null;
+        $this->datafields = null;
+        $this->values = [];
+    }
+
+    /**
+     * Return if the current DBAL and Result exists and are connected
+     * @return boolean
+     */
+    final public function isOpen()
+    {
+        return ($this->hasDBAL() and $this->result !== null);
+    }
+
+    /**
+     * Check if the DBAL is is connected (if not try to connect again)
+     * @return boolean
+     */
+    final public function hasDBAL()
+    {
+        return ($this->dbal->isConnected() or $this->dbal->connect());
+    }
+
+    /**
+     * Return the source query
+     * @return string
+     */
+    final public function getSource()
+    {
+        return $this->source;
+    }
+
+    /**
+     * Return the recordset mode
+     * @return string
+     */
+    final public function getMode()
+    {
+        return $this->mode;
+    }
+
+    /**
+     * Return if the current recorset can be edited
+     * @return boolean
+     */
+    public function canModify()
+    {
+        return ($this->mode != self::RSMODE_NOTCONNECTED and "" != $this->entity);
+    }
+
+    /**
+     * Return if the recordset is placed in a valid record
+     * @return boolean
+     */
+    final public function eof()
+    {
+        return (!is_array($this->originalvalues));
+    }
+
+    /**
+     * Return the original value of a field
+     * @param string $fieldname
+     * @param mixed $default
+     * @return mixed
+     */
+    final public function getOriginalValue($fieldname, $default = "")
+    {
+        return (!$this->eof() and array_key_exists($fieldname, $this->originalvalues))
+            ? $this->originalvalues[$fieldname]
+            : $default;
+    }
+
+    /**
+     * Prepares the recordset to make an insertion
+     * All the values are set to null
+     */
+    final public function addNew()
+    {
+        $this->originalvalues = null;
+        $this->values = $this->setValuesFromDatafields(null);
+        $this->mode = self::RSMODE_CONNECTED_ADDNEW;
+    }
+
+    /**
+     * Get the last inserted id by asking to the DBAL object.
+     * This means that if an insertion happends between Update and LastInsertedID then the result
+     * will not be related to the Update
+     * @return int
+     */
+    final public function lastInsertedID()
+    {
+        return $this->dbal->lastInsertedID();
+    }
+
+    /**
+     * Check whether the current values are different from thw original ones
+     * The base are the original values
+     * @return bool
+     */
+    final public function valuesHadChanged()
+    {
+        foreach ($this->originalvalues as $field => $value) {
+            $current = array_key_exists($field, $this->values) ? $this->values[$field] : null;
+            if ($this->valueIsDifferent($value, $current)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Compare to values in order to see if they need to be updated
+     * @param mixed $original
+     * @param mixed $current
+     * @return boolean
+     */
+    final protected static function valueIsDifferent($original, $current)
+    {
+        // check if some value is null
+        $originalIsNull = is_null($original);
+        $currentIsNull = is_null($current);
+        // both are null, there are no difference
+        if ($originalIsNull and $currentIsNull) {
+            return false;
+        }
+        // one is null, the other isn't, there is a difference
+        if ($originalIsNull or $currentIsNull) {
+            return true;
+        }
+        // do not continue using the object
+        if (is_object($current)) {
+            $current = strval($current);
+        }
+        // simple comparison
+        return ($original != $current);
+    }
+
+    /**
+     * Create an array of conditions based on the current values and ids
+     * This function is used on Update and on Delete
+     * @param string $extraWhereClause
+     * @return array
+     */
+    protected function sqlWhereConditions($extraWhereClause)
+    {
+        // get the conditions
+        $conditions = [];
+        if ($extraWhereClause) {
+            $conditions[] = "($extraWhereClause)";
+        }
+        $ids = $this->result->getIdFields();
+        if (!is_array($ids)) {
+            $this->logger->warning("Recordset: cannot get the ids to locate the current the record,"
+                . "will use all the fields to create the where clause"
+                . "\n"
+                . print_r([
+                    'entity' => $this->entity,
+                    'values' => $this->values,
+                ], true));
+            $ids = array_keys($this->datafields);
+        }
+        foreach ($this->datafields as $fieldname => $field) {
+            if (!array_key_exists($fieldname, $this->values)) {
+                continue;
+            }
+            if (!in_array($fieldname, $ids)) {
+                continue;
+            }
+            if (null === $this->originalvalues[$fieldname]) {
+                $conditions[] = "(" . $this->dbal->sqlIsNull($fieldname) . ")";
+            } else {
+                $conditions[] = "(" . $fieldname . " = "
+                    . $this->dbal->sqlQuote($this->originalvalues[$fieldname], $field["commontype"], false) . ")";
+            }
+        }
+        return $conditions;
+    }
+
+    /**
+     * Create the sql statement for INSERT INTO
+     * @return string
+     */
+    protected function sqlInsert()
+    {
+        // check the entity is not empty
+        if (!$this->canModify()) {
+            throw new \LogicException("Recordset: The recordset does not have a valid unique entity [{$this->entity}]");
+        }
+        $inserts = [];
+        foreach ($this->datafields as $fieldname => $field) {
+            $value = (array_key_exists($fieldname, $this->values)) ? $this->values[$fieldname] : null;
+            $inserts[$field["name"]] = $this->dbal->sqlQuote($value, $field["commontype"], true);
+        }
+        if (!count($inserts)) {
+            throw new \LogicException("Recordset: Insert does not have any fields to insert");
+        }
+        return "INSERT INTO " . $this->entity
+        . " (" . implode(", ", array_keys($inserts)) . ")"
+        . " VALUES (" . implode(", ", $inserts) . ")"
+        . ";";
+    }
+
+    /**
+     * Create the sql statement for UPDATE
+     * If nothig to update then will return an empty string
+     * @param string $extraWhereClause
+     * @return string
+     */
+    protected function sqlUpdate($extraWhereClause)
+    {
+        // check the entity is not empty
+        if (!$this->canModify()) {
+            throw new \LogicException("Recordset: The recordset does not have a valid unique entity [{$this->entity}]");
+        }
+        // get the conditions to alter the current record
+        $conditions = $this->sqlWhereConditions($extraWhereClause);
+        // if no conditions then log error and return false
+        if (!count($conditions)) {
+            throw new \LogicException("Recordset: The current record does not have any conditions to update");
+        }
+        // get the fields that have changed compared to originalvalues
+        $updates = [];
+        foreach ($this->datafields as $fieldname => $field) {
+            if (!array_key_exists($fieldname, $this->values)) {
+                $this->values[$fieldname] = null;
+            }
+            if ($this->valueIsDifferent($this->originalvalues[$fieldname], $this->values[$fieldname])) {
+                $updates[] = $fieldname . " = "
+                    . $this->dbal->sqlQuote($this->values[$fieldname], $field["commontype"], true);
+            }
+        }
+        // if nothing to update, log error and return empty string
+        if (!count($updates)) {
+            return "";
+        }
+        // return the update statement
+        return "UPDATE " . $this->entity
+        . " SET " . implode(", ", $updates)
+        . " WHERE " . implode(" AND ", $conditions)
+        . ";";
+    }
+
+    /**
+     * Create the sql statement for DELETE
+     * @param string $extraWhereClause
+     * @return string
+     * @throws \LogicException
+     */
+    protected function sqlDelete($extraWhereClause)
+    {
+        // check the entity is not empty
+        if (!$this->canModify()) {
+            throw new \LogicException("Recordset: The recordset does not have a valid unique entity [{$this->entity}]");
+        }
+        // get the conditions to alter the current record
+        $conditions = $this->sqlWhereConditions($extraWhereClause);
+        // if no conditions then log error and return false
+        if (!count($conditions)) {
+            throw new \LogicException("Recordset: The current record does not have any conditions to delete");
+        }
+        return "DELETE FROM " . $this->entity
+        . " WHERE " . implode(" AND ", $conditions)
+        . ";";
+    }
+
+    /**
+     * Build and execute an SQL UPDATE or INSERT sentence
+     * Return how many rows where altered, if an update does not change any value then it return zero
+     * Return false in case of error execution
+     * @param string $extraWhereClause where clause to be append into sql on UPDATE (not insert)
+     * @return boolean|int
+     */
+    final public function update($extraWhereClause = "")
+    {
+        if (self::RSMODE_CONNECTED_ADDNEW != $this->mode and self::RSMODE_CONNECTED_EDIT != $this->mode) {
+            throw new \LogicException(
+                "Recordset: The recordset is not on edit or addnew mode [current: {$this->mode}]"
+            );
+        }
+        $sql = "";
+        if (self::RSMODE_CONNECTED_ADDNEW == $this->mode) {
+            $sql = $this->sqlInsert();
+        }
+        if (self::RSMODE_CONNECTED_EDIT == $this->mode) {
+            if ("" === $sql = $this->sqlUpdate($extraWhereClause)) {
+                return 0;
+            }
+        }
+        $altered = $this->dbal->execute($sql);
+        if (0 === $altered) {
+            $diffs = [];
+            foreach ($this->originalvalues as $name => $value) {
+                if (! $this->valueIsDifferent($value, $this->values[$name])) {
+                    continue;
+                }
+                $diffs[] = $name;
+            }
+            $this->logger->warning(print_r([
+                'message' => "Recordset: The statement $sql return zero affected rows but the vales are different",
+                'entity' => $this->entity,
+                'extraWhereClause' => $extraWhereClause,
+                'original' => $this->originalvalues,
+                'current' => $this->values,
+                'diffs' => $diffs,
+            ], true));
+        }
+        return $altered;
+    }
+
+    /**
+     * Build and execute the SQL DELETE sentence
+     * Return how many rows where altered
+     * @param string $extraWhereClause
+     * @return boolean|int
+     */
+    final public function delete($extraWhereClause = "")
+    {
+        if (self::RSMODE_CONNECTED_EDIT != $this->mode) {
+            throw new \LogicException("Recordset: The recordset is not on edit mode [current: " . $this->mode . "]");
+        }
+        $sql = $this->sqlDelete($extraWhereClause);
+        $altered = $this->dbal->execute($sql);
+        if (0 === $altered) {
+            $this->logger->warning(print_r([
+                'message' => "Recordset: The statement '$sql' return zero affected rows"
+                    . " but it should delete at least one record",
+                'entity' => $this->entity,
+                'extraWhereClause' => $extraWhereClause,
+                'original' => $this->originalvalues,
+            ], true));
+        }
+        return $altered;
+    }
+
+    /**
+     * Move to the next row and read the values
+     * @return boolean
+     */
+    final public function moveNext()
+    {
+        return ($this->isOpen() and $this->fetchLoadValues());
+    }
+
+    /**
+     * Move to the first row and read the values
+     * @return boolean
+     */
+    final public function moveFirst()
+    {
+        return ($this->isOpen() and $this->result->moveFirst() and $this->fetchLoadValues());
+
+    }
+
+    /**
+     * Internal function that returns an array with the content from fields and row
+     * This content is parsed according to commontype to have a right type
+     * meaning that bools, dates and numbers are loaded as that and not strings
+     * Anything else is loaded as string
+     *
+     * If the row is null or the content is null or does not exists then the value is placed as null
+     *
+     * @param array $row
+     * @return array
+     */
+    private function setValuesFromDatafields($row = null)
+    {
+        $arr = [];
+        $validrow = (!is_null($row) and is_array($row));
+        foreach ($this->datafields as $fieldname => $field) {
+            $variant = null;
+            if ($validrow and array_key_exists($fieldname, $row) and !is_null($row[$fieldname])) {
+                $variant = $row[$fieldname];
+                // these are sorten by the most common data types to avoid extra comparisons
+                switch ($field["commontype"]) {
+                    case DBAL::TTEXT:
+                        $variant = strval($variant);
+                        break;
+                    case DBAL::TINT:
+                        $variant = intval($variant);
+                        break;
+                    case DBAL::TNUMBER:
+                        $variant = floatval($variant);
+                        break;
+                    case DBAL::TBOOL:
+                        $variant = (bool)$variant;
+                        break;
+                    case DBAL::TDATE:
+                    case DBAL::TTIME:
+                    case DBAL::TDATETIME:
+                        $variant = strtotime($variant);
+                        break;
+                    default:
+                        $variant = strval($variant);
+                }
+            }
+            $arr[$fieldname] = $variant;
+        }
+        return $arr;
+    }
+
+    /**
+     * Try to load values fetching a new row
+     * Return true if success
+     * Return false if no row was fetched, also put values to an empty array
+     * @return boolean
+     */
+    private function fetchLoadValues()
+    {
+        $return = false;
+        if (false !== $row = $this->result->fetchRow()) {
+            $trow = $this->setValuesFromDatafields($row);
+            $this->originalvalues = $trow;
+            $this->values = $trow;
+            $return = true;
+        } else {
+            $this->values = [];
+            $this->originalvalues = null;
+        }
+        return $return;
+    }
+
+    /**
+     * Return the number of records in the query
+     * @return int
+     */
+    final public function getRecordCount()
+    {
+        return $this->result->resultCount();
+    }
+
+    /**
+     * Return an associative array of fields, the key is the field name
+     * and the content is an array containing name, commontype and table
+     * @return array|false
+     */
+    final public function getFields()
+    {
+        return (count($this->datafields)) ? $this->datafields : false;
+    }
+
+    /**
+     * Return the entity name of the query
+     * @return string
+     */
+    final public function getEntityName()
+    {
+        return $this->entity;
+    }
+}

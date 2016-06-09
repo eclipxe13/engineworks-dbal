@@ -1,0 +1,31 @@
+{
+    "name": "engineworks/dbal",
+    "description": "Database Abstraction Layer Database",
+    "homepage": "https://github.com/eclipxe13/engineworks-dbal",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Carlos C Soto",
+            "email": "eclipxe13@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.6",
+        "psr/log": "^1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "@stable",
+        "squizlabs/php_codesniffer": "@stable",
+        "jakub-onderka/php-parallel-lint": "@stable"
+    },
+    "autoload": {
+        "psr-4": {
+            "EngineWorks\\DBAL\\": "sources/EngineWorks/DBAL/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "EngineWorks\\DBAL\\Tests\\": "tests/EngineWorks/DBAL/"
+        }
+    }
+}
