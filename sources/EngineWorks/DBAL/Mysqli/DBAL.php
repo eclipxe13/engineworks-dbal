@@ -1,6 +1,9 @@
 <?php namespace EngineWorks\DBAL\Mysqli;
 
 use EngineWorks\DBAL\CommonTypes;
+use EngineWorks\DBAL\Traits\MethodSqlQuote;
+use EngineWorks\DBAL\Traits\MethodSqlIsNull;
+use EngineWorks\DBAL\Traits\MethodSqlLike;
 use mysqli;
 use EngineWorks\DBAL\DBAL as AbstractDBAL;
 
@@ -10,6 +13,10 @@ use EngineWorks\DBAL\DBAL as AbstractDBAL;
  */
 class DBAL extends AbstractDBAL
 {
+    use MethodSqlQuote;
+    use MethodSqlLike;
+    use MethodSqlIsNull;
+
     /**
      * Contains the connection resource for mysqli
      * @var mysqli
@@ -83,7 +90,7 @@ class DBAL extends AbstractDBAL
 
     public function lastInsertedID()
     {
-        return doubleval($this->mysqli->insert_id);
+        return floatval($this->mysqli->insert_id);
     }
 
     public function sqlString($variable)
@@ -202,17 +209,6 @@ class DBAL extends AbstractDBAL
         return "IFNULL(" . $fieldName . ", " . $nullValue . ")";
     }
 
-    public function sqlIsNull($fieldValue, $positive = true)
-    {
-        return $fieldValue . " IS" . ((!$positive) ? " NOT" : "") . " NULL";
-    }
-
-    public function sqlLike($fieldName, $searchString, $wildcardBegin = true, $wildcardEnd = true)
-    {
-        return $fieldName . " LIKE '"
-        . (($wildcardBegin) ? "%" : "") . $this->sqlString($searchString) . (($wildcardEnd) ? "%" : "") . "'";
-    }
-
     public function sqlLimit($query, $requestedPage, $recordsPerPage = 20)
     {
         $rpp = max(1, $recordsPerPage);
@@ -220,39 +216,6 @@ class DBAL extends AbstractDBAL
             . " LIMIT " . $this->sqlQuote($rpp * (max(1, $requestedPage) - 1), CommonTypes::TINT)
             . ", " . $this->sqlQuote($rpp, CommonTypes::TINT);
         return $query;
-    }
-
-    public function sqlQuote($variable, $commonType = CommonTypes::TTEXT, $includeNull = false)
-    {
-        if ($includeNull and is_null($variable)) {
-            return "NULL";
-        }
-        switch (strtoupper($commonType)) {
-            case CommonTypes::TTEXT: // is the most common type, put the case to avoid extra comparisons
-                $return = "'" . $this->sqlString($variable) . "'";
-                break;
-            case CommonTypes::TINT:
-                $return = intval(str_replace([",", "$"], "", $variable), 10);
-                break;
-            case CommonTypes::TNUMBER:
-                $return = floatval(str_replace([",", "$"], "", $variable));
-                break;
-            case CommonTypes::TBOOL:
-                $return = ($variable) ? 1 : 0;
-                break;
-            case CommonTypes::TDATE:
-                $return = "'" . date("Y-m-d", $variable) . "'";
-                break;
-            case CommonTypes::TTIME:
-                $return = "'" . date("H:i:s", $variable) . "'";
-                break;
-            case CommonTypes::TDATETIME:
-                $return = "'" . date("Y-m-d H:i:s", $variable) . "'";
-                break;
-            default:
-                $return = "'" . $this->sqlString($variable) . "'";
-        }
-        return strval($return);
     }
 
     public function sqlRandomFunc()
