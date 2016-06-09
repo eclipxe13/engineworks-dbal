@@ -3,7 +3,8 @@
 namespace EngineWorks\DBAL;
 
 /**
- * Interface Result, this must be implemented by the Drivers
+ * Interface Result, this interface must be implemented by the Drivers
+ *
  * @package EngineWorks\DBAL
  */
 interface Result
