@@ -2,12 +2,12 @@
 
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result as ResultInterface;
-use EngineWorks\DBAL\Traits\SettingsCachedGetFieldsTrait;
+use EngineWorks\DBAL\Traits\ResultGetFieldsCachedTrait;
 use SQLite3Result;
 
 class Result implements ResultInterface
 {
-    use SettingsCachedGetFieldsTrait;
+    use ResultGetFieldsCachedTrait;
 
     /**
      * Sqlite3 element

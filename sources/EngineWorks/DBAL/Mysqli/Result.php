@@ -2,13 +2,13 @@
 
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result as ResultInterface;
-use EngineWorks\DBAL\Traits\SettingsCachedGetFieldsTrait;
+use EngineWorks\DBAL\Traits\ResultGetFieldsCachedTrait;
 use mysqli_result;
 
 class Result implements ResultInterface
 {
     
-    use SettingsCachedGetFieldsTrait;
+    use ResultGetFieldsCachedTrait;
 
     /**
      * Mysqli element
