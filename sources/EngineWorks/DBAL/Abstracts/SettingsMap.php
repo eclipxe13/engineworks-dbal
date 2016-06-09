@@ -16,9 +16,6 @@ class SettingsMap implements SettingsInterface
      */
     protected $map = [];
 
-    /**
-     * @inheritdoc
-     */
     public function __construct(array $settings = null)
     {
         if (null !== $settings) {
@@ -36,13 +33,17 @@ class SettingsMap implements SettingsInterface
     }
 
     /**
-     * Set a setting
+     * Set a setting, if it does dot exists then throws an exception
+     *
      * @param string $name
      * @param mixed $value
+     * @throws \InvalidArgumentException
      */
     public function set($name, $value)
     {
-        $this->checkExists($name);
+        if (! $this->exists($name)) {
+            throw new \InvalidArgumentException("Setting $name does not exists");
+        }
         $this->map[$name] = $value;
     }
 
@@ -59,12 +60,9 @@ class SettingsMap implements SettingsInterface
         }
     }
 
-    /**
-     * @inheritdoc
-     */
     public function get($name, $default = null)
     {
-        return ($this->map[$name]) ? : $default;
+        return ($this->exists($name)) ? $this->map[$name] : $default;
     }
 
     /**
@@ -74,16 +72,5 @@ class SettingsMap implements SettingsInterface
     public function exists($name)
     {
         return (array_key_exists($name, $this->map));
-    }
-
-    /**
-     * @param $name
-     * @return void
-     */
-    public function checkExists($name)
-    {
-        if (! $this->exists($name)) {
-            throw new \InvalidArgumentException("Setting $name does not exists");
-        }
     }
 }
