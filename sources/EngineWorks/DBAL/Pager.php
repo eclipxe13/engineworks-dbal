@@ -189,7 +189,7 @@ class Pager
     /**
      * Change the count method, the only possible values are
      * COUNT_METHOD_SELECT and COUNT_METHOD_RECORDCOUNT
-     * Return the preious count method set
+     * Return the previous count method set
      * @param int $method
      * @return int
      */

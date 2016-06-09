@@ -9,14 +9,8 @@ class Result implements ResultInterface
 {
     use SettingsCachedGetFieldsTrait;
 
-    const SQLITE3_INTEGER = 1;
-    const SQLITE3_FLOAT = 2;
-    const SQLITE3_TEXT = 3;
-    const SQLITE3_BLOB = 4;
-    const SQLITE3_NULL = 5;
-
     /**
-     * Resourse element
+     * Sqlite3 element
      * @var SQLite3Result
      */
     private $query = false;
@@ -82,7 +76,8 @@ class Result implements ResultInterface
     }
 
     /**
-     * Private function to get the commontype from the information of the field
+     * Private function to get the CommonType from the information of the field
+     *
      * @param int $field
      * @return string
      */

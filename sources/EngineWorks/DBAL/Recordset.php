@@ -1,13 +1,4 @@
-<?php
-/*
- * Recordset Class
- *
- * Author: Carlos C Soto <csoto@sia-solutions.com>
- * Licence: LGPL version 3.0
- */
-
-
-namespace EngineWorks\DBAL;
+<?php namespace EngineWorks\DBAL;
 
 use Psr\Log\LoggerInterface;
 
@@ -45,7 +36,7 @@ class Recordset
      * Array of original values
      * @var array
      */
-    private $originalvalues;
+    private $originalValues;
 
     /**
      * source sql query
@@ -123,7 +114,7 @@ class Recordset
         $this->source = "";
         $this->mode = self::RSMODE_NOTCONNECTED;
         $this->result = null;
-        $this->originalvalues = null;
+        $this->originalValues = null;
         $this->datafields = null;
         $this->values = [];
     }
@@ -165,7 +156,7 @@ class Recordset
     }
 
     /**
-     * Return if the current recorset can be edited
+     * Return if the current recordset can be edited
      * @return boolean
      */
     public function canModify()
@@ -179,7 +170,7 @@ class Recordset
      */
     final public function eof()
     {
-        return (!is_array($this->originalvalues));
+        return (!is_array($this->originalValues));
     }
 
     /**
@@ -190,8 +181,8 @@ class Recordset
      */
     final public function getOriginalValue($fieldname, $default = "")
     {
-        return (!$this->eof() and array_key_exists($fieldname, $this->originalvalues))
-            ? $this->originalvalues[$fieldname]
+        return (!$this->eof() and array_key_exists($fieldname, $this->originalValues))
+            ? $this->originalValues[$fieldname]
             : $default;
     }
 
@@ -201,7 +192,7 @@ class Recordset
      */
     final public function addNew()
     {
-        $this->originalvalues = null;
+        $this->originalValues = null;
         $this->values = $this->setValuesFromDatafields(null);
         $this->mode = self::RSMODE_CONNECTED_ADDNEW;
     }
@@ -224,7 +215,7 @@ class Recordset
      */
     final public function valuesHadChanged()
     {
-        foreach ($this->originalvalues as $field => $value) {
+        foreach ($this->originalValues as $field => $value) {
             $current = array_key_exists($field, $this->values) ? $this->values[$field] : null;
             if ($this->valueIsDifferent($value, $current)) {
                 return true;
@@ -291,11 +282,11 @@ class Recordset
             if (!in_array($fieldname, $ids)) {
                 continue;
             }
-            if (null === $this->originalvalues[$fieldname]) {
+            if (null === $this->originalValues[$fieldname]) {
                 $conditions[] = "(" . $this->dbal->sqlIsNull($fieldname) . ")";
             } else {
                 $conditions[] = "(" . $fieldname . " = "
-                    . $this->dbal->sqlQuote($this->originalvalues[$fieldname], $field["commontype"], false) . ")";
+                    . $this->dbal->sqlQuote($this->originalValues[$fieldname], $field["commontype"], false) . ")";
             }
         }
         return $conditions;
@@ -327,7 +318,7 @@ class Recordset
 
     /**
      * Create the sql statement for UPDATE
-     * If nothig to update then will return an empty string
+     * If nothing to update then will return an empty string
      * @param string $extraWhereClause
      * @return string
      */
@@ -343,13 +334,13 @@ class Recordset
         if (!count($conditions)) {
             throw new \LogicException("Recordset: The current record does not have any conditions to update");
         }
-        // get the fields that have changed compared to originalvalues
+        // get the fields that have changed compared to originalValues
         $updates = [];
         foreach ($this->datafields as $fieldname => $field) {
             if (!array_key_exists($fieldname, $this->values)) {
                 $this->values[$fieldname] = null;
             }
-            if ($this->valueIsDifferent($this->originalvalues[$fieldname], $this->values[$fieldname])) {
+            if ($this->valueIsDifferent($this->originalValues[$fieldname], $this->values[$fieldname])) {
                 $updates[] = $fieldname . " = "
                     . $this->dbal->sqlQuote($this->values[$fieldname], $field["commontype"], true);
             }
@@ -414,7 +405,7 @@ class Recordset
         $altered = $this->dbal->execute($sql);
         if (0 === $altered) {
             $diffs = [];
-            foreach ($this->originalvalues as $name => $value) {
+            foreach ($this->originalValues as $name => $value) {
                 if (! $this->valueIsDifferent($value, $this->values[$name])) {
                     continue;
                 }
@@ -424,7 +415,7 @@ class Recordset
                 'message' => "Recordset: The statement $sql return zero affected rows but the vales are different",
                 'entity' => $this->entity,
                 'extraWhereClause' => $extraWhereClause,
-                'original' => $this->originalvalues,
+                'original' => $this->originalValues,
                 'current' => $this->values,
                 'diffs' => $diffs,
             ], true));
@@ -451,7 +442,7 @@ class Recordset
                     . " but it should delete at least one record",
                 'entity' => $this->entity,
                 'extraWhereClause' => $extraWhereClause,
-                'original' => $this->originalvalues,
+                'original' => $this->originalValues,
             ], true));
         }
         return $altered;
@@ -478,8 +469,8 @@ class Recordset
 
     /**
      * Internal function that returns an array with the content from fields and row
-     * This content is parsed according to commontype to have a right type
-     * meaning that bools, dates and numbers are loaded as that and not strings
+     * This content is parsed according to common type to have a right type
+     * meaning that booleans, dates and numbers are loaded as that and not strings
      * Anything else is loaded as string
      *
      * If the row is null or the content is null or does not exists then the value is placed as null
@@ -495,23 +486,23 @@ class Recordset
             $variant = null;
             if ($validrow and array_key_exists($fieldname, $row) and !is_null($row[$fieldname])) {
                 $variant = $row[$fieldname];
-                // these are sorten by the most common data types to avoid extra comparisons
+                // these are sorted by the most common data types to avoid extra comparisons
                 switch ($field["commontype"]) {
-                    case DBAL::TTEXT:
+                    case CommonTypes::TTEXT:
                         $variant = strval($variant);
                         break;
-                    case DBAL::TINT:
+                    case CommonTypes::TINT:
                         $variant = intval($variant);
                         break;
-                    case DBAL::TNUMBER:
+                    case CommonTypes::TNUMBER:
                         $variant = floatval($variant);
                         break;
-                    case DBAL::TBOOL:
+                    case CommonTypes::TBOOL:
                         $variant = (bool)$variant;
                         break;
-                    case DBAL::TDATE:
-                    case DBAL::TTIME:
-                    case DBAL::TDATETIME:
+                    case CommonTypes::TDATE:
+                    case CommonTypes::TTIME:
+                    case CommonTypes::TDATETIME:
                         $variant = strtotime($variant);
                         break;
                     default:
@@ -534,12 +525,12 @@ class Recordset
         $return = false;
         if (false !== $row = $this->result->fetchRow()) {
             $trow = $this->setValuesFromDatafields($row);
-            $this->originalvalues = $trow;
+            $this->originalValues = $trow;
             $this->values = $trow;
             $return = true;
         } else {
             $this->values = [];
-            $this->originalvalues = null;
+            $this->originalValues = null;
         }
         return $return;
     }
@@ -555,7 +546,7 @@ class Recordset
 
     /**
      * Return an associative array of fields, the key is the field name
-     * and the content is an array containing name, commontype and table
+     * and the content is an array containing name, common type and table
      * @return array|false
      */
     final public function getFields()

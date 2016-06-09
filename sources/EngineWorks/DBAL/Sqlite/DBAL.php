@@ -1,19 +1,11 @@
-<?php
-/*
- * DBAL MYSQLi Class (class for new MySQL Connector)
- *
- * Author: Carlos C Soto <csoto@sia-solutions.com>
- * Licence: LGPL version 3.0
- */
+<?php namespace EngineWorks\DBAL\Sqlite;
 
-namespace EngineWorks\DBAL\Sqlite;
-
+use EngineWorks\DBAL\CommonTypes;
 use SQLite3;
 use EngineWorks\DBAL\DBAL as AbstractDBAL;
 
 class DBAL extends AbstractDBAL
 {
-
     /**
      * Contains the connection resource for SQLite3
      * @var SQLite3
@@ -137,13 +129,13 @@ class DBAL extends AbstractDBAL
 
     /**
      * Function to escape a table name to not get confused with functions or so
-     * @param string $tablename
-     * @param string $astable
+     * @param string $tableName
+     * @param string $asTable
      * @return string
      */
-    protected function sqlTableEscape($tablename, $astable)
+    protected function sqlTableEscape($tableName, $asTable)
     {
-        return '"' . $tablename . '"' . (($astable) ? " AS " . '"' . $astable . '"' : "");
+        return '"' . $tableName . '"' . (($asTable) ? " AS " . '"' . $asTable . '"' : "");
     }
 
     /**
@@ -152,7 +144,7 @@ class DBAL extends AbstractDBAL
     public function sqlConcatenate(...$strings)
     {
         if (!count($strings)) {
-            return $this->sqlQuote("", self::TTEXT);
+            return $this->sqlQuote("", CommonTypes::TTEXT);
         }
         return "CONCAT(" . implode(", ", $strings) . ")";
     }
@@ -208,40 +200,40 @@ class DBAL extends AbstractDBAL
     /**
      * Return the syntax of an IF function
      * @param string $condition
-     * @param string $truepart
-     * @param string $falsepart
+     * @param string $truePart
+     * @param string $falsePart
      * @return string
      */
-    public function sqlIf($condition, $truepart, $falsepart)
+    public function sqlIf($condition, $truePart, $falsePart)
     {
-        return "CASE WHEN (" . $condition . ") THEN " . $truepart . " ELSE " . $falsepart;
+        return "CASE WHEN (" . $condition . ") THEN " . $truePart . " ELSE " . $falsePart;
     }
 
 
     /**
      * Compares if expression is null and if its null used other value instead
-     * @param string $fieldname
-     * @param string $nullvalue
+     * @param string $fieldName
+     * @param string $nullValue
      * @return string
      */
-    public function sqlIfNull($fieldname, $nullvalue)
+    public function sqlIfNull($fieldName, $nullValue)
     {
-        return "IFNULL(" . $fieldname . ", " . $nullvalue . ")";
+        return "IFNULL(" . $fieldName . ", " . $nullValue . ")";
     }
 
     /**
      * Compares if expression is null
-     * @param string $fieldvalue
+     * @param string $fieldValue
      * @param bool $positive
      * @return string
      */
-    public function sqlIsNull($fieldvalue, $positive = true)
+    public function sqlIsNull($fieldValue, $positive = true)
     {
-        return $fieldvalue . " IS" . ((!$positive) ? " NOT" : "") . " NULL";
+        return $fieldValue . " IS" . ((!$positive) ? " NOT" : "") . " NULL";
     }
 
     /**
-     * Makes a like comparison with willcards at the begin and end of the string
+     * Makes a like comparison with wildcards at the begin and end of the string
      * @param string $fieldName
      * @param string $searchString
      * @param bool $wildcardBegin Set if will put a wildcard at the beginning
@@ -259,16 +251,16 @@ class DBAL extends AbstractDBAL
      * Transform a SELECT query to be paged
      * By default this functions add a semicolon at the end of the sentence
      * @param string $query
-     * @param int $requestedpage
-     * @param int $recordsperpage
+     * @param int $requestedPage
+     * @param int $recordsPerPage
      * @return string
      */
-    public function sqlLimit($query, $requestedpage, $recordsperpage = 20)
+    public function sqlLimit($query, $requestedPage, $recordsPerPage = 20)
     {
-        $rpp = max(1, $recordsperpage);
+        $rpp = max(1, $recordsPerPage);
         $query = rtrim($query, "; \t\n\r\0\x0B")
-            . " LIMIT " . $this->sqlQuote($rpp * (max(1, $requestedpage) - 1), self::TINT)
-            . ", " . $this->sqlQuote($rpp, self::TINT);
+            . " LIMIT " . $this->sqlQuote($rpp * (max(1, $requestedPage) - 1), CommonTypes::TINT)
+            . ", " . $this->sqlQuote($rpp, CommonTypes::TINT);
         return $query;
     }
 
@@ -276,64 +268,42 @@ class DBAL extends AbstractDBAL
      * Parses a value to secure SQL
      *
      * @param mixed $variable
-     * @param string $commontype
-     * @param bool $includenull
+     * @param string $commonType
+     * @param bool $includeNull
      * @return string
      */
-    public function sqlQuote($variable, $commontype = self::TTEXT, $includenull = false)
+    public function sqlQuote($variable, $commonType = CommonTypes::TTEXT, $includeNull = false)
     {
-        if ($includenull and is_null($variable)) {
+        if ($includeNull and is_null($variable)) {
             return "NULL";
         }
         // $return = "";
-        switch (strtoupper($commontype)) {
-            case self::TTEXT: // is the most common type, put the case to avoid extra comparisons
+        switch (strtoupper($commonType)) {
+            case CommonTypes::TTEXT: // is the most common type, put the case to avoid extra comparisons
                 $return = "'" . $this->sqlString($variable) . "'";
                 break;
-            case self::TINT:
+            case CommonTypes::TINT:
                 $return = intval(str_replace([",", "$"], "", $variable), 10);
                 break;
-            case self::TNUMBER:
+            case CommonTypes::TNUMBER:
                 $return = floatval(str_replace([",", "$"], "", $variable));
                 break;
-            case self::TBOOL:
+            case CommonTypes::TBOOL:
                 $return = ($variable) ? 1 : 0;
                 break;
-            case self::TDATE:
+            case CommonTypes::TDATE:
                 $return = "'" . date("Y-m-d", $variable) . "'";
                 break;
-            case self::TTIME:
+            case CommonTypes::TTIME:
                 $return = "'" . date("H:i:s", $variable) . "'";
                 break;
-            case self::TDATETIME:
+            case CommonTypes::TDATETIME:
                 $return = "'" . date("Y-m-d H:i:s", $variable) . "'";
                 break;
             default:
                 $return = "'" . $this->sqlString($variable) . "'";
         }
         return strval($return);
-    }
-
-
-    /**
-     * Parses a value to secure SQL for IN operator
-     * The array must be an array and have at least one element
-     * Each element will be passed thru SqlQuote
-     * @param array $array
-     * @param string $commontype
-     * @param bool $includenull
-     * @return string
-     */
-    public function sqlQuoteIn($array, $commontype = self::TTEXT, $includenull = false)
-    {
-        if (!is_array($array) or count($array) == 0) {
-            return false;
-        }
-        $return = "";
-        for ($i = 0; $i < count($array); $i++) {
-            $return .= (($i > 0) ? ", " : "") . $this->sqlQuote($array[$i], $commontype, $includenull);
-        }
-        return "(" . $return . ")";
     }
 
     /**
@@ -362,7 +332,7 @@ class DBAL extends AbstractDBAL
 
     /**
      * Commit a transaction, if the commit was not executed then it return FALSE
-     * this could happend because of nested transactions
+     * this could happen because of nested transactions
      * @return bool
      */
     public function transCommit()
@@ -380,7 +350,7 @@ class DBAL extends AbstractDBAL
 
     /**
      * Rollback a transaction, if the rollback is out of sync it return false
-     * this could happend because of nested transactions
+     * this could happen because of nested transactions
      * @return bool
      */
     public function transRollback()

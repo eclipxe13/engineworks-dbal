@@ -11,7 +11,7 @@ class Result implements ResultInterface
     use SettingsCachedGetFieldsTrait;
 
     /**
-     * Resourse element
+     * Mysqli element
      * @var mysqli_result
      */
     private $query = false;
@@ -50,13 +50,13 @@ class Result implements ResultInterface
     }
 
     /**
-     * Private function to get the commontype from the information of the field
+     * Private function to get the common type from the information of the field
      * @param object $field
      * @return string
      */
     private function getCommonType($field)
     {
-        static $types = array(
+        static $types = [
             // MYSQLI_TYPE_BIT => CommonTypes::T,
             MYSQLI_TYPE_BLOB => CommonTypes::TTEXT,
             MYSQLI_TYPE_CHAR => CommonTypes::TTEXT,
@@ -85,7 +85,7 @@ class Result implements ResultInterface
             MYSQLI_TYPE_TINY_BLOB => CommonTypes::TTEXT,
             MYSQLI_TYPE_VAR_STRING => CommonTypes::TTEXT,
             MYSQLI_TYPE_YEAR => CommonTypes::TINT,
-        );
+        ];
         $type = CommonTypes::TTEXT;
         if (array_key_exists($field->type, $types)) {
             $type = $types[$field->type];

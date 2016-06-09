@@ -110,45 +110,45 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     /**
      * Escapes a table name and optionally renames it
      * This function use the prefix setting
-     * @param string $tablename
-     * @param string $astable
+     * @param string $tableName
+     * @param string $asTable
      * @return string
      */
-    final public function sqlTable($tablename, $astable = "")
+    final public function sqlTable($tableName, $asTable = "")
     {
-        return $this->sqlTableEscape($this->settings->get('prefix', '') . $tablename, $astable);
+        return $this->sqlTableEscape($this->settings->get('prefix', '') . $tableName, $asTable);
     }
 
     /**
      * Parses a value to secure SQL
      *
      * @param mixed $variable
-     * @param string $commontype
-     * @param bool $includenull
+     * @param string $commonType
+     * @param bool $includeNull
      * @return string
      */
-    abstract public function sqlQuote($variable, $commontype = CommonTypes::TTEXT, $includenull = false);
+    abstract public function sqlQuote($variable, $commonType = CommonTypes::TTEXT, $includeNull = false);
 
     /**
      * Parses values to secure SQL for IN operator
      *
      * @param array $array
-     * @param string $commontype
-     * @param bool $includenull
+     * @param string $commonType
+     * @param bool $includeNull
      * @return string example "(1, 3, 5)"
      */
-    final public function sqlQuoteIn(array $array, $commontype = CommonTypes::TTEXT, $includenull = false)
+    final public function sqlQuoteIn(array $array, $commonType = CommonTypes::TTEXT, $includeNull = false)
     {
         if (!is_array($array) or count($array) == 0) {
             return false;
         }
         $return = "";
         for ($i = 0; $i < count($array); $i++) {
-            $return .= (($i > 0) ? ", " : "") . $this->sqlQuote($array[$i], $commontype, $includenull);
+            $return .= (($i > 0) ? ", " : "") . $this->sqlQuote($array[$i], $commonType, $includeNull);
         }
         return "(" . $return . ")";
     }
-    
+
     /**
      * Quote as string
      *
@@ -174,28 +174,28 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     /**
      * If function
      * @param string $condition
-     * @param string $truepart
-     * @param string $falsepart
+     * @param string $truePart
+     * @param string $falsePart
      * @return string
      */
-    abstract public function sqlIf($condition, $truepart, $falsepart);
+    abstract public function sqlIf($condition, $truePart, $falsePart);
 
     /**
-     * IFNULL function
-     * @param string $fieldname
-     * @param string $nullvalue
+     * If null function
+     * @param string $fieldName
+     * @param string $nullValue
      * @return string
      */
-    abstract public function sqlIfNull($fieldname, $nullvalue);
+    abstract public function sqlIfNull($fieldName, $nullValue);
 
     /**
      * limit function
      * @param string $query The SQL Query to limit
-     * @param int $requestedpage
-     * @param int $recordsperpage
+     * @param int $requestedPage
+     * @param int $recordsPerPage
      * @return string
      */
-    abstract public function sqlLimit($query, $requestedpage, $recordsperpage = 20);
+    abstract public function sqlLimit($query, $requestedPage, $recordsPerPage = 20);
 
     /**
      * like operator (simple)
@@ -209,23 +209,23 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * like operator (advanced)
-     * @param string $fieldname
-     * @param string $searchstring
-     * @param bool $somewords
+     * @param string $fieldName
+     * @param string $searchString
+     * @param bool $someWords
      * @param string $separator
      * @return string
      */
-    final public function sqlLikeSearch($fieldname, $searchstring, $somewords = true, $separator = ' ')
+    final public function sqlLikeSearch($fieldName, $searchString, $someWords = true, $separator = ' ')
     {
         $return = "";
-        if (! is_string($searchstring)) {
+        if (! is_string($searchString)) {
             return $return;
         }
-        $strings = explode($separator, $searchstring);
+        $strings = explode($separator, $searchString);
         for ($i = 0; $i < count($strings); $i++) {
             if ($strings[$i] != "") {
-                $return .= ($return != "" ? (($somewords) ? " OR " : " AND ") : "")
-                    . "(" . $this->sqlLike($fieldname, $strings[$i]) . ")";
+                $return .= ($return != "" ? (($someWords) ? " OR " : " AND ") : "")
+                    . "(" . $this->sqlLike($fieldName, $strings[$i]) . ")";
             }
         }
         return $return;
@@ -256,11 +256,11 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * Function to escape a table name to not get confused with functions or so
-     * @param string $tablename
-     * @param string $astable
+     * @param string $tableName
+     * @param string $asTable
      * @return string
      */
-    abstract protected function sqlTableEscape($tablename, $astable);
+    abstract protected function sqlTableEscape($tableName, $asTable);
 
     /**
      * Executes a query and return a Result
@@ -407,10 +407,10 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Returns false if error
      * @param string $query
      * @param string $keyField
-     * @param string $keyprefix
+     * @param string $keyPrefix
      * @return array|false
      */
-    final public function queryArrayKey($query, $keyField, $keyprefix = "")
+    final public function queryArrayKey($query, $keyField, $keyPrefix = "")
     {
         $return = false;
         if (false !== $result = $this->query($query)) {
@@ -419,7 +419,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
                 if (!array_key_exists($keyField, $row)) {
                     return false;
                 }
-                $retarray[strval($keyprefix . $row[$keyField])] = $row;
+                $retarray[strval($keyPrefix . $row[$keyField])] = $row;
             }
             $return = $retarray;
         }
@@ -427,8 +427,8 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     }
 
     /**
-     * Return a one dimenssion array with keys and values defined by keyField and valueField
-     * The resulting array keys can have a prefix defined by keyprefix
+     * Return a one dimension array with keys and values defined by keyField and valueField
+     * The resulting array keys can have a prefix defined by keyPrefix
      * If two keys collapse then the last value will be used
      * Always return an array, even if fail
      * @param string $query
@@ -452,7 +452,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     }
 
     /**
-     * Return one dimmensional array with the values of one column of the query
+     * Return one dimensional array with the values of one column of the query
      * if the field is not set then the function will take the first column
      * @param string $query
      * @param string $field
@@ -510,13 +510,13 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param string $querySelect
      * @param string $queryCount
      * @param int $page
-     * @param int $recordsperpage
+     * @param int $recordsPerPage
      * @return Pager|false
      */
-    final public function queryPager($querySelect, $queryCount, $page, $recordsperpage = 20)
+    final public function queryPager($querySelect, $queryCount, $page, $recordsPerPage = 20)
     {
         $pager = new Pager($this, $querySelect, $queryCount);
-        $pager->setPageSize($recordsperpage);
+        $pager->setPageSize($recordsPerPage);
         $success = ($page == -1) ? $pager->queryAll() : $pager->queryPage($page);
         if (! $success) {
             $this->logger->error("DBAL::queryPager failure running $querySelect");

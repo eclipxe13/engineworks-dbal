@@ -2,13 +2,22 @@
 
 use EngineWorks\DBAL\Abstracts\SettingsMap;
 
+/**
+ * Settings for a sqlite connection
+ *
+ * - filename: database resource
+ * - prefix: tables prefix
+ * - flags: null
+ * - dump: '' => nothing, 'info' => '-- info messages',  'debug' => SELECT... + info
+ *
+ * @package EngineWorks\DBAL\Sqlite
+ */
 class Settings extends SettingsMap
 {
-    /** @var array */
     protected $map = [
         'filename' => '',
-        'prefix' => '',             // this is a interface setting
+        'prefix' => '',
         'flags' => null,
-        'dump' => '',            // '' => nothing, 'info' => '-- info', 'debug' => SELECT... + info
+        'dump' => '',
     ];
 }

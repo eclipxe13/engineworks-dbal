@@ -1,5 +1,6 @@
 <?php namespace EngineWorks\DBAL\Mysqli;
 
+use EngineWorks\DBAL\CommonTypes;
 use mysqli;
 use EngineWorks\DBAL\DBAL as AbstractDBAL;
 
@@ -9,7 +10,6 @@ use EngineWorks\DBAL\DBAL as AbstractDBAL;
  */
 class DBAL extends AbstractDBAL
 {
-
     /**
      * Contains the connection resource for mysqli
      * @var mysqli
@@ -145,19 +145,18 @@ class DBAL extends AbstractDBAL
             : "Cannot get the error because there are no active connection");
     }
 
-    protected function sqlTableEscape($tablename, $astable)
+    protected function sqlTableEscape($tableName, $asTable)
     {
-        return chr(96) . $tablename . chr(96) . (($astable) ? " AS " . $astable : "");
+        return chr(96) . $tableName . chr(96) . (($asTable) ? " AS " . $asTable : "");
     }
 
     public function sqlConcatenate(...$strings)
     {
         if (!count($strings)) {
-            return $this->sqlQuote("", self::TTEXT);
+            return $this->sqlQuote("", CommonTypes::TTEXT);
         }
         return "CONCAT(" . implode(", ", $strings) . ")";
     }
-
 
     public function sqlDatePart($part, $expression)
     {
@@ -198,19 +197,19 @@ class DBAL extends AbstractDBAL
         return $sql;
     }
 
-    public function sqlIf($condition, $truepart, $falsepart)
+    public function sqlIf($condition, $truePart, $falsePart)
     {
-        return "IF(" . $condition . ", " . $truepart . ", " . $falsepart . ")";
+        return "IF(" . $condition . ", " . $truePart . ", " . $falsePart . ")";
     }
 
-    public function sqlIfNull($fieldname, $nullvalue)
+    public function sqlIfNull($fieldName, $nullValue)
     {
-        return "IFNULL(" . $fieldname . ", " . $nullvalue . ")";
+        return "IFNULL(" . $fieldName . ", " . $nullValue . ")";
     }
 
-    public function sqlIsNull($fieldvalue, $positive = true)
+    public function sqlIsNull($fieldValue, $positive = true)
     {
-        return $fieldvalue . " IS" . ((!$positive) ? " NOT" : "") . " NULL";
+        return $fieldValue . " IS" . ((!$positive) ? " NOT" : "") . " NULL";
     }
 
     public function sqlLike($fieldName, $searchString, $wildcardBegin = true, $wildcardEnd = true)
@@ -219,58 +218,46 @@ class DBAL extends AbstractDBAL
         . (($wildcardBegin) ? "%" : "") . $this->sqlString($searchString) . (($wildcardEnd) ? "%" : "") . "'";
     }
 
-    public function sqlLimit($query, $requestedpage, $recordsperpage = 20)
+    public function sqlLimit($query, $requestedPage, $recordsPerPage = 20)
     {
-        $rpp = max(1, $recordsperpage);
+        $rpp = max(1, $recordsPerPage);
         $query = rtrim($query, "; \t\n\r\0\x0B")
-            . " LIMIT " . $this->sqlQuote($rpp * (max(1, $requestedpage) - 1), self::TINT)
-            . ", " . $this->sqlQuote($rpp, self::TINT);
+            . " LIMIT " . $this->sqlQuote($rpp * (max(1, $requestedPage) - 1), CommonTypes::TINT)
+            . ", " . $this->sqlQuote($rpp, CommonTypes::TINT);
         return $query;
     }
 
-    public function sqlQuote($variable, $commontype = self::TTEXT, $includenull = false)
+    public function sqlQuote($variable, $commonType = CommonTypes::TTEXT, $includeNull = false)
     {
-        if ($includenull and is_null($variable)) {
+        if ($includeNull and is_null($variable)) {
             return "NULL";
         }
-        switch (strtoupper($commontype)) {
-            case self::TTEXT: // is the most common type, put the case to avoid extra comparisons
+        switch (strtoupper($commonType)) {
+            case CommonTypes::TTEXT: // is the most common type, put the case to avoid extra comparisons
                 $return = "'" . $this->sqlString($variable) . "'";
                 break;
-            case self::TINT:
+            case CommonTypes::TINT:
                 $return = intval(str_replace([",", "$"], "", $variable), 10);
                 break;
-            case self::TNUMBER:
+            case CommonTypes::TNUMBER:
                 $return = floatval(str_replace([",", "$"], "", $variable));
                 break;
-            case self::TBOOL:
+            case CommonTypes::TBOOL:
                 $return = ($variable) ? 1 : 0;
                 break;
-            case self::TDATE:
+            case CommonTypes::TDATE:
                 $return = "'" . date("Y-m-d", $variable) . "'";
                 break;
-            case self::TTIME:
+            case CommonTypes::TTIME:
                 $return = "'" . date("H:i:s", $variable) . "'";
                 break;
-            case self::TDATETIME:
+            case CommonTypes::TDATETIME:
                 $return = "'" . date("Y-m-d H:i:s", $variable) . "'";
                 break;
             default:
                 $return = "'" . $this->sqlString($variable) . "'";
         }
         return strval($return);
-    }
-
-    public function sqlQuoteIn($array, $commontype = self::TTEXT, $includenull = false)
-    {
-        if (!is_array($array) or count($array) == 0) {
-            return false;
-        }
-        $return = "";
-        for ($i = 0; $i < count($array); $i++) {
-            $return .= (($i > 0) ? ", " : "") . $this->sqlQuote($array[$i], $commontype, $includenull);
-        }
-        return "(" . $return . ")";
     }
 
     public function sqlRandomFunc()
