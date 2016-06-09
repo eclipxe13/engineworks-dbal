@@ -25,7 +25,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "EngineWorks\\DBAL\\Tests\\": "tests/EngineWorks/DBAL/"
+            "EngineWorks\\DBAL\\Tests\\": "tests/EngineWorks/DBAL/Tests/"
         }
     }
 }
