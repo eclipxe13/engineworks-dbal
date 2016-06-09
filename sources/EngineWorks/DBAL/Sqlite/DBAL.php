@@ -26,25 +26,24 @@ class DBAL extends AbstractDBAL
      */
     public function connect()
     {
-        // disconnect
-        if ($this->isConnected()) {
-            $this->disconnect();
-        }
+        // disconnect, this will reset object properties
+        $this->disconnect();
         // create the sqlite3 object without error reporting
         $level = error_reporting(0);
-        $this->sqlite = null;
         try {
-            $this->sqlite = new SQLite3($this->settings->get('filename'));
+            $this->sqlite = new SQLite3($this->settings->get('filename'), $this->settings->get('flags'));
         } catch (\Exception $ex) {
             $this->logger->info("-- Connection fail");
             $this->logger->error("Cannot create SQLite3 object: " . $ex->getMessage());
-        }
-        error_reporting($level);
-        if (null === $this->sqlite) {
             return false;
+        } finally {
+            error_reporting($level);
         }
         // OK, we are connected
-        $this->logger->info("-- Connect and database select OK");
+        $this->logger->info("-- Connection success");
+        if ($this->settings->get('enable-exceptions', false)) {
+            $this->sqlite->enableExceptions(true);
+        }
         return true;
     }
 
@@ -54,7 +53,7 @@ class DBAL extends AbstractDBAL
      */
     public function disconnect()
     {
-        if ($this->sqlite instanceof SQLite3) {
+        if ($this->isConnected()) {
             $this->logger->info("-- Disconnection");
             $this->sqlite->close();
         }
@@ -68,7 +67,7 @@ class DBAL extends AbstractDBAL
      */
     public function isConnected()
     {
-        return ($this->sqlite instanceof SQLite3); // and $this->mi->ping();
+        return ($this->sqlite instanceof SQLite3);
     }
 
     /**
