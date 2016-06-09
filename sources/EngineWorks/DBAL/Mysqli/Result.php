@@ -1,19 +1,24 @@
 <?php namespace EngineWorks\DBAL\Mysqli;
 
+use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result as ResultInterface;
+use EngineWorks\DBAL\Traits\ResultGetFieldsCachedTrait;
 use mysqli_result;
 
 class Result implements ResultInterface
 {
+    
+    use ResultGetFieldsCachedTrait;
 
     /**
-     * Resourse element
+     * Mysqli element
      * @var mysqli_result
      */
     private $query = false;
 
     /**
      * Result based on Mysqli
+     *
      * @param mysqli_result $result
      */
     public function __construct(mysqli_result $result)
@@ -21,30 +26,16 @@ class Result implements ResultInterface
         $this->query = $result;
     }
 
+    /**
+     * Close the query and remove property association
+     */
     public function __destruct()
     {
         $this->query->close();
         $this->query = null;
     }
 
-    /**
-     * Used to set a cache of getFields function
-     * @var array
-     */
-    protected $cacheGetFields = null;
-
-    /**
-     * @inheritdoc
-     */
-    public function getFields()
-    {
-        if (null === $this->cacheGetFields) {
-            $this->cacheGetFields = $this->realGetFields();
-        }
-        return $this->cacheGetFields;
-    }
-
-    public function realGetFields()
+    protected function realGetFields()
     {
         $fields = [];
         foreach ($this->query->fetch_fields() as $fetched) {
@@ -59,57 +50,54 @@ class Result implements ResultInterface
     }
 
     /**
-     * Private function to get the commontype from the information of the field
+     * Private function to get the common type from the information of the field
      * @param object $field
      * @return string
      */
     private function getCommonType($field)
     {
-        static $types = array(
-            // MYSQLI_TYPE_BIT => DBAL::T,
-            MYSQLI_TYPE_BLOB => DBAL::TTEXT,
-            MYSQLI_TYPE_CHAR => DBAL::TTEXT,
-            MYSQLI_TYPE_DATE => DBAL::TDATE,
-            MYSQLI_TYPE_DATETIME => DBAL::TDATETIME,
-            MYSQLI_TYPE_DECIMAL => DBAL::TNUMBER,
-            MYSQLI_TYPE_DOUBLE => DBAL::TNUMBER,
-            // MYSQLI_TYPE_ENUM => DBAL::T,
-            MYSQLI_TYPE_FLOAT => DBAL::TNUMBER,
-            // MYSQLI_TYPE_GEOMETRY => DBAL::T,
-            MYSQLI_TYPE_INT24 => DBAL::TINT,
-            // MYSQLI_TYPE_INTERVAL => DBAL::T,
-            MYSQLI_TYPE_LONG => DBAL::TINT,
-            MYSQLI_TYPE_LONGLONG => DBAL::TINT,
-            MYSQLI_TYPE_LONG_BLOB => DBAL::TTEXT,
-            MYSQLI_TYPE_MEDIUM_BLOB => DBAL::TTEXT,
-            MYSQLI_TYPE_NEWDATE => DBAL::TDATE,
-            MYSQLI_TYPE_NEWDECIMAL => DBAL::TNUMBER,
-            // MYSQLI_TYPE_NULL => DBAL::T,
-            // MYSQLI_TYPE_SET => DBAL::T,
-            MYSQLI_TYPE_SHORT => DBAL::TINT,
-            MYSQLI_TYPE_STRING => DBAL::TTEXT,
-            MYSQLI_TYPE_TIME => DBAL::TTIME,
-            MYSQLI_TYPE_TIMESTAMP => DBAL::TINT,
-            MYSQLI_TYPE_TINY => DBAL::TINT,
-            MYSQLI_TYPE_TINY_BLOB => DBAL::TTEXT,
-            MYSQLI_TYPE_VAR_STRING => DBAL::TTEXT,
-            MYSQLI_TYPE_YEAR => DBAL::TINT,
-        );
-        $type = DBAL::TTEXT;
+        static $types = [
+            // MYSQLI_TYPE_BIT => CommonTypes::T,
+            MYSQLI_TYPE_BLOB => CommonTypes::TTEXT,
+            MYSQLI_TYPE_CHAR => CommonTypes::TTEXT,
+            MYSQLI_TYPE_DATE => CommonTypes::TDATE,
+            MYSQLI_TYPE_DATETIME => CommonTypes::TDATETIME,
+            MYSQLI_TYPE_DECIMAL => CommonTypes::TNUMBER,
+            MYSQLI_TYPE_DOUBLE => CommonTypes::TNUMBER,
+            // MYSQLI_TYPE_ENUM => CommonTypes::T,
+            MYSQLI_TYPE_FLOAT => CommonTypes::TNUMBER,
+            // MYSQLI_TYPE_GEOMETRY => CommonTypes::T,
+            MYSQLI_TYPE_INT24 => CommonTypes::TINT,
+            // MYSQLI_TYPE_INTERVAL => CommonTypes::T,
+            MYSQLI_TYPE_LONG => CommonTypes::TINT,
+            MYSQLI_TYPE_LONGLONG => CommonTypes::TINT,
+            MYSQLI_TYPE_LONG_BLOB => CommonTypes::TTEXT,
+            MYSQLI_TYPE_MEDIUM_BLOB => CommonTypes::TTEXT,
+            MYSQLI_TYPE_NEWDATE => CommonTypes::TDATE,
+            MYSQLI_TYPE_NEWDECIMAL => CommonTypes::TNUMBER,
+            // MYSQLI_TYPE_NULL => CommonTypes::T,
+            // MYSQLI_TYPE_SET => CommonTypes::T,
+            MYSQLI_TYPE_SHORT => CommonTypes::TINT,
+            MYSQLI_TYPE_STRING => CommonTypes::TTEXT,
+            MYSQLI_TYPE_TIME => CommonTypes::TTIME,
+            MYSQLI_TYPE_TIMESTAMP => CommonTypes::TINT,
+            MYSQLI_TYPE_TINY => CommonTypes::TINT,
+            MYSQLI_TYPE_TINY_BLOB => CommonTypes::TTEXT,
+            MYSQLI_TYPE_VAR_STRING => CommonTypes::TTEXT,
+            MYSQLI_TYPE_YEAR => CommonTypes::TINT,
+        ];
+        $type = CommonTypes::TTEXT;
         if (array_key_exists($field->type, $types)) {
             $type = $types[$field->type];
-            if ($field->length == 1 and ($type == DBAL::TINT or $type == DBAL::TNUMBER)) {
-                $type = DBAL::TBOOL;
-            } elseif ($type == DBAL::TNUMBER and $field->decimals == 0) {
-                $type = DBAL::TINT;
+            if ($field->length == 1 and ($type == CommonTypes::TINT or $type == CommonTypes::TNUMBER)) {
+                $type = CommonTypes::TBOOL;
+            } elseif ($type == CommonTypes::TNUMBER and $field->decimals == 0) {
+                $type = CommonTypes::TINT;
             }
         }
         return $type;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getIdFields()
     {
         $return = false;
@@ -139,34 +127,22 @@ class Result implements ResultInterface
         return $return;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function resultCount()
     {
         return $this->query->num_rows;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function fetchRow()
     {
         $return = $this->query->fetch_assoc();
         return (!is_array($return)) ? false : $return;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function moveTo($offset)
     {
         return $this->query->data_seek($offset);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function moveFirst()
     {
         if ($this->resultCount() <= 0) {

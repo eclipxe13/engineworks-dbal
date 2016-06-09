@@ -1,16 +1,15 @@
-<?php
-
-namespace EngineWorks\DBAL;
+<?php namespace EngineWorks\DBAL;
 
 /**
- * Interface Result, this must be implemented by the Drivers
+ * Interface Result, this interface must be implemented by the Drivers
+ *
  * @package EngineWorks\DBAL
  */
 interface Result
 {
 
     /**
-     * Get one row from the resurce, the result is an associative array
+     * Get one row from the resource, the result is an associative array
      * @return array|false Return FALSE on error
      */
     public function fetchRow();

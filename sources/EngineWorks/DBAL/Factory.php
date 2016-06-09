@@ -1,6 +1,4 @@
-<?php
-
-namespace EngineWorks\DBAL;
+<?php namespace EngineWorks\DBAL;
 
 use Psr\Log\LoggerInterface;
 
@@ -10,21 +8,21 @@ class Factory
     private $namespace;
 
     /** @var string */
-    private $dbalname;
+    private $dbalName;
 
     /** @var string */
-    private $settingsname;
+    private $settingsName;
 
     /**
      * @param string $namespace by example EngineWorks\DBAL\Mysqli
-     * @param string $dbalname
-     * @param string $settingsname
+     * @param string $dbalName
+     * @param string $settingsName
      */
-    public function __construct($namespace, $dbalname = 'DBAL', $settingsname = 'Settings')
+    public function __construct($namespace, $dbalName = 'DBAL', $settingsName = 'Settings')
     {
         $this->namespace = $namespace;
-        $this->dbalname = $dbalname;
-        $this->settingsname = $settingsname;
+        $this->dbalName = $dbalName;
+        $this->settingsName = $settingsName;
     }
 
     /**
@@ -61,7 +59,7 @@ class Factory
      */
     public function dbal(Settings $settings, LoggerInterface $logger = null)
     {
-        $classname = $this->buildClassName($this->dbalname, DBAL::class, "");
+        $classname = $this->buildClassName($this->dbalName, DBAL::class, "");
         return new $classname($settings, $logger);
     }
 
@@ -71,7 +69,7 @@ class Factory
      */
     public function settings(array $settings = null)
     {
-        $classname = $this->buildClassName($this->settingsname, "", Settings::class);
+        $classname = $this->buildClassName($this->settingsName, "", Settings::class);
         return new $classname($settings);
     }
 }

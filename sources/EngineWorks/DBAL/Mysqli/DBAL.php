@@ -1,5 +1,9 @@
 <?php namespace EngineWorks\DBAL\Mysqli;
 
+use EngineWorks\DBAL\CommonTypes;
+use EngineWorks\DBAL\Traits\MethodSqlQuote;
+use EngineWorks\DBAL\Traits\MethodSqlIsNull;
+use EngineWorks\DBAL\Traits\MethodSqlLike;
 use mysqli;
 use EngineWorks\DBAL\DBAL as AbstractDBAL;
 
@@ -9,6 +13,9 @@ use EngineWorks\DBAL\DBAL as AbstractDBAL;
  */
 class DBAL extends AbstractDBAL
 {
+    use MethodSqlQuote;
+    use MethodSqlLike;
+    use MethodSqlIsNull;
 
     /**
      * Contains the connection resource for mysqli
@@ -25,12 +32,9 @@ class DBAL extends AbstractDBAL
     public function connect()
     {
         // disconnect
-        if ($this->isConnected()) {
-            $this->disconnect();
-        }
+        $this->disconnect();
         // create the mysqli object without error reporting
-        $prevErrorReporting = error_reporting(0);
-//        This code result in problems with mysqli after disconnect
+        $errorLevel = error_reporting(0);
         $this->mysqli = mysqli_init();
         $this->mysqli->options(MYSQLI_OPT_CONNECT_TIMEOUT, $this->settings->get('connect-timeout'));
         $this->mysqli->real_connect(
@@ -42,15 +46,14 @@ class DBAL extends AbstractDBAL
             $this->settings->get('socket'),
             $this->settings->get('flags')
         );
-        // $this->mi = new mysqli($this->configHost, $this->configUser, $this->configPassword, $this->configCatalog);
-        error_reporting($prevErrorReporting);
+        error_reporting($errorLevel);
         // check for a instance of mysqli
         if (!$this->mysqli instanceof mysqli) {
             $this->logger->info("-- Connection fail");
             $this->logger->error("Cannot create mysqli object");
             return false;
         }
-        // check there is not connection errors
+        // check there are no connection errors
         if ($this->mysqli->connect_errno) {
             $errormsg = "Connection fail [{$this->mysqli->connect_errno}] {$this->mysqli->connect_error}";
             $this->logger->info("-- " . $errormsg);
@@ -63,17 +66,16 @@ class DBAL extends AbstractDBAL
         // set encoding if needed
         if ('' !== $encoding = $this->settings->get('encoding')) {
             $this->logger->info("-- Setting encoding to $encoding;");
-            $this->mysqli->query("SET character_set_client = $encoding;");
-            $this->mysqli->query("SET character_set_results = $encoding;");
-            $this->mysqli->query("SET character_set_connection = $encoding;");
-            $this->mysqli->query("SET names $encoding;");
+            if (! $this->mysqli->set_charset($encoding)) {
+                $this->logger->warning("-- Unable to set encoding to $encoding");
+            }
         }
         return true;
     }
 
     public function disconnect()
     {
-        if ($this->mysqli instanceof mysqli) {
+        if ($this->isConnected()) {
             $this->logger->info("-- Disconnection");
             @$this->mysqli->close();
         }
@@ -88,7 +90,7 @@ class DBAL extends AbstractDBAL
 
     public function lastInsertedID()
     {
-        return doubleval($this->mysqli->insert_id);
+        return floatval($this->mysqli->insert_id);
     }
 
     public function sqlString($variable)
@@ -145,19 +147,18 @@ class DBAL extends AbstractDBAL
             : "Cannot get the error because there are no active connection");
     }
 
-    protected function sqlTableEscape($tablename, $astable)
+    protected function sqlTableEscape($tableName, $asTable)
     {
-        return chr(96) . $tablename . chr(96) . (($astable) ? " AS " . $astable : "");
+        return chr(96) . $tableName . chr(96) . (($asTable) ? " AS " . $asTable : "");
     }
 
     public function sqlConcatenate(...$strings)
     {
         if (!count($strings)) {
-            return $this->sqlQuote("", self::TTEXT);
+            return $this->sqlQuote("", CommonTypes::TTEXT);
         }
         return "CONCAT(" . implode(", ", $strings) . ")";
     }
-
 
     public function sqlDatePart($part, $expression)
     {
@@ -198,79 +199,23 @@ class DBAL extends AbstractDBAL
         return $sql;
     }
 
-    public function sqlIf($condition, $truepart, $falsepart)
+    public function sqlIf($condition, $truePart, $falsePart)
     {
-        return "IF(" . $condition . ", " . $truepart . ", " . $falsepart . ")";
+        return "IF(" . $condition . ", " . $truePart . ", " . $falsePart . ")";
     }
 
-    public function sqlIfNull($fieldname, $nullvalue)
+    public function sqlIfNull($fieldName, $nullValue)
     {
-        return "IFNULL(" . $fieldname . ", " . $nullvalue . ")";
+        return "IFNULL(" . $fieldName . ", " . $nullValue . ")";
     }
 
-    public function sqlIsNull($fieldvalue, $positive = true)
+    public function sqlLimit($query, $requestedPage, $recordsPerPage = 20)
     {
-        return $fieldvalue . " IS" . ((!$positive) ? " NOT" : "") . " NULL";
-    }
-
-    public function sqlLike($fieldName, $searchString, $wildcardBegin = true, $wildcardEnd = true)
-    {
-        return $fieldName . " LIKE '"
-        . (($wildcardBegin) ? "%" : "") . $this->sqlString($searchString) . (($wildcardEnd) ? "%" : "") . "'";
-    }
-
-    public function sqlLimit($query, $requestedpage, $recordsperpage = 20)
-    {
-        $rpp = max(1, $recordsperpage);
+        $rpp = max(1, $recordsPerPage);
         $query = rtrim($query, "; \t\n\r\0\x0B")
-            . " LIMIT " . $this->sqlQuote($rpp * (max(1, $requestedpage) - 1), self::TINT)
-            . ", " . $this->sqlQuote($rpp, self::TINT);
+            . " LIMIT " . $this->sqlQuote($rpp * (max(1, $requestedPage) - 1), CommonTypes::TINT)
+            . ", " . $this->sqlQuote($rpp, CommonTypes::TINT);
         return $query;
-    }
-
-    public function sqlQuote($variable, $commontype = self::TTEXT, $includenull = false)
-    {
-        if ($includenull and is_null($variable)) {
-            return "NULL";
-        }
-        switch (strtoupper($commontype)) {
-            case self::TTEXT: // is the most common type, put the case to avoid extra comparisons
-                $return = "'" . $this->sqlString($variable) . "'";
-                break;
-            case self::TINT:
-                $return = intval(str_replace([",", "$"], "", $variable), 10);
-                break;
-            case self::TNUMBER:
-                $return = floatval(str_replace([",", "$"], "", $variable));
-                break;
-            case self::TBOOL:
-                $return = ($variable) ? 1 : 0;
-                break;
-            case self::TDATE:
-                $return = "'" . date("Y-m-d", $variable) . "'";
-                break;
-            case self::TTIME:
-                $return = "'" . date("H:i:s", $variable) . "'";
-                break;
-            case self::TDATETIME:
-                $return = "'" . date("Y-m-d H:i:s", $variable) . "'";
-                break;
-            default:
-                $return = "'" . $this->sqlString($variable) . "'";
-        }
-        return strval($return);
-    }
-
-    public function sqlQuoteIn($array, $commontype = self::TTEXT, $includenull = false)
-    {
-        if (!is_array($array) or count($array) == 0) {
-            return false;
-        }
-        $return = "";
-        for ($i = 0; $i < count($array); $i++) {
-            $return .= (($i > 0) ? ", " : "") . $this->sqlQuote($array[$i], $commontype, $includenull);
-        }
-        return "(" . $return . ")";
     }
 
     public function sqlRandomFunc()

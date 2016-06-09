@@ -1,27 +1,16 @@
-<?php
-/*
- * DBAL Sqlite3 Result
- *
- * Author: Carlos C Soto <csoto@sia-solutions.com>
- * Licence: LGPL version 3.0
- */
+<?php namespace EngineWorks\DBAL\Sqlite;
 
-namespace EngineWorks\DBAL\Sqlite;
-
+use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result as ResultInterface;
+use EngineWorks\DBAL\Traits\ResultGetFieldsCachedTrait;
 use SQLite3Result;
 
 class Result implements ResultInterface
 {
-
-    const SQLITE3_INTEGER = 1;
-    const SQLITE3_FLOAT = 2;
-    const SQLITE3_TEXT = 3;
-    const SQLITE3_BLOB = 4;
-    const SQLITE3_NULL = 5;
+    use ResultGetFieldsCachedTrait;
 
     /**
-     * Resourse element
+     * Sqlite3 element
      * @var SQLite3Result
      */
     private $query = false;
@@ -47,13 +36,21 @@ class Result implements ResultInterface
         $this->numRows = $numRows;
     }
 
+    /**
+     * Close the query and remove property association
+     */
     public function __destruct()
     {
         $this->query->finalize();
         $this->query = null;
     }
 
-    protected function obtainNumRows()
+    /**
+     * Internal method to retrieve the number of rows if not supplied from constructor
+     *
+     * @return int
+     */
+    private function obtainNumRows()
     {
         $count = 0;
         while (false !== $this->query->fetchArray(SQLITE3_NUM)) {
@@ -63,28 +60,6 @@ class Result implements ResultInterface
         return $count;
     }
 
-    /**
-     * Used to set a cache of getFields function
-     *
-     * @var array
-     */
-    protected $cacheGetFields = null;
-
-    public function getFields()
-    {
-        if (null === $this->cacheGetFields) {
-            $this->cacheGetFields = $this->realGetFields();
-        }
-        return $this->cacheGetFields;
-    }
-
-    /**
-     * This is the implementation of realGetFields since getFields does a cache
-     * inside $this->cacheGetFields
-     *
-     * @see self::getFields
-     * @return array|false
-     */
     public function realGetFields()
     {
         $fields = [];
@@ -101,24 +76,21 @@ class Result implements ResultInterface
     }
 
     /**
-     * Private function to get the commontype from the information of the field
+     * Private function to get the CommonType from the information of the field
+     *
      * @param int $field
      * @return string
      */
     private function getCommonType($field)
     {
         static $types = [
-            SQLITE3_INTEGER => DBAL::TINT,
-            SQLITE3_FLOAT => DBAL::TNUMBER,
-            SQLITE3_TEXT => DBAL::TTEXT,
-            // static::SQLITE3_BLOB => DBAL::TTEXT,
-            // static::SQLITE3_NULL => DBAL::TTEXT,
+            SQLITE3_INTEGER => CommonTypes::TINT,
+            SQLITE3_FLOAT => CommonTypes::TNUMBER,
+            SQLITE3_TEXT => CommonTypes::TTEXT,
+            // static::SQLITE3_BLOB => CommonTypes::TTEXT,
+            // static::SQLITE3_NULL => CommonTypes::TTEXT,
         ];
-        $type = DBAL::TTEXT;
-        if (array_key_exists($field, $types)) {
-            $type = $types[$field];
-        }
-        return $type;
+        return (array_key_exists($field, $types)) ? $types[$field] : CommonTypes::TTEXT;
     }
 
     public function getIdFields()

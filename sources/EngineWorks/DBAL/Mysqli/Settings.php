@@ -1,15 +1,26 @@
 <?php namespace EngineWorks\DBAL\Mysqli;
 
 use EngineWorks\DBAL\Abstracts\SettingsMap;
-use \EngineWorks\DBAL\Settings as SettingsInterface;
 
 /**
- * Class Settings
+ * Settings for a mysql connection
+ *
+ * - host: server host name or ip (localhost)
+ * - port: server port number (3306)
+ * - user: server username
+ * - password: server password
+ * - database: server catalog
+ * - encoding: server encoding (UTF8)
+ * - connect-timeout: timeout for server connection (5)
+ * - socket: socket connection (null)
+ * - prefix: tables prefix
+ * - flags: null
+ * - dump: '' => nothing, 'info' => '-- info messages',  'debug' => SELECT... + info
+ *
  * @package EngineWorks\DBAL\Mysqli
  */
-class Settings extends SettingsMap implements SettingsInterface
+class Settings extends SettingsMap
 {
-    /** @var array */
     protected $map = [
         'host' => 'localhost',
         'port' => 3306,
@@ -17,10 +28,10 @@ class Settings extends SettingsMap implements SettingsInterface
         'password' => '',
         'database' => '',
         'encoding' => 'UTF8',
-        'prefix' => '',             // this is a interface setting
-        'connect-timeout' => 5,     // connection timeout in seconds
+        'prefix' => '',
+        'connect-timeout' => 5,
         'socket' => null,
         'flags' => null,
-        'dump' => '',            // '' => nothing, 'info' => '-- info', 'debug' => SELECT... + info
+        'dump' => '',
     ];
 }
