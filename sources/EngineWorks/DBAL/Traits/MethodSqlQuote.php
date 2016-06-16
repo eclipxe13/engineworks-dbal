@@ -6,27 +6,30 @@ trait MethodSqlQuote
 {
     private function sqlQuoteParseNumber($value, $asInteger = true)
     {
-        if ($asInteger and is_int($value)) {
-            return $value;
+        $isIntOrFloat = is_int($value) || is_float($value);
+        if ($asInteger && $isIntOrFloat) {
+            return intval($value);
         }
-        if (! $asInteger and is_float($value)) {
-            return $value;
+        if (! $asInteger && $isIntOrFloat) {
+            return floatval($value);
         }
-        static $replace = null;
-        if (null === $replace) {
-            $localeInfo = localeconv();
-            if (false and ! $localeInfo['currency_symbol']) {
-                $localeInfo['thousands_sep'] = ',';
-                $localeInfo['currency_symbol'] = '$';
-            }
-            $replace = [
-                $localeInfo['thousands_sep'],
-                $localeInfo['currency_symbol'],
-                $localeInfo['int_curr_symbol'],
-                ' ',
-            ];
+        if (! is_string($value)) {
+            return 0;
         }
-        $value = str_replace($replace, '', $value);
+        $value = trim($value);
+        if ('' === $value) {
+            return 0;
+        }
+        $localeConv = ('C' === setlocale(LC_NUMERIC, 0)) ?
+            ['thousands_sep' => ',', 'currency_symbol' => '$', 'int_curr_symbol' => '$'] :
+            localeconv();
+        $replacements = [
+            $localeConv['thousands_sep'],
+            $localeConv['currency_symbol'],
+            $localeConv['int_curr_symbol'],
+            ' ',
+        ];
+        $value = str_replace($replacements, '', $value);
         return (is_numeric($value))
             ? (($asInteger) ? intval($value, 10) : floatval($value))
             : 0;
