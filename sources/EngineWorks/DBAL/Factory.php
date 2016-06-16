@@ -33,18 +33,18 @@ class Factory
      * @param string $implements
      * @return string
      */
-    protected function buildClassName($class, $extends = "", $implements = "")
+    protected function buildClassName($class, $extends = '', $implements = '')
     {
         $classname = $this->namespace . '\\' . $class;
         if (! class_exists($classname)) {
             throw new \LogicException("Class $classname does not exists");
         }
-        if ("" !== $extends) {
+        if ('' !== $extends) {
             if (! in_array($extends, class_parents($classname))) {
                 throw new \LogicException("Class $classname does not extends $extends");
             }
         }
-        if ("" !== $implements) {
+        if ('' !== $implements) {
             if (! in_array($implements, class_implements($classname))) {
                 throw new \LogicException("Class $classname does not implements $implements");
             }
@@ -59,7 +59,7 @@ class Factory
      */
     public function dbal(Settings $settings, LoggerInterface $logger = null)
     {
-        $classname = $this->buildClassName($this->dbalName, DBAL::class, "");
+        $classname = $this->buildClassName($this->dbalName, DBAL::class, '');
         return new $classname($settings, $logger);
     }
 
@@ -69,7 +69,7 @@ class Factory
      */
     public function settings(array $settings = null)
     {
-        $classname = $this->buildClassName($this->settingsName, "", Settings::class);
+        $classname = $this->buildClassName($this->settingsName, '', Settings::class);
         return new $classname($settings);
     }
 }

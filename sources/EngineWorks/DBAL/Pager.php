@@ -6,7 +6,6 @@
  */
 class Pager
 {
-
     /**
      * This count method is used when another query to retrieve the total records is provided
      */
@@ -45,7 +44,7 @@ class Pager
 
     /**
      * If NULL then the value needs to be read from database
-     * @var integer
+     * @var int
      */
     private $totalRecords = null;
 
@@ -143,8 +142,8 @@ class Pager
      */
     protected function setQueryCount($query)
     {
-        if (!is_string($query) or empty($query)) {
-            throw new \InvalidArgumentException("setQueryCount require a valid string argument");
+        if (! is_string($query) or empty($query)) {
+            throw new \InvalidArgumentException('setQueryCount require a valid string argument');
         }
         $this->queryCount = $query;
         $this->countMethod = self::COUNT_METHOD_QUERY;
@@ -221,10 +220,10 @@ class Pager
      */
     protected function getTotalRecordsBySelectCount()
     {
-        $query = "SELECT COUNT(*)"
-            . " FROM (".rtrim($this->queryData, "; \t\n\r\0\x0B").")"
-            . " AS subquerycount"
-            . ";" ;
+        $query = 'SELECT COUNT(*)'
+            . ' FROM (' . rtrim($this->queryData, "; \t\n\r\0\x0B") . ')'
+            . ' AS subquerycount'
+            . ';';
         $value = $this->dbal->queryOne($query, false);
         if (false === $value) {
             throw new \RuntimeException("Unable to query the record count using a subquery: $query");

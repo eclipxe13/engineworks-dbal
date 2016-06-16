@@ -4,6 +4,6 @@ trait MethodSqlIsNull
 {
     public function sqlIsNull($fieldValue, $positive = true)
     {
-        return $fieldValue . " IS" . ((!$positive) ? " NOT" : "") . " NULL";
+        return $fieldValue . ' IS' . ((! $positive) ? ' NOT' : '') . ' NULL';
     }
 }

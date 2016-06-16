@@ -1,8 +1,8 @@
 <?php namespace EngineWorks\DBAL;
 
 use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 /**
@@ -10,7 +10,6 @@ use Psr\Log\NullLogger;
  */
 abstract class DBAL implements CommonTypes, LoggerAwareInterface
 {
-
     /* -----
      * Logger
      */
@@ -23,7 +22,6 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     {
         return $this->logger;
     }
-
 
     /* -----
      * protected variables about the object
@@ -57,11 +55,9 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         $this->disconnect();
     }
 
-
     /* -----
      * public methods (to override)
      */
-
 
     /**
      * Try to connect to the database with the current configured options
@@ -115,7 +111,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param string $asTable
      * @return string
      */
-    final public function sqlTable($tableName, $asTable = "")
+    final public function sqlTable($tableName, $asTable = '')
     {
         return $this->sqlTableEscape($this->settings->get('prefix', '') . $tableName, $asTable);
     }
@@ -143,11 +139,11 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         if (count($array) == 0) {
             return false;
         }
-        $return = "";
+        $return = '';
         for ($i = 0; $i < count($array); $i++) {
-            $return .= (($i > 0) ? ", " : "") . $this->sqlQuote($array[$i], $commonType, $includeNull);
+            $return .= (($i > 0) ? ', ' : '') . $this->sqlQuote($array[$i], $commonType, $includeNull);
         }
-        return "(" . $return . ")";
+        return '(' . $return . ')';
     }
 
     /**
@@ -228,7 +224,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         foreach ($strings as $term) {
             $conditions[] = '(' . $this->sqlLike($fieldName, $term) . ')';
         }
-        return implode(($someWords) ? " OR " : " AND ", $conditions);
+        return implode(($someWords) ? ' OR ' : ' AND ', $conditions);
     }
 
     /**
@@ -237,7 +233,6 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @return string
      */
     abstract public function sqlConcatenate(... $strings);
-
 
     /**
      * Function to get a part of a date using sql formatting functions
@@ -248,7 +243,6 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @return string
      */
     abstract public function sqlDatePart($part, $expression);
-
 
     /* -----
      * protected methods (to override)
@@ -273,7 +267,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Executes a query and return the number of affected rows
      *
      * @param string $query
-     * @return integer|false FALSE if the query fails
+     * @return int|false FALSE if the query fails
      */
     abstract protected function queryAffectedRows($query);
 
@@ -357,7 +351,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     {
         $return = false;
         if (false !== $recordset = $this->queryRecordset($query)) {
-            if (!$recordset->eof()) {
+            if (! $recordset->eof()) {
                 $return = $recordset->values;
             }
         }
@@ -393,7 +387,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         $return = false;
         if (false !== $recordset = $this->queryRecordset($query)) {
             $return = [];
-            while (!$recordset->eof()) {
+            while (! $recordset->eof()) {
                 $return[] = $recordset->values;
                 $recordset->moveNext();
             }
@@ -410,13 +404,13 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param string $keyPrefix
      * @return array|false
      */
-    final public function queryArrayKey($query, $keyField, $keyPrefix = "")
+    final public function queryArrayKey($query, $keyField, $keyPrefix = '')
     {
         $return = false;
         if (false !== $result = $this->query($query)) {
             $retarray = [];
             while (false !== $row = $result->fetchRow()) {
-                if (!array_key_exists($keyField, $row)) {
+                if (! array_key_exists($keyField, $row)) {
                     return false;
                 }
                 $retarray[strval($keyPrefix . $row[$keyField])] = $row;
@@ -438,12 +432,12 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param mixed $default
      * @return array
      */
-    final public function queryPairs($query, $keyField, $valueField, $keyPrefix = "", $default = false)
+    final public function queryPairs($query, $keyField, $valueField, $keyPrefix = '', $default = false)
     {
         $return = [];
         if (false != $arr = $this->queryArray($query) and count($arr)) {
             for ($i = 0; $i < count($arr); $i++) {
-                $iName = $keyPrefix . (array_key_exists($keyField, $arr[$i]) ? strval($arr[$i][$keyField]) : "");
+                $iName = $keyPrefix . (array_key_exists($keyField, $arr[$i]) ? strval($arr[$i][$keyField]) : '');
                 $iValue = (array_key_exists($valueField, $arr[$i])) ? $arr[$i][$valueField] : $default;
                 $return[$iName] = $iValue;
             }
@@ -458,13 +452,13 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param string $field
      * @return array|false
      */
-    final public function queryArrayOne($query, $field = "")
+    final public function queryArrayOne($query, $field = '')
     {
         $return = false;
         if (false !== $result = $this->query($query)) {
             $return = [];
             while (false !== $row = $result->fetchRow()) {
-                if ("" === $field) {
+                if ('' === $field) {
                     $keys = array_keys($row);
                     $field = $keys[0];
                 }
@@ -481,7 +475,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param string $separator
      * @return string
      */
-    final public function queryOnString($query, $default = "", $separator = ", ")
+    final public function queryOnString($query, $default = '', $separator = ', ')
     {
         $return = $default;
         if (false !== $arr = $this->queryArrayOne($query) and count($arr) > 0) {
