@@ -7,7 +7,6 @@ use mysqli_result;
 
 class Result implements ResultInterface
 {
-    
     use ResultGetFieldsCachedTrait;
 
     /**
@@ -40,10 +39,10 @@ class Result implements ResultInterface
         $fields = [];
         foreach ($this->query->fetch_fields() as $fetched) {
             $fields[] = [
-                "name" => $fetched->name,
-                "commontype" => $this->getCommonType($fetched),
-                "table" => $fetched->table,
-                "flags" => $fetched->flags,  // extra: used for getting the ids in the query
+                'name' => $fetched->name,
+                'commontype' => $this->getCommonType($fetched),
+                'table' => $fetched->table,
+                'flags' => $fetched->flags,  // extra: used for getting the ids in the query
             ];
         }
         return $fields;
@@ -105,14 +104,14 @@ class Result implements ResultInterface
         $fieldsPrimaryKeys = [];
         $fieldsUniqueKeys = [];
         foreach ($this->getFields() as $field) {
-            $flags = $field["flags"];
+            $flags = $field['flags'];
             if (MYSQLI_AUTO_INCREMENT_FLAG & $flags) {
-                $fieldsAutoIncrement[] = $field["name"];
+                $fieldsAutoIncrement[] = $field['name'];
                 break;
             } elseif (MYSQLI_PRI_KEY_FLAG & $flags) {
-                $fieldsPrimaryKeys[] = $field["name"];
+                $fieldsPrimaryKeys[] = $field['name'];
             } elseif (MYSQLI_UNIQUE_KEY_FLAG & $flags) {
-                $fieldsUniqueKeys[] = $field["name"];
+                $fieldsUniqueKeys[] = $field['name'];
             }
         }
         if (count($fieldsAutoIncrement)) {
@@ -135,7 +134,7 @@ class Result implements ResultInterface
     public function fetchRow()
     {
         $return = $this->query->fetch_assoc();
-        return (!is_array($return)) ? false : $return;
+        return (! is_array($return)) ? false : $return;
     }
 
     public function moveTo($offset)

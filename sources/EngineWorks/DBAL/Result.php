@@ -7,7 +7,6 @@
  */
 interface Result
 {
-
     /**
      * Get one row from the resource, the result is an associative array
      * @return array|false Return FALSE on error

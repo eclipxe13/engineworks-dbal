@@ -66,10 +66,10 @@ class Result implements ResultInterface
         $numcolumns = $this->query->numColumns();
         for ($i = 0; $i < $numcolumns; $i++) {
             $fields[] = [
-                "name" => $this->query->columnName($i),
-                "commontype" => $this->getCommonType($this->query->columnType($i)),
-                "table" => "",
-                "flags" => null,  // extra: used for getting the ids in the query
+                'name' => $this->query->columnName($i),
+                'commontype' => $this->getCommonType($this->query->columnType($i)),
+                'table' => '',
+                'flags' => null,  // extra: used for getting the ids in the query
             ];
         }
         return $fields;
@@ -107,7 +107,7 @@ class Result implements ResultInterface
     public function fetchRow()
     {
         $return = $this->query->fetchArray(SQLITE3_ASSOC);
-        return (!is_array($return)) ? false : $return;
+        return (! is_array($return)) ? false : $return;
     }
 
     public function moveTo($offset)
@@ -115,7 +115,7 @@ class Result implements ResultInterface
         if ($offset < 0) {
             return false;
         }
-        if (!$this->numRows) {
+        if (! $this->numRows) {
             return false;
         }
         if ($offset > $this->numRows - 1) {

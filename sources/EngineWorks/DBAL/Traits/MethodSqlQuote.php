@@ -9,13 +9,13 @@ trait MethodSqlQuote
         if ($asInteger and is_int($value)) {
             return $value;
         }
-        if (!$asInteger and is_float($value)) {
+        if (! $asInteger and is_float($value)) {
             return $value;
         }
         static $replace = null;
         if (null === $replace) {
             $localeInfo = localeconv();
-            if (false and !$localeInfo['currency_symbol']) {
+            if (false and ! $localeInfo['currency_symbol']) {
                 $localeInfo['thousands_sep'] = ',';
                 $localeInfo['currency_symbol'] = '$';
             }
@@ -35,7 +35,7 @@ trait MethodSqlQuote
     public function sqlQuote($variable, $commonType = CommonTypes::TTEXT, $includeNull = false)
     {
         if ($includeNull and is_null($variable)) {
-            return "NULL";
+            return 'NULL';
         }
         switch (strtoupper($commonType)) {
             case CommonTypes::TINT:
@@ -45,11 +45,11 @@ trait MethodSqlQuote
             case CommonTypes::TBOOL:
                 return ($variable) ? '1' : '0';
             case CommonTypes::TDATE:
-                return "'" . date("Y-m-d", $this->sqlQuoteParseNumber($variable, true)) . "'";
+                return "'" . date('Y-m-d', $this->sqlQuoteParseNumber($variable, true)) . "'";
             case CommonTypes::TTIME:
-                return "'" . date("H:i:s", $this->sqlQuoteParseNumber($variable, true)) . "'";
+                return "'" . date('H:i:s', $this->sqlQuoteParseNumber($variable, true)) . "'";
             case CommonTypes::TDATETIME:
-                return "'" . date("Y-m-d H:i:s", $this->sqlQuoteParseNumber($variable, true)) . "'";
+                return "'" . date('Y-m-d H:i:s', $this->sqlQuoteParseNumber($variable, true)) . "'";
             default:
                 return "'" . $this->sqlString($variable) . "'";
         }

@@ -1,11 +1,11 @@
 <?php namespace EngineWorks\DBAL\Mysqli;
 
 use EngineWorks\DBAL\CommonTypes;
-use EngineWorks\DBAL\Traits\MethodSqlQuote;
+use EngineWorks\DBAL\DBAL as AbstractDBAL;
 use EngineWorks\DBAL\Traits\MethodSqlIsNull;
 use EngineWorks\DBAL\Traits\MethodSqlLike;
+use EngineWorks\DBAL\Traits\MethodSqlQuote;
 use mysqli;
-use EngineWorks\DBAL\DBAL as AbstractDBAL;
 
 /**
  * Mysqli implementation
@@ -25,7 +25,7 @@ class DBAL extends AbstractDBAL
 
     /**
      * Contains the transaction level to do nested transactions
-     * @var integer
+     * @var int
      */
     protected $translevel = 0;
 
@@ -48,21 +48,21 @@ class DBAL extends AbstractDBAL
         );
         error_reporting($errorLevel);
         // check for a instance of mysqli
-        if (!$this->mysqli instanceof mysqli) {
-            $this->logger->info("-- Connection fail");
-            $this->logger->error("Cannot create mysqli object");
+        if (! $this->mysqli instanceof mysqli) {
+            $this->logger->info('-- Connection fail');
+            $this->logger->error('Cannot create mysqli object');
             return false;
         }
         // check there are no connection errors
         if ($this->mysqli->connect_errno) {
             $errormsg = "Connection fail [{$this->mysqli->connect_errno}] {$this->mysqli->connect_error}";
-            $this->logger->info("-- " . $errormsg);
+            $this->logger->info('-- ' . $errormsg);
             $this->logger->error($errormsg);
             $this->mysqli = null;
             return false;
         }
         // OK, we are connected
-        $this->logger->info("-- Connect and database select OK");
+        $this->logger->info('-- Connect and database select OK');
         // set encoding if needed
         if ('' !== $encoding = $this->settings->get('encoding')) {
             $this->logger->info("-- Setting encoding to $encoding;");
@@ -76,7 +76,7 @@ class DBAL extends AbstractDBAL
     public function disconnect()
     {
         if ($this->isConnected()) {
-            $this->logger->info("-- Disconnection");
+            $this->logger->info('-- Disconnection');
             @$this->mysqli->close();
         }
         $this->translevel = 0;
@@ -143,105 +143,105 @@ class DBAL extends AbstractDBAL
     protected function getLastErrorMessage()
     {
         return (($this->isConnected())
-            ? "[" . $this->mysqli->errno . "] " . $this->mysqli->error
-            : "Cannot get the error because there are no active connection");
+            ? '[' . $this->mysqli->errno . '] ' . $this->mysqli->error
+            : 'Cannot get the error because there are no active connection');
     }
 
     protected function sqlTableEscape($tableName, $asTable)
     {
-        return chr(96) . $tableName . chr(96) . (($asTable) ? " AS " . $asTable : "");
+        return chr(96) . $tableName . chr(96) . (($asTable) ? ' AS ' . $asTable : '');
     }
 
     public function sqlConcatenate(...$strings)
     {
-        if (!count($strings)) {
-            return $this->sqlQuote("", CommonTypes::TTEXT);
+        if (! count($strings)) {
+            return $this->sqlQuote('', CommonTypes::TTEXT);
         }
-        return "CONCAT(" . implode(", ", $strings) . ")";
+        return 'CONCAT(' . implode(', ', $strings) . ')';
     }
 
     public function sqlDatePart($part, $expression)
     {
-        $format = "";
+        $format = '';
         switch (strtoupper($part)) {
-            case "YEAR":
-                $format = "%Y";
+            case 'YEAR':
+                $format = '%Y';
                 break;
-            case "MONTH":
-                $format = "%m";
+            case 'MONTH':
+                $format = '%m';
                 break;
-            case "FDOM":
-                $format = "%Y-%m-01";
+            case 'FDOM':
+                $format = '%Y-%m-01';
                 break;
-            case "FYM":
-                $format = "%Y-%m";
+            case 'FYM':
+                $format = '%Y-%m';
                 break;
-            case "FYMD":
-                $format = "%Y-%m-%d";
+            case 'FYMD':
+                $format = '%Y-%m-%d';
                 break;
-            case "DAY":
-                $format = "%d";
+            case 'DAY':
+                $format = '%d';
                 break;
-            case "HOUR":
-                $format = "%H";
+            case 'HOUR':
+                $format = '%H';
                 break;
-            case "MINUTE":
-                $format = "%i";
+            case 'MINUTE':
+                $format = '%i';
                 break;
-            case "SECOND":
-                $format = "%s";
+            case 'SECOND':
+                $format = '%s';
                 break;
         }
-        $sql = "";
+        $sql = '';
         if ($format) {
-            $sql = "DATE_FORMAT(" . $expression . ", '" . $format . "')";
+            $sql = 'DATE_FORMAT(' . $expression . ", '" . $format . "')";
         }
         return $sql;
     }
 
     public function sqlIf($condition, $truePart, $falsePart)
     {
-        return "IF(" . $condition . ", " . $truePart . ", " . $falsePart . ")";
+        return 'IF(' . $condition . ', ' . $truePart . ', ' . $falsePart . ')';
     }
 
     public function sqlIfNull($fieldName, $nullValue)
     {
-        return "IFNULL(" . $fieldName . ", " . $nullValue . ")";
+        return 'IFNULL(' . $fieldName . ', ' . $nullValue . ')';
     }
 
     public function sqlLimit($query, $requestedPage, $recordsPerPage = 20)
     {
         $rpp = max(1, $recordsPerPage);
         $query = rtrim($query, "; \t\n\r\0\x0B")
-            . " LIMIT " . $this->sqlQuote($rpp * (max(1, $requestedPage) - 1), CommonTypes::TINT)
-            . ", " . $this->sqlQuote($rpp, CommonTypes::TINT);
+            . ' LIMIT ' . $this->sqlQuote($rpp * (max(1, $requestedPage) - 1), CommonTypes::TINT)
+            . ', ' . $this->sqlQuote($rpp, CommonTypes::TINT);
         return $query;
     }
 
     public function sqlRandomFunc()
     {
-        return "RAND()";
+        return 'RAND()';
     }
 
     public function transBegin()
     {
-        $this->logger->info("-- TRANSACTION BEGIN");
+        $this->logger->info('-- TRANSACTION BEGIN');
         $this->translevel++;
         if ($this->translevel != 1) {
             $this->logger->info("-- BEGIN (not executed because there are {$this->translevel} transactions running)");
         } else {
-            $this->execute("BEGIN");
+            $this->execute('BEGIN');
         }
     }
 
     public function transCommit()
     {
-        $this->logger->info("-- TRANSACTION COMMIT");
+        $this->logger->info('-- TRANSACTION COMMIT');
         $this->translevel--;
         if ($this->translevel != 0) {
             $this->logger->info("-- COMMIT (not executed because there are {$this->translevel} transactions running)");
         } else {
-            $this->execute("COMMIT");
+            $this->execute('COMMIT');
             return true;
         }
         return false;
@@ -249,11 +249,11 @@ class DBAL extends AbstractDBAL
 
     public function transRollback()
     {
-        $this->logger->info("-- TRANSACTION ROLLBACK ");
-        $this->execute("ROLLBACK");
+        $this->logger->info('-- TRANSACTION ROLLBACK ');
+        $this->execute('ROLLBACK');
         $this->translevel--;
         if ($this->translevel != 0) {
-            $this->logger->info("-- ROLLBACK (this rollback is out of sync) [" . $this->translevel . "]");
+            $this->logger->info('-- ROLLBACK (this rollback is out of sync) [' . $this->translevel . ']');
             return false;
         }
         return true;

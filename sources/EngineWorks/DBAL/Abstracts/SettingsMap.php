@@ -11,7 +11,6 @@ use EngineWorks\DBAL\Settings as SettingsInterface;
  */
 class SettingsMap implements SettingsInterface
 {
-
     /**
      * map of settings with default values
      * @var array
