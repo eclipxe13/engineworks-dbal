@@ -487,7 +487,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     /**
      * Returns a Recordset Object from the query, false if error
      * @param string $query
-     * @return Recordset
+     * @return Recordset|false
      */
     final public function queryRecordset($query)
     {
