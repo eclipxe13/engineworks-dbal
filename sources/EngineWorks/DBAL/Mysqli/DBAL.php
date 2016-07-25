@@ -4,6 +4,7 @@ use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\DBAL as AbstractDBAL;
 use EngineWorks\DBAL\Traits\MethodSqlIsNull;
 use EngineWorks\DBAL\Traits\MethodSqlLike;
+use EngineWorks\DBAL\Traits\MethodSqlLimit;
 use EngineWorks\DBAL\Traits\MethodSqlQuote;
 use mysqli;
 
@@ -16,6 +17,7 @@ class DBAL extends AbstractDBAL
     use MethodSqlQuote;
     use MethodSqlLike;
     use MethodSqlIsNull;
+    use MethodSqlLimit;
 
     /**
      * Contains the connection resource for mysqli
@@ -207,15 +209,6 @@ class DBAL extends AbstractDBAL
     public function sqlIfNull($fieldName, $nullValue)
     {
         return 'IFNULL(' . $fieldName . ', ' . $nullValue . ')';
-    }
-
-    public function sqlLimit($query, $requestedPage, $recordsPerPage = 20)
-    {
-        $rpp = max(1, $recordsPerPage);
-        $query = rtrim($query, "; \t\n\r\0\x0B")
-            . ' LIMIT ' . $this->sqlQuote($rpp * (max(1, $requestedPage) - 1), CommonTypes::TINT)
-            . ', ' . $this->sqlQuote($rpp, CommonTypes::TINT);
-        return $query;
     }
 
     public function sqlRandomFunc()

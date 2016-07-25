@@ -221,7 +221,7 @@ class SqliteDBALTest extends \PHPUnit_Framework_TestCase
 
     public function testSqlLimit()
     {
-        $expected = 'SELECT a LIMIT 80, 20;';
+        $expected = 'SELECT a LIMIT 20 OFFSET 80;';
         $this->assertSame($expected, $this->dbal->sqlLimit('SELECT a ', 5, 20));
         $this->assertSame($expected, $this->dbal->sqlLimit('SELECT a;', 5, 20));
     }

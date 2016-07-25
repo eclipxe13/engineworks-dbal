@@ -2,3 +2,5 @@
 /vendor/
 /composer.lock
 /build/
+/phpdox.xml
+/phpunit.xml

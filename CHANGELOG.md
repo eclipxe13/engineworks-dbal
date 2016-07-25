@@ -1,3 +1,8 @@
+# version 1.1.2 2016-07-25
+
+- Move sqlLimit to a trait
+- Fix docblock on DBAL::queryRecordset
+
 # version 1.1.1 2016-06-16
 
 - Fix bug in sdqlQuoteParseNumbers when `LC_NUMERIC` is `C`
