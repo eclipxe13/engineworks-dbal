@@ -507,7 +507,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param int $recordsPerPage
      * @return Pager|false
      */
-    final public function queryPager($querySelect, $queryCount, $page, $recordsPerPage = 20)
+    final public function queryPager($querySelect, $queryCount = '', $page = 1, $recordsPerPage = 20)
     {
         $pager = new Pager($this, $querySelect, $queryCount);
         $pager->setPageSize($recordsPerPage);

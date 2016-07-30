@@ -49,16 +49,20 @@ class Pager
     private $totalRecords = null;
 
     /**
+     * Instantiate a pager object
+     * If the queryCount is not set then it will set the method COUNT_METHOD_QUERY
+     * that will query a count(*) using $queryData as a subquery
+     *
      * @param DBAL $dbal
      * @param string $queryData The sql sentence to retrieve the data, do not use any LIMIT here
-     * @param bool|false $queryCount The sql sentence to retrieve the count of the data
+     * @param string $queryCount The sql sentence to retrieve the count of the data
      * @param int $pageSize The page size
      */
-    public function __construct(DBAL $dbal, $queryData, $queryCount = false, $pageSize = 20)
+    public function __construct(DBAL $dbal, $queryData, $queryCount = '', $pageSize = 20)
     {
         $this->dbal = $dbal;
         $this->queryData = $queryData;
-        if ($queryCount) {
+        if (strlen($queryCount) > 0) {
             $this->setQueryCount($queryCount);
         } else {
             $this->setCountMethod(self::COUNT_METHOD_QUERY);
