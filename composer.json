@@ -16,7 +16,8 @@
     "require-dev": {
         "phpunit/phpunit": "@stable",
         "squizlabs/php_codesniffer": "@stable",
-        "jakub-onderka/php-parallel-lint": "@stable"
+        "jakub-onderka/php-parallel-lint": "@stable",
+        "fzaninotto/faker": "@stable"
     },
     "autoload": {
         "psr-4": {
