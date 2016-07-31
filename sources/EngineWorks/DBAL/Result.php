@@ -1,4 +1,5 @@
-<?php namespace EngineWorks\DBAL;
+<?php
+namespace EngineWorks\DBAL;
 
 /**
  * Interface Result, this interface must be implemented by the Drivers

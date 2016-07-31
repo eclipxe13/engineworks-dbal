@@ -1,4 +1,5 @@
-<?php namespace EngineWorks\DBAL\Traits;
+<?php
+namespace EngineWorks\DBAL\Traits;
 
 use EngineWorks\DBAL\CommonTypes;
 

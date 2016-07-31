@@ -1,3 +1,10 @@
+# version 1.1.3 2016-07-31
+
+- Fix Pager with no query for count
+- Add test for pager
+- Add a sqlite database for testing
+- Improve coding standards
+
 # version 1.1.2 2016-07-25
 
 - Move sqlLimit to a trait

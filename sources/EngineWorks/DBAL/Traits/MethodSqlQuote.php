@@ -1,4 +1,5 @@
-<?php namespace EngineWorks\DBAL\Traits;
+<?php
+namespace EngineWorks\DBAL\Traits;
 
 use EngineWorks\DBAL\CommonTypes;
 
@@ -20,9 +21,11 @@ trait MethodSqlQuote
         if ('' === $value) {
             return 0;
         }
-        $localeConv = ('C' === setlocale(LC_NUMERIC, 0)) ?
-            ['thousands_sep' => ',', 'currency_symbol' => '$', 'int_curr_symbol' => '$'] :
-            localeconv();
+        if ('C' === setlocale(LC_NUMERIC, 0)) {
+            $localeConv = ['thousands_sep' => ',', 'currency_symbol' => '$', 'int_curr_symbol' => '$'];
+        } else {
+            $localeConv = localeconv();
+        }
         $replacements = [
             $localeConv['thousands_sep'],
             $localeConv['currency_symbol'],
@@ -30,9 +33,7 @@ trait MethodSqlQuote
             ' ',
         ];
         $value = str_replace($replacements, '', $value);
-        return (is_numeric($value))
-            ? (($asInteger) ? intval($value, 10) : floatval($value))
-            : 0;
+        return (is_numeric($value)) ? (($asInteger) ? intval($value, 10) : floatval($value)) : 0;
     }
 
     public function sqlQuote($variable, $commonType = CommonTypes::TTEXT, $includeNull = false)

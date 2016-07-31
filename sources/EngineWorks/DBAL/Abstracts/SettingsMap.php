@@ -1,4 +1,5 @@
-<?php namespace EngineWorks\DBAL\Abstracts;
+<?php
+namespace EngineWorks\DBAL\Abstracts;
 
 use EngineWorks\DBAL\Settings as SettingsInterface;
 

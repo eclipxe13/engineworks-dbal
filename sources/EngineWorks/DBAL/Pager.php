@@ -1,4 +1,5 @@
-<?php namespace EngineWorks\DBAL;
+<?php
+namespace EngineWorks\DBAL;
 
 /**
  * Pagination
@@ -36,32 +37,45 @@ class Pager
     /** @var int */
     private $pageSize;
 
-    /** @var int */
-    private $countMethod = self::COUNT_METHOD_RECORDCOUNT;
+    /**
+     * One of COUNT_METHOD_QUERY, COUNT_METHOD_SELECT, COUNT_METHOD_RECORDCOUNT
+     * This is set when the object is created,
+     * Using its setter for COUNT_METHOD_SELECT, COUNT_METHOD_RECORDCOUNT
+     * Using setQueryCount for COUNT_METHOD_QUERY
+     *
+     * @var int
+     */
+    private $countMethod;
 
     /** @var int number of the current page */
     private $page;
 
     /**
      * If NULL then the value needs to be read from database
+     *
      * @var int
      */
     private $totalRecords = null;
 
     /**
+     * Instantiate a pager object
+     * If the queryCount is not set then it will set the method COUNT_METHOD_SELECT
+     * that will query a count(*) using $queryData as a subquery
+     *
      * @param DBAL $dbal
      * @param string $queryData The sql sentence to retrieve the data, do not use any LIMIT here
-     * @param bool|false $queryCount The sql sentence to retrieve the count of the data
+     * @param string $queryCount The sql sentence to retrieve the count of the data
      * @param int $pageSize The page size
      */
-    public function __construct(DBAL $dbal, $queryData, $queryCount = false, $pageSize = 20)
+    public function __construct(DBAL $dbal, $queryData, $queryCount = '', $pageSize = 20)
     {
         $this->dbal = $dbal;
         $this->queryData = $queryData;
-        if ($queryCount) {
+        if ('' !== $queryCount) {
+            // this method also calls $this->setCountMethod
             $this->setQueryCount($queryCount);
         } else {
-            $this->setCountMethod(self::COUNT_METHOD_QUERY);
+            $this->setCountMethod(self::COUNT_METHOD_SELECT);
         }
         $this->setPageSize($pageSize);
     }
@@ -177,7 +191,7 @@ class Pager
     }
 
     /**
-     * The count method
+     * The count method, ne of COUNT_METHOD_QUERY, COUNT_METHOD_SELECT, COUNT_METHOD_RECORDCOUNT
      * @return int
      */
     public function getCountMethod()
@@ -222,7 +236,7 @@ class Pager
     {
         $query = 'SELECT COUNT(*)'
             . ' FROM (' . rtrim($this->queryData, "; \t\n\r\0\x0B") . ')'
-            . ' AS subquerycount'
+            . ' AS ' . $this->dbal->sqlTable('subquerycount')
             . ';';
         $value = $this->dbal->queryOne($query, false);
         if (false === $value) {
@@ -259,6 +273,9 @@ class Pager
      */
     public function setPageSize($pageSize)
     {
+        if (! is_numeric($pageSize)) {
+            throw new \InvalidArgumentException('The page size property is not a number');
+        }
         $this->pageSize = max(1, intval($pageSize));
     }
 }

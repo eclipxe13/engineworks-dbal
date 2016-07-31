@@ -1,4 +1,5 @@
-<?php namespace EngineWorks\DBAL\Mysqli;
+<?php
+namespace EngineWorks\DBAL\Mysqli;
 
 use EngineWorks\DBAL\Abstracts\SettingsMap;
 

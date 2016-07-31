@@ -2,9 +2,9 @@
 * text=auto
 
 # Do not put this files on a distribution package (by .gitignore)
-/vendor/
-/composer.lock
-/build/
+/vendor/             export-ignore
+/composer.lock       export-ignore
+/build/              export-ignore
 
 # Do not put this files on a distribution package
 /.gitignore          export-ignore
@@ -13,5 +13,6 @@
 /.travis.yml         export-ignore
 /.php_cs             export-ignore
 /tests/              export-ignore
+/ruleset.xml         export-ignore
 /phpdox.xml.dist     export-ignore
 /phpunit.xml.dist    export-ignore

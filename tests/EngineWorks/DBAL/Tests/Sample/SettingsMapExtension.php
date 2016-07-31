@@ -1,4 +1,5 @@
-<?php namespace EngineWorks\DBAL\Tests\Sample;
+<?php
+namespace EngineWorks\DBAL\Tests\Sample;
 
 use EngineWorks\DBAL\Abstracts\SettingsMap;
 
