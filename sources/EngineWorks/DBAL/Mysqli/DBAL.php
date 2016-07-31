@@ -1,4 +1,5 @@
-<?php namespace EngineWorks\DBAL\Mysqli;
+<?php
+namespace EngineWorks\DBAL\Mysqli;
 
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\DBAL as AbstractDBAL;
@@ -144,9 +145,10 @@ class DBAL extends AbstractDBAL
 
     protected function getLastErrorMessage()
     {
-        return (($this->isConnected())
-            ? '[' . $this->mysqli->errno . '] ' . $this->mysqli->error
-            : 'Cannot get the error because there are no active connection');
+        if ($this->isConnected()) {
+            return '[' . $this->mysqli->errno . '] ' . $this->mysqli->error;
+        }
+        return 'Cannot get the error because there are no active connection';
     }
 
     protected function sqlTableEscape($tableName, $asTable)

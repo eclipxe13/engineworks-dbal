@@ -1,4 +1,5 @@
-<?php namespace EngineWorks\DBAL\Sqlite;
+<?php
+namespace EngineWorks\DBAL\Sqlite;
 
 use EngineWorks\DBAL\Abstracts\SettingsMap;
 

@@ -1,4 +1,5 @@
-<?php namespace EngineWorks\DBAL\Sqlite;
+<?php
+namespace EngineWorks\DBAL\Sqlite;
 
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\DBAL as AbstractDBAL;
@@ -94,9 +95,10 @@ class DBAL extends AbstractDBAL
 
     protected function getLastErrorMessage()
     {
-        return (($this->isConnected())
-            ? '[' . $this->sqlite->lastErrorCode() . '] ' . $this->sqlite->lastErrorMsg()
-            : 'Cannot get the error because there are no active connection');
+        if ($this->isConnected()) {
+            return '[' . $this->sqlite->lastErrorCode() . '] ' . $this->sqlite->lastErrorMsg();
+        }
+        return 'Cannot get the error because there are no active connection';
     }
 
     protected function sqlTableEscape($tableName, $asTable)

@@ -1,4 +1,5 @@
-<?php namespace EngineWorks\DBAL\Tests;
+<?php
+namespace EngineWorks\DBAL\Tests;
 
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Factory;
@@ -32,7 +33,7 @@ abstract class TestCaseWithSqliteDatabase extends \PHPUnit_Framework_TestCase
         $this->logger = new ArrayLogger();
         $this->factory = new Factory('EngineWorks\DBAL\Sqlite');
         $this->settings = $this->factory->settings([
-            'filename' => ':memory:'
+            'filename' => ':memory:',
         ]);
         $this->dbal = $this->factory->dbal($this->settings);
         $this->dbal->connect();
@@ -51,7 +52,7 @@ abstract class TestCaseWithSqliteDatabase extends \PHPUnit_Framework_TestCase
         ];
         for ($i = 0; $i < 45; $i++) {
             $statements[] = 'INSERT INTO albums'
-                .' VALUES (NULL, ' . $this->dbal->sqlQuote($faker->name, DBAL::TTEXT) . ');';
+                . ' VALUES (NULL, ' . $this->dbal->sqlQuote($faker->name, DBAL::TTEXT) . ');';
         }
         foreach ($statements as $statement) {
             $this->assertNotSame(false, $this->dbal->execute($statement), "Fail to run $statement");

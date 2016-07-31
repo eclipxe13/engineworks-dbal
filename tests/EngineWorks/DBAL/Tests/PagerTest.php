@@ -1,4 +1,5 @@
-<?php namespace EngineWorks\DBAL\Tests;
+<?php
+namespace EngineWorks\DBAL\Tests;
 
 use EngineWorks\DBAL\Pager;
 use EngineWorks\DBAL\Recordset;

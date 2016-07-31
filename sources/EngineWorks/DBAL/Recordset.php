@@ -1,4 +1,5 @@
-<?php namespace EngineWorks\DBAL;
+<?php
+namespace EngineWorks\DBAL;
 
 use Psr\Log\LoggerInterface;
 
@@ -180,9 +181,10 @@ class Recordset
      */
     final public function getOriginalValue($fieldName, $defaultValue = '')
     {
-        return (! $this->eof() and array_key_exists($fieldName, $this->originalValues))
-            ? $this->originalValues[$fieldName]
-            : $defaultValue;
+        if (! $this->eof() && array_key_exists($fieldName, $this->originalValues)) {
+            return $this->originalValues[$fieldName];
+        }
+        return $defaultValue;
     }
 
     /**

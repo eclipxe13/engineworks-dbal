@@ -1,4 +1,5 @@
-<?php namespace EngineWorks\DBAL;
+<?php
+namespace EngineWorks\DBAL;
 
 use Psr\Log\LoggerInterface;
 

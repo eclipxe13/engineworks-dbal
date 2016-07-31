@@ -1,4 +1,5 @@
-<?php namespace EngineWorks\DBAL\Tests\Sqlite;
+<?php
+namespace EngineWorks\DBAL\Tests\Sqlite;
 
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Factory;
@@ -23,7 +24,7 @@ class SqliteDBALTest extends \PHPUnit_Framework_TestCase
         if ($this->dbal === null) {
             $this->factory = new Factory('EngineWorks\DBAL\Sqlite');
             $this->settings = $this->factory->settings([
-                'filename' => ':memory:'
+                'filename' => ':memory:',
             ]);
             $this->dbal = $this->factory->dbal($this->settings);
             $this->dbal->connect();
@@ -57,7 +58,7 @@ class SqliteDBALTest extends \PHPUnit_Framework_TestCase
         $this->dbalSetArrayLogger();
         $this->dbal->disconnect();
         $expectedLogs = [
-            'info: -- Disconnection'
+            'info: -- Disconnection',
         ];
         $this->assertFalse($this->dbal->isConnected());
         $this->assertSame($expectedLogs, $this->dbalGetArrayLogger()->allMessages());
@@ -80,7 +81,7 @@ class SqliteDBALTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($dbal->connect());
         $expectedLogs = [
             'info: -- Connection fail',
-            'error: Cannot create SQLite3 object: Unable to open database: out of memory'
+            'error: Cannot create SQLite3 object: Unable to open database: out of memory',
         ];
         $this->assertSame($expectedLogs, $logger->allMessages());
     }
@@ -92,7 +93,7 @@ class SqliteDBALTest extends \PHPUnit_Framework_TestCase
         $this->dbalSetArrayLogger();
         $this->assertTrue($this->dbal->connect());
         $expectedLogs = [
-            'info: -- Connection success'
+            'info: -- Connection success',
         ];
         $this->assertSame($expectedLogs, $this->dbalGetArrayLogger()->allMessages());
     }
@@ -121,28 +122,28 @@ class SqliteDBALTest extends \PHPUnit_Framework_TestCase
         $datetime = "$date $time";
         return [
             // texts
-            'text normal' => ["'foo'", "foo", DBAL::TTEXT, false],
-            'text normal include null' => ["'foo'", "foo", DBAL::TTEXT, true],
+            'text normal' => ["'foo'", 'foo', DBAL::TTEXT, false],
+            'text normal include null' => ["'foo'", 'foo', DBAL::TTEXT, true],
             'text zero' => ["'0'", 0, DBAL::TTEXT, false],
             'text integer' => ["'9'", 9, DBAL::TTEXT, false],
             'text float' => ["'1.2'", 1.2, DBAL::TTEXT, false],
             // integer
-            'integer normal' => ["9", 9, DBAL::TINT, false],
-            'integer float' => ["1", 1.2, DBAL::TINT, false],
-            'integer text not numeric' => ["0", "foo bar", DBAL::TINT, false],
-            'integer text numeric simple' => ["987", "987", DBAL::TINT, false],
-            'integer text numeric complex' => ["-1234", "- $ 1,234.56", DBAL::TINT, false],
+            'integer normal' => ['9', 9, DBAL::TINT, false],
+            'integer float' => ['1', 1.2, DBAL::TINT, false],
+            'integer text not numeric' => ['0', 'foo bar', DBAL::TINT, false],
+            'integer text numeric simple' => ['987', '987', DBAL::TINT, false],
+            'integer text numeric complex' => ['-1234', '- $ 1,234.56', DBAL::TINT, false],
             // float
-            'float normal' => ["9.1", 9.1, DBAL::TNUMBER, false],
-            'float int' => ["8", 8, DBAL::TNUMBER, false],
-            'float text not numeric' => ["0", "foo bar", DBAL::TNUMBER, false],
-            'float text numeric simple' => ["987.654", "987.654", DBAL::TNUMBER, false],
-            'float text numeric complex' => ["-1234.56789", "- $ 1,234.567,89", DBAL::TNUMBER, false],
+            'float normal' => ['9.1', 9.1, DBAL::TNUMBER, false],
+            'float int' => ['8', 8, DBAL::TNUMBER, false],
+            'float text not numeric' => ['0', 'foo bar', DBAL::TNUMBER, false],
+            'float text numeric simple' => ['987.654', '987.654', DBAL::TNUMBER, false],
+            'float text numeric complex' => ['-1234.56789', '- $ 1,234.567,89', DBAL::TNUMBER, false],
             // bool
-            'bool normal false' => ["0", false, DBAL::TBOOL, false],
-            'bool equal false' => ["0", "0", DBAL::TBOOL, false],
-            'bool normal true' => ["1", true, DBAL::TBOOL, false],
-            'bool equal true' => ["1", "foo", DBAL::TBOOL, false],
+            'bool normal false' => ['0', false, DBAL::TBOOL, false],
+            'bool equal false' => ['0', '0', DBAL::TBOOL, false],
+            'bool normal true' => ['1', true, DBAL::TBOOL, false],
+            'bool equal true' => ['1', 'foo', DBAL::TBOOL, false],
             // date time datetime
             'date normal' => ["'$date'", $timestamp, DBAL::TDATE, false],
             'time normal' => ["'$time'", $timestamp, DBAL::TTIME, false],
@@ -158,8 +159,8 @@ class SqliteDBALTest extends \PHPUnit_Framework_TestCase
             'null time' => ['NULL', null, DBAL::TTIME, true],
             'null datetime' => ['NULL', null, DBAL::TDATETIME, true],
             'null text notnull' => ["''", null, DBAL::TTEXT, false],
-            'null int notnull' => ["0", null, DBAL::TINT, false],
-            'null float notnull' => ["0", null, DBAL::TNUMBER, false],
+            'null int notnull' => ['0', null, DBAL::TINT, false],
+            'null float notnull' => ['0', null, DBAL::TNUMBER, false],
             'null bool notnull' => ['0', null, DBAL::TBOOL, false],
             'null date notnull' => ["'1970-01-01'", null, DBAL::TDATE, false],
             'null time notnull' => ["'00:00:00'", null, DBAL::TTIME, false],
@@ -181,7 +182,7 @@ class SqliteDBALTest extends \PHPUnit_Framework_TestCase
 
     public function testSqlQuoteIn()
     {
-        $expected = "(1, 2, 3, 4, 5)";
+        $expected = '(1, 2, 3, 4, 5)';
         $this->assertSame($expected, $this->dbal->sqlQuoteIn(range(1, 5), DBAL::TINT));
         $this->assertSame(false, $this->dbal->sqlQuoteIn([], DBAL::TINT));
     }
@@ -190,7 +191,7 @@ class SqliteDBALTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertSame("  foo\tbar  \n", $this->dbal->sqlString("  foo\tbar  \n"));
         $this->assertSame("''", $this->dbal->sqlString("'"));
-        $this->assertSame("ab", $this->dbal->sqlString("a\0b"));
+        $this->assertSame('ab', $this->dbal->sqlString("a\0b"));
         $this->assertSame('\\', $this->dbal->sqlString('\\'));
         $this->assertSame("''''''", $this->dbal->sqlString("'''"));
     }
@@ -244,7 +245,7 @@ class SqliteDBALTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $this->dbal->sqlLikeSearch('foo', 'bar  baz', false));
         // change separator
         $expected = "(foo LIKE '%bar%') OR (foo LIKE '%baz%')";
-        $this->assertSame($expected, $this->dbal->sqlLikeSearch('foo', 'bar;;baz', true, ";"));
+        $this->assertSame($expected, $this->dbal->sqlLikeSearch('foo', 'bar;;baz', true, ';'));
         // empty or invalid strings
         $this->assertSame('', $this->dbal->sqlLikeSearch('foo', ''));
         $this->assertSame('', $this->dbal->sqlLikeSearch('foo', new \stdClass()));
@@ -252,7 +253,7 @@ class SqliteDBALTest extends \PHPUnit_Framework_TestCase
 
     public function testSqlConcatenate()
     {
-        $this->assertSame("a || b || c", $this->dbal->sqlConcatenate('a', 'b', 'c'));
+        $this->assertSame('a || b || c', $this->dbal->sqlConcatenate('a', 'b', 'c'));
         $this->assertSame("''", $this->dbal->sqlConcatenate());
     }
 }

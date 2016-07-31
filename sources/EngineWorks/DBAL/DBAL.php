@@ -1,4 +1,5 @@
-<?php namespace EngineWorks\DBAL;
+<?php
+namespace EngineWorks\DBAL;
 
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -232,7 +233,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param string ...$strings fields and escaped strings
      * @return string
      */
-    abstract public function sqlConcatenate(... $strings);
+    abstract public function sqlConcatenate(...$strings);
 
     /**
      * Function to get a part of a date using sql formatting functions

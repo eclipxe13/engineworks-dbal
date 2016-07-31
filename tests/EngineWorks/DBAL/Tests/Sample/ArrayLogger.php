@@ -1,4 +1,5 @@
-<?php namespace EngineWorks\DBAL\Tests\Sample;
+<?php
+namespace EngineWorks\DBAL\Tests\Sample;
 
 use Psr\Log\AbstractLogger;
 
@@ -6,7 +7,7 @@ class ArrayLogger extends AbstractLogger
 {
     /** @var array */
     private $logs = [];
-    
+
     public function log($level, $message, array $context = [])
     {
         $this->logs[$level][] = [
@@ -14,7 +15,7 @@ class ArrayLogger extends AbstractLogger
             'context' => $context,
         ];
     }
-    
+
     public function retrieve($level)
     {
         return (array_key_exists($level, $this->logs)) ? $this->logs[$level] : [];
