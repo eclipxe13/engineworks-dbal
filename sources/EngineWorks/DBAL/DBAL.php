@@ -502,9 +502,10 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * Get a Pager Object from the query
+     *
      * @param string $querySelect
      * @param string $queryCount
-     * @param int $page
+     * @param int $page if -1 then it will query all records (not paged)
      * @param int $recordsPerPage
      * @return Pager|false
      */
