@@ -2,10 +2,10 @@
 return Symfony\CS\Config\Config::create()
     ->level(Symfony\CS\FixerInterface::PSR2_LEVEL)
     ->fixers([
+        '-psr0', // do not enforce psr-0, it rewrites 'namespace Test\' to 'namespace test\'
         // symfony
         'array_element_white_space_after_comma',
         'duplicate_semicolon',
-//        'empty_return', do not use this, it create a conflict with __get
         'extra_empty_lines',
         'function_typehint_space',
         'join_function',
@@ -26,11 +26,11 @@ return Symfony\CS\Config\Config::create()
         'concat_with_spaces',
         'logical_not_operators_with_successor_space',
         'no_blank_lines_before_namespace',
-//        'newline_after_open_tag',
+        'newline_after_open_tag',
         'ordered_use',
         'short_array_syntax',
     ])
     ->finder(
-        Symfony\CS\Finder\DefaultFinder::create()->in(__DIR__ . '/sources')
+        Symfony\CS\Finder\DefaultFinder::create()->in([__DIR__ . '/sources', __DIR__ . '/tests'])
     )
 ;
