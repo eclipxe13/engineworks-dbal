@@ -7,7 +7,7 @@ use Psr\Log\LoggerInterface;
  * Recordset class
  * Hint: Use DBAL->queryRecordset instead of using this class directly
  */
-class Recordset
+class Recordset implements \IteratorAggregate, \Countable
 {
     const RSMODE_NOTCONNECTED = 0;
     const RSMODE_CONNECTED_EDIT = 1;
@@ -561,5 +561,15 @@ class Recordset
     final public function getEntityName()
     {
         return $this->entity;
+    }
+
+    final public function count()
+    {
+        return $this->getRecordCount();
+    }
+
+    final public function getIterator()
+    {
+        return new Iterators\RecordsetIterator($this);
     }
 }
