@@ -4,11 +4,15 @@ namespace EngineWorks\DBAL\Mysqli;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result as ResultInterface;
 use EngineWorks\DBAL\Traits\ResultGetFieldsCachedTrait;
+use EngineWorks\DBAL\Traits\ResultImplementsCountable;
+use EngineWorks\DBAL\Traits\ResultImplementsIterator;
 use mysqli_result;
 
 class Result implements ResultInterface
 {
     use ResultGetFieldsCachedTrait;
+    use ResultImplementsCountable;
+    use ResultImplementsIterator;
 
     /**
      * Mysqli element
@@ -31,7 +35,7 @@ class Result implements ResultInterface
      */
     public function __destruct()
     {
-        $this->query->close();
+        $this->query->free();
         $this->query = null;
     }
 
