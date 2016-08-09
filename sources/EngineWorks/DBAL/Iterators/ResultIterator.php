@@ -1,5 +1,4 @@
 <?php
-
 namespace EngineWorks\DBAL\Iterators;
 
 use EngineWorks\DBAL\Result;
