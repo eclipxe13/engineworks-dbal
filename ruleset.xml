@@ -17,8 +17,7 @@
     <rule ref="Generic.Functions.CallTimePassByReference"/>
     <rule ref="Generic.NamingConventions.ConstructorName"/>
     <rule ref="Generic.PHP.DeprecatedFunctions"/>
-    <!-- try to enable this rule, lot of fixes -->
-    <!-- rule ref="Squiz.PHP.DisallowSizeFunctionsInLoops"/-->
+    <rule ref="Squiz.PHP.DisallowSizeFunctionsInLoops"/>
     <rule ref="Squiz.Scope.MemberVarScope"/>
     <rule ref="Squiz.WhiteSpace.CastSpacing"/>
     <rule ref="Squiz.WhiteSpace.LogicalOperatorSpacing"/>
