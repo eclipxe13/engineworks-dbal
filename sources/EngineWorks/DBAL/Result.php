@@ -6,7 +6,7 @@ namespace EngineWorks\DBAL;
  *
  * @package EngineWorks\DBAL
  */
-interface Result
+interface Result extends \IteratorAggregate, \Countable
 {
     /**
      * Get one row from the resource, the result is an associative array

@@ -51,7 +51,6 @@ It support Mysqli and Sqlite3 drivers, you are free to create your own and share
 # TODO
 
 - DBAL::sqlQuote could be a final public method
-
 - Include prepared (or simulated prepared) statements
 - Include PDO Driver
 - Evolve Recordset to allow PDO or DBAL

@@ -4,11 +4,15 @@ namespace EngineWorks\DBAL\Sqlite;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result as ResultInterface;
 use EngineWorks\DBAL\Traits\ResultGetFieldsCachedTrait;
+use EngineWorks\DBAL\Traits\ResultImplementsCountable;
+use EngineWorks\DBAL\Traits\ResultImplementsIterator;
 use SQLite3Result;
 
 class Result implements ResultInterface
 {
     use ResultGetFieldsCachedTrait;
+    use ResultImplementsCountable;
+    use ResultImplementsIterator;
 
     /**
      * Sqlite3 element
@@ -42,7 +46,7 @@ class Result implements ResultInterface
      */
     public function __destruct()
     {
-        $this->query->finalize();
+        @$this->query->finalize();
         $this->query = null;
     }
 
@@ -113,15 +117,19 @@ class Result implements ResultInterface
 
     public function moveTo($offset)
     {
-        if ($offset < 0) {
+        // there are no records
+        if ($this->resultCount() <= 0) {
             return false;
         }
-        if (! $this->numRows) {
+        // the offset is out of bounds
+        if ($offset < 0 || $offset > $this->numRows - 1) {
             return false;
         }
-        if ($offset > $this->numRows - 1) {
+        // if the offset is on previous
+        if (! $this->moveFirst()) {
             return false;
         }
+        // move to the offset
         for ($i = 0; $i < $offset; $i++) {
             if (false === $this->query->fetchArray(SQLITE3_NUM)) {
                 return false;

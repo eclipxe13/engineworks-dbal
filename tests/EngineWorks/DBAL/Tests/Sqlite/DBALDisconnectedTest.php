@@ -7,7 +7,7 @@ use EngineWorks\DBAL\Settings;
 use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
 use Psr\Log\NullLogger;
 
-class SqliteDBALTest extends \PHPUnit_Framework_TestCase
+class DBALDisconnectedTest extends \PHPUnit_Framework_TestCase
 {
     /** @var Factory */
     private $factory;

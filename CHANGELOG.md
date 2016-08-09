@@ -1,3 +1,11 @@
+# version 1.2.1 2016-08-09
+
+- Implement generic Iterators for Result and Recordset
+- Result and Recordset now implements IteratorAggregate and Countable interfaces
+- Fix moveTo on Sqlite/Result
+- Test Sqlite/Result
+- Improve code style
+
 # version 1.1.3 2016-07-31
 
 - Fix Pager with no query for count

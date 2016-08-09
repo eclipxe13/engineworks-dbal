@@ -140,10 +140,11 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         if (count($array) == 0) {
             return false;
         }
-        $return = '';
-        for ($i = 0; $i < count($array); $i++) {
-            $return .= (($i > 0) ? ', ' : '') . $this->sqlQuote($array[$i], $commonType, $includeNull);
+        $values = array_unique($array);
+        foreach ($values as $index => $value) {
+            $values[$index] = $this->sqlQuote($value, $commonType, $includeNull);
         }
+        $return = implode(', ', $values);
         return '(' . $return . ')';
     }
 
@@ -437,7 +438,8 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     {
         $return = [];
         if (false != $arr = $this->queryArray($query) and count($arr)) {
-            for ($i = 0; $i < count($arr); $i++) {
+            $arrCount = count($arr);
+            for ($i = 0; $i < $arrCount; $i++) {
                 $iName = $keyPrefix . (array_key_exists($keyField, $arr[$i]) ? strval($arr[$i][$keyField]) : '');
                 $iValue = (array_key_exists($valueField, $arr[$i])) ? $arr[$i][$valueField] : $default;
                 $return[$iName] = $iValue;
@@ -502,9 +504,10 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * Get a Pager Object from the query
+     *
      * @param string $querySelect
      * @param string $queryCount
-     * @param int $page
+     * @param int $page if -1 then it will query all records (not paged)
      * @param int $recordsPerPage
      * @return Pager|false
      */
