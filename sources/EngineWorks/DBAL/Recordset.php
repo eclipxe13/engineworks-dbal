@@ -90,7 +90,8 @@ class Recordset implements \IteratorAggregate, \Countable
         $this->datafields = [];
         // get fields into a temporary array
         $tmpfields = $this->result->getFields();
-        for ($i = 0; $i < count($tmpfields); $i++) {
+        $tmpfieldsCount = count($tmpfields);
+        for ($i = 0; $i < $tmpfieldsCount; $i++) {
             $this->datafields[$tmpfields[$i]['name']] = $tmpfields[$i];
         }
         // set the entity name, remove if more than one table exists
