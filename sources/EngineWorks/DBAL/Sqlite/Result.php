@@ -122,7 +122,7 @@ class Result implements ResultInterface
             return false;
         }
         // the offset is out of bounds
-        if ($offset < 0 || $offset > $this->numRows - 1) {
+        if ($offset < 0 || $offset > $this->resultCount() - 1) {
             return false;
         }
         // if the offset is on previous
