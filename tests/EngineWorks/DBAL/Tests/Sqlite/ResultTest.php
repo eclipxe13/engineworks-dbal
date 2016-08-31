@@ -48,6 +48,12 @@ class ResultTest extends TestCaseWithSqliteDatabase
         $this->assertCount(3, $contents);
     }
 
+    public function testMoveToOutOfBounds()
+    {
+        $this->assertFalse($this->result->moveTo(-10));
+        $this->assertFalse($this->result->moveTo(10000));
+    }
+
     public function testMoveOffSet()
     {
         $current = $this->getForEach();
@@ -92,6 +98,14 @@ class ResultTest extends TestCaseWithSqliteDatabase
         $iterator = $this->result->getIterator();
         $this->assertInstanceOf(\Iterator::class, $iterator);
         $this->assertInstanceOf(ResultIterator::class, $iterator);
+    }
+
+    public function testMoveFirstAndMoveReturnFalseOnEmptyResultset()
+    {
+        $result = $this->dbal->queryResult('SELECT * FROM albums WHERE (albumid < 0);');
+        $this->assertFalse($result->moveFirst());
+        $this->assertFalse($result->moveTo(0));
+        $this->assertFalse($result->moveTo(10));
     }
 
     private function getForEach()
