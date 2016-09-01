@@ -1,3 +1,9 @@
+# version 1.2.3 2016-09-01
+- Rename project to eclipxe/engineworks-dbal
+- Move from gitlab to github
+- Changes on README
+- Introduce CoC, Contributing, TODO, LICENSE
+
 # version 1.2.2 2016-08-31
 - Small fix on docblock of DBAL::sqlConcatenate variadic method
 - Small fix must not use numRows but resultCount()

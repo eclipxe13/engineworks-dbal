@@ -5,8 +5,9 @@ use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Factory;
 use EngineWorks\DBAL\Settings;
 use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
+use PHPUnit\Framework\TestCase;
 
-abstract class TestCaseWithSqliteDatabase extends \PHPUnit_Framework_TestCase
+abstract class TestCaseWithSqliteDatabase extends TestCase
 {
     /** @var Factory */
     protected $factory;

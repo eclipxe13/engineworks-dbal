@@ -1,6 +1,6 @@
 {
-    "name": "engineworks/dbal",
-    "description": "Database Abstraction Layer Database",
+    "name": "eclipxe/engineworks-dbal",
+    "description": "PHP Database Abstraction Layer",
     "homepage": "https://github.com/eclipxe13/engineworks-dbal",
     "license": "MIT",
     "authors": [
@@ -15,7 +15,9 @@
     },
     "require-dev": {
         "phpunit/phpunit": "@stable",
-        "fzaninotto/faker": "@stable"
+        "fzaninotto/faker": "@stable",
+        "squizlabs/php_codesniffer": "@stable",
+        "jakub-onderka/php-parallel-lint": "^0.9.2"
     },
     "autoload": {
         "psr-4": {
