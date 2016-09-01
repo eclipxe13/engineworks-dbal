@@ -3,8 +3,9 @@ namespace EngineWorks\DBAL\Tests\Abstracts;
 
 use EngineWorks\DBAL\Settings;
 use EngineWorks\DBAL\Tests\Sample\SettingsMapExtension;
+use PHPUnit\Framework\TestCase;
 
-class SettingsMapTest extends \PHPUnit_Framework_TestCase
+class SettingsMapTest extends TestCase
 {
     public function testConstructor()
     {

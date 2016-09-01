@@ -5,9 +5,10 @@ use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Factory;
 use EngineWorks\DBAL\Settings;
 use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
-class DBALDisconnectedTest extends \PHPUnit_Framework_TestCase
+class DBALDisconnectedTest extends TestCase
 {
     /** @var Factory */
     private $factory;
