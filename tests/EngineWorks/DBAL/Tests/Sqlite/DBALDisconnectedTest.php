@@ -31,7 +31,7 @@ class DBALDisconnectedTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    /** @return ArrayLogger */
+    /** @return ArrayLogger|\Psr\Log\LoggerInterface */
     protected function dbalGetArrayLogger()
     {
         return $this->dbal->getLogger();
@@ -253,6 +253,7 @@ class DBALDisconnectedTest extends \PHPUnit_Framework_TestCase
 
     public function testSqlConcatenate()
     {
+        $this->assertSame('9 || 8 || 7', $this->dbal->sqlConcatenate(...['9', '8', '7']));
         $this->assertSame('a || b || c', $this->dbal->sqlConcatenate('a', 'b', 'c'));
         $this->assertSame("''", $this->dbal->sqlConcatenate());
     }

@@ -3,8 +3,6 @@
     <description>The EngineWorks (PSR-2 based) coding standard.</description>
     <arg name="tab-width" value="4"/>
     <arg name="encoding" value="utf-8"/>
-    <arg name="colors"/>
-    <arg value="sp"/>
     <arg name="report-width" value="auto"/>
     <arg name="extensions" value="php"/>
     <rule ref="PSR2" />

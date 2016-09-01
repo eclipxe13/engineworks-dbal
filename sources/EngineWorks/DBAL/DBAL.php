@@ -231,7 +231,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * Concatenation, as this can allow fields and strings, all strings must be previously escaped
-     * @param string ...$strings fields and escaped strings
+     * @param string[] ...$strings fields and escaped strings
      * @return string
      */
     abstract public function sqlConcatenate(...$strings);
