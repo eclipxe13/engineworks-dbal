@@ -13,6 +13,7 @@
 /.travis.yml         export-ignore
 /.php_cs             export-ignore
 /tests/              export-ignore
-/ruleset.xml         export-ignore
+/phpcs.xml           export-ignore
 /phpdox.xml.dist     export-ignore
 /phpunit.xml.dist    export-ignore
+/TODO.md             export-ignore
