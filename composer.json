@@ -1,6 +1,6 @@
 {
     "name": "eclipxe/engineworks-dbal",
-    "description": "Database Abstraction Layer Database",
+    "description": "PHP Database Abstraction Layer",
     "homepage": "https://github.com/eclipxe13/engineworks-dbal",
     "license": "MIT",
     "authors": [
