@@ -1,3 +1,10 @@
+# version 1.2.2 2016-08-31
+- Small fix on docblock of DBAL::sqlConcatenate variadic method
+- Small fix must not use numRows but resultCount()
+- Small fix inpections and warnings reported by PhpStorm
+- Rename ruleset.xml to phpcs.xml
+- Increase coverage on Sqlite\Result
+
 # version 1.2.1 2016-08-09
 
 - Implement generic Iterators for Result and Recordset
