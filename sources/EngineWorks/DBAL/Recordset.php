@@ -189,6 +189,20 @@ class Recordset implements \IteratorAggregate, \Countable
     }
 
     /**
+     * Return an array with the original values.
+     *
+     * @return array
+     * @throws \RuntimeException There are no original values
+     */
+    final public function getOriginalValues()
+    {
+        if ($this->eof()) {
+            throw new \RuntimeException('There are no original values');
+        }
+        return $this->originalValues;
+    }
+
+    /**
      * Prepares the recordset to make an insertion
      * All the values are set to null
      */
