@@ -414,7 +414,7 @@ class Recordset implements \IteratorAggregate, \Countable
                 $diffs[] = $name;
             }
             $this->logger->warning(print_r([
-                'message' => "Recordset: The statement $sql return zero affected rows but the vales are different",
+                'message' => "Recordset: The statement $sql return zero affected rows but the values are different",
                 'entity' => $this->entity,
                 'extraWhereClause' => $extraWhereClause,
                 'original' => $this->originalValues,
