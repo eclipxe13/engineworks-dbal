@@ -134,12 +134,16 @@ class DBALDisconnectedTest extends TestCase
             'integer text not numeric' => ['0', 'foo bar', DBAL::TINT, false],
             'integer text numeric simple' => ['987', '987', DBAL::TINT, false],
             'integer text numeric complex' => ['-1234', '- $ 1,234.56', DBAL::TINT, false],
+            'integer empty' => ['0', '', DBAL::TINT, false],
+            'integer whitespace' => ['0', ' ', DBAL::TINT, false],
             // float
             'float normal' => ['9.1', 9.1, DBAL::TNUMBER, false],
             'float int' => ['8', 8, DBAL::TNUMBER, false],
             'float text not numeric' => ['0', 'foo bar', DBAL::TNUMBER, false],
             'float text numeric simple' => ['987.654', '987.654', DBAL::TNUMBER, false],
             'float text numeric complex' => ['-1234.56789', '- $ 1,234.567,89', DBAL::TNUMBER, false],
+            'float empty' => ['0', '', DBAL::TNUMBER, false],
+            'float whitespace' => ['0', ' ', DBAL::TNUMBER, false],
             // bool
             'bool normal false' => ['0', false, DBAL::TBOOL, false],
             'bool equal false' => ['0', '0', DBAL::TBOOL, false],
