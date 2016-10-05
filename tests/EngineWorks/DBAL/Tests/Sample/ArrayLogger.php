@@ -42,4 +42,9 @@ class ArrayLogger extends AbstractLogger
         }
         return $return;
     }
+
+    public function clear()
+    {
+        $this->logs = [];
+    }
 }
