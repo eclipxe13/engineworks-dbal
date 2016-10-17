@@ -116,8 +116,6 @@ class DBAL extends AbstractDBAL
 
     public function sqlDatePart($part, $expression)
     {
-        $format = false;
-        $sql = false;
         switch (strtoupper($part)) {
             case 'YEAR':
                 $format = '%Y';
@@ -146,11 +144,10 @@ class DBAL extends AbstractDBAL
             case 'SECOND':
                 $format = '%s';
                 break;
+            default:
+                throw new \InvalidArgumentException("Date part $part is not valid");
         }
-        if ($format) {
-            $sql = 'STRFTIME(' . $expression . ", '" . $format . "')";
-        }
-        return $sql;
+        return 'STRFTIME(' . $expression . ", '" . $format . "')";
     }
 
     public function sqlIf($condition, $truePart, $falsePart)
