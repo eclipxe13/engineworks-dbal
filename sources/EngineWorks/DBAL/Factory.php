@@ -68,7 +68,7 @@ class Factory
      * @param array $settings
      * @return Settings
      */
-    public function settings(array $settings = null)
+    public function settings(array $settings = [])
     {
         $classname = $this->buildClassName($this->settingsName, '', Settings::class);
         return new $classname($settings);
