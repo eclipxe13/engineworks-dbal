@@ -8,6 +8,9 @@ use EngineWorks\DBAL\Traits\ResultImplementsCountable;
 use EngineWorks\DBAL\Traits\ResultImplementsIterator;
 use SQLite3Result;
 
+/**
+ * Result class implementing EngineWorks\DBAL\Result based on Sqlite3 functions
+ */
 class Result implements ResultInterface
 {
     use ResultGetFieldsCachedTrait;
@@ -35,10 +38,7 @@ class Result implements ResultInterface
     public function __construct(SQLite3Result $result, $numRows)
     {
         $this->query = $result;
-        if ($numRows < 0) {
-            $numRows = $this->obtainNumRows();
-        }
-        $this->numRows = $numRows;
+        $this->numRows = ($numRows < 0) ? $this->obtainNumRows() : $numRows;
     }
 
     /**
@@ -95,7 +95,7 @@ class Result implements ResultInterface
             // static::SQLITE3_BLOB => CommonTypes::TTEXT,
             // static::SQLITE3_NULL => CommonTypes::TTEXT,
         ];
-        return (array_key_exists($field, $types)) ? $types[$field] : CommonTypes::TTEXT;
+        return ($field !== false && array_key_exists($field, $types)) ? $types[$field] : CommonTypes::TTEXT;
     }
 
     public function getIdFields()
