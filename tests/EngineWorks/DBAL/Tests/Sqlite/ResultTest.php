@@ -15,7 +15,9 @@ class ResultTest extends TestCaseWithSqliteDatabase
     {
         parent::setUp();
         if (! ($this->result instanceof Result)) {
-            $this->result = $this->dbal->queryResult('SELECT * FROM albums WHERE (albumid between 1 and 3);');
+            $this->result = $this->dbal->queryResult(
+                'SELECT * FROM albums WHERE (albumid between 1 and 3);'
+            );
         }
     }
 
@@ -79,6 +81,30 @@ class ResultTest extends TestCaseWithSqliteDatabase
             [
                 'name' => 'title',
                 'commontype' => CommonTypes::TTEXT,
+                'table' => '',
+                'flags' => null,
+            ],
+            [
+                'name' => 'votes',
+                'commontype' => CommonTypes::TINT,
+                'table' => '',
+                'flags' => null,
+            ],
+            [
+                'name' => 'lastview',
+                'commontype' => CommonTypes::TTEXT,
+                'table' => '',
+                'flags' => null,
+            ],
+            [
+                'name' => 'isfree',
+                'commontype' => CommonTypes::TINT,
+                'table' => '',
+                'flags' => null,
+            ],
+            [
+                'name' => 'collect',
+                'commontype' => CommonTypes::TNUMBER,
                 'table' => '',
                 'flags' => null,
             ],

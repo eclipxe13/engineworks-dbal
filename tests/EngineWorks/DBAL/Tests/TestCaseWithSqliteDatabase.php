@@ -1,62 +1,31 @@
 <?php
 namespace EngineWorks\DBAL\Tests;
 
-use EngineWorks\DBAL\DBAL;
-use EngineWorks\DBAL\Factory;
-use EngineWorks\DBAL\Settings;
-use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
-use PHPUnit\Framework\TestCase;
-
-abstract class TestCaseWithSqliteDatabase extends TestCase
+abstract class TestCaseWithSqliteDatabase extends TestCaseWithDatabase
 {
-    /** @var Factory */
-    protected $factory;
-
-    /** @var DBAL */
-    protected $dbal;
-
-    /** @var Settings */
-    protected $settings;
-
-    /** @var ArrayLogger */
-    protected $logger;
-
-    protected function setUp()
+    protected function getFactoryNamespace()
     {
-        parent::setUp();
-        if (null === $this->dbal) {
-            $this->createSqliteDbal();
-        }
+        return 'EngineWorks\DBAL\Sqlite';
     }
 
-    private function createSqliteDbal()
+    protected function getSettingsArray()
     {
-        $this->logger = new ArrayLogger();
-        $this->factory = new Factory('EngineWorks\DBAL\Sqlite');
-        $this->settings = $this->factory->settings([
+        return [
             'filename' => ':memory:',
-        ]);
-        $this->dbal = $this->factory->dbal($this->settings);
-        $this->dbal->connect();
-
-        $this->populate();
-
-        $this->dbal->setLogger($this->logger);
+        ];
     }
 
-    private function populate()
+    protected function createDatabaseStructure()
     {
-        $faker = \Faker\Factory::create();
-        // create albums
-        $statements = [
-            'CREATE TABLE albums (albumid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, title NVARCHAR(160)  NOT NULL);',
-        ];
-        for ($i = 0; $i < 45; $i++) {
-            $statements[] = 'INSERT INTO albums'
-                . ' VALUES (NULL, ' . $this->dbal->sqlQuote($faker->name, DBAL::TTEXT) . ');';
-        }
-        foreach ($statements as $statement) {
-            $this->assertNotSame(false, $this->dbal->execute($statement), "Fail to run $statement");
-        }
+        $this->executeStatements([
+            'CREATE ' . ' TABLE albums ('
+            . ' albumid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,'
+            . ' title NVARCHAR(160) NOT NULL,'
+            . ' votes INTEGER NULL,'
+            . ' lastview DATETIME NULL,'
+            . ' isfree BOOLEAN NOT NULL,'
+            . ' collect DECIMAL(12, 2) NOT NULL DEFAULT 0)'
+            . ';',
+        ]);
     }
 }
