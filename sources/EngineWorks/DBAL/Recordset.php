@@ -58,6 +58,12 @@ class Recordset implements \IteratorAggregate, \Countable
     private $datafields;
 
     /**
+     * Storage of idFields, set after call query method
+     * @var string[]
+     */
+    private $idFields;
+
+    /**
      * Recordset constructor.
      * @param DBAL $dbal
      * @param LoggerInterface|null $logger, If not provided it uses the DBAL Logger
@@ -73,9 +79,11 @@ class Recordset implements \IteratorAggregate, \Countable
      * Executes a SQL Query and connect the object with that query in order to operate the recordset
      * @param string $sql
      * @param string $overrideEntity
+     * @param string[] $overrideKeys
+     *
      * @return bool
      */
-    final public function query($sql, $overrideEntity = '')
+    final public function query($sql, $overrideEntity = '', array $overrideKeys = [])
     {
         $this->initialize();
         if (! $this->hasDBAL()) {
@@ -104,6 +112,22 @@ class Recordset implements \IteratorAggregate, \Countable
         if ('' !== $overrideEntity) {
             $this->entity = $overrideEntity;
         }
+        // set the id fields
+        if (! count($overrideKeys)) {
+            $this->idFields = ($this->result->getIdFields()) ? : [];
+        } else {
+            foreach ($overrideKeys as $fieldName) {
+                if (! is_string($fieldName)) {
+                    throw new \InvalidArgumentException('Keys were set but at least one is not a string');
+                }
+                if (! array_key_exists($fieldName, $this->datafields)) {
+                    throw new \InvalidArgumentException(
+                        "The field name $fieldName does not exists in the set of fields"
+                    );
+                }
+            }
+            $this->idFields = $overrideKeys;
+        }
         // if has records then load first
         if ($this->getRecordCount() > 0) {
             $this->moveNext();
@@ -123,6 +147,7 @@ class Recordset implements \IteratorAggregate, \Countable
         $this->originalValues = null;
         $this->datafields = null;
         $this->values = [];
+        $this->idFields = [];
     }
 
     /**
@@ -273,6 +298,14 @@ class Recordset implements \IteratorAggregate, \Countable
     }
 
     /**
+     * @return string[]
+     */
+    public function getIdFields()
+    {
+        return $this->idFields;
+    }
+
+    /**
      * Create an array of conditions based on the current values and ids
      * This function is used on Update and on Delete
      * @param string $extraWhereClause
@@ -285,7 +318,7 @@ class Recordset implements \IteratorAggregate, \Countable
         if ($extraWhereClause) {
             $conditions[] = "($extraWhereClause)";
         }
-        $ids = $this->result->getIdFields();
+        $ids = $this->getIdFields();
         if (! is_array($ids)) {
             $this->logger->warning('Recordset: cannot get the ids to locate the current the record,'
                 . 'will use all the fields to create the where clause'
