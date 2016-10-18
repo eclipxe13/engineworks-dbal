@@ -3,6 +3,14 @@ namespace EngineWorks\DBAL\Tests;
 
 class TestCaseWithMssqlDatabase extends TestCaseWithDatabase
 {
+    protected function setUp()
+    {
+        if (! function_exists('mssql_connect')) {
+            $this->markTestSkipped('Environment does not have the extension mssql');
+        }
+        parent::setUp();
+    }
+
     protected function getFactoryNamespace()
     {
         return 'EngineWorks\DBAL\Mssql';
