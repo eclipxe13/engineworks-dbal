@@ -21,7 +21,7 @@ before_script:
 script:
   - mkdir -p build/tests/
   - vendor/bin/parallel-lint sources/ tests/
-  - vendor/bin/phpcs -sp --standard=psr2 sources/ tests/
+  - vendor/bin/phpcs -sp sources/ tests/
   - vendor/bin/phpunit --coverage-text --coverage-clover=build/tests/coverage.xml
 
 after_script:
