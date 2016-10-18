@@ -8,11 +8,10 @@ use EngineWorks\DBAL\Tests\TestCaseWithMssqlDatabase;
 
 class MssqlDbalConnectedTest extends TestCaseWithMssqlDatabase
 {
-
     public function testQuoteMultibyte()
     {
         $text = 'á é í ó ú';
-        $sql = "SELECT " . $this->dbal->sqlQuote($text, CommonTypes::TTEXT);
+        $sql = 'SELECT ' . $this->dbal->sqlQuote($text, CommonTypes::TTEXT);
         $this->assertSame("SELECT '$text'", $sql);
         $this->assertSame($text, $this->dbal->queryOne($sql));
     }
@@ -84,7 +83,9 @@ class MssqlDbalConnectedTest extends TestCaseWithMssqlDatabase
     public function testQueryRecordset()
     {
         $sql = 'SELECT * FROM albums WHERE (albumid between 1 and 5);';
-        $recordset = $this->dbal->queryRecordset($sql);
+        $recordset = $this->dbal->queryRecordset($sql, 'albums', ['albumid']);
+        $this->assertSame('albums', $recordset->getEntityName());
+        $this->assertSame(['albumid'], $recordset->getIdFields());
         $this->assertInstanceOf(Recordset::class, $recordset);
         $this->assertSame(5, $recordset->getRecordCount());
         $this->assertFalse($recordset->eof());
