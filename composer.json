@@ -15,9 +15,9 @@
     },
     "require-dev": {
         "ext-pdo": "*",
-        "ext-sqlite": "*",
+        "ext-sqlite3": "*",
         "ext-mysql": "*",
-        "ext-sybase": "*",
+        "ext-mssql": "*",
         "phpunit/phpunit": "@stable",
         "fzaninotto/faker": "@stable",
         "squizlabs/php_codesniffer": "@stable",
