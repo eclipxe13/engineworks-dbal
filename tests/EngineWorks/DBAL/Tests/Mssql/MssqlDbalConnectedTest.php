@@ -8,6 +8,15 @@ use EngineWorks\DBAL\Tests\TestCaseWithMssqlDatabase;
 
 class MssqlDbalConnectedTest extends TestCaseWithMssqlDatabase
 {
+
+    public function testQuoteMultibyte()
+    {
+        $text = 'á é í ó ú';
+        $sql = "SELECT " . $this->dbal->sqlQuote($text, CommonTypes::TTEXT);
+        $this->assertSame("SELECT '$text'", $sql);
+        $this->assertSame($text, $this->dbal->queryOne($sql));
+    }
+
     public function testQueryOneWithValues()
     {
         $expected = 45;

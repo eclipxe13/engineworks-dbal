@@ -112,7 +112,7 @@ class DBAL extends AbstractDBAL
     public function sqlString($variable)
     {
         // there are no function to escape without a link
-        if ($this->isConnected()) {
+        if ('' === 'THIS IS NOT WORKING WITH MULTIBYTE STRINGS' && $this->isConnected()) {
             $quoted = $this->pdo->quote($variable);
             return substr($quoted, 1, strlen($quoted) - 2);
         }

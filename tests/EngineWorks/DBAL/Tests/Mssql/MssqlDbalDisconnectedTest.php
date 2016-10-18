@@ -98,6 +98,7 @@ class MssqlDbalDisconnectedTest extends TestCase
             'text zero' => ["'0'", 0, DBAL::TTEXT, false],
             'text integer' => ["'9'", 9, DBAL::TTEXT, false],
             'text float' => ["'1.2'", 1.2, DBAL::TTEXT, false],
+            'text multibyte' => ["'á é í ó ú'", 'á é í ó ú', DBAL::TTEXT, false],
             // integer
             'integer normal' => ['9', 9, DBAL::TINT, false],
             'integer float' => ['1', 1.2, DBAL::TINT, false],
