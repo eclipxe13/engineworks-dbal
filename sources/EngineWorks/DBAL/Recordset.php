@@ -255,7 +255,7 @@ class Recordset implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Check whether the current values are different from thw original ones
+     * Check whether the current values are different from the original ones
      * The base are the original values
      * @return bool
      */
@@ -321,7 +321,7 @@ class Recordset implements \IteratorAggregate, \Countable
         $ids = $this->getIdFields();
         if (! is_array($ids)) {
             $this->logger->warning('Recordset: cannot get the ids to locate the current the record,'
-                . 'will use all the fields to create the where clause'
+                . ' will use all the fields to create the where clause'
                 . "\n"
                 . print_r([
                     'entity' => $this->entity,
