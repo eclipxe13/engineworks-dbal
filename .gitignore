@@ -4,3 +4,4 @@
 /build/
 /phpdox.xml
 /phpunit.xml
+/tests/.env

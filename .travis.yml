@@ -19,6 +19,7 @@ before_script:
   - travis_retry composer install --no-interaction --prefer-dist
 
 script:
+  - cp tests/.env.example tests/.env
   - mkdir -p build/tests/
   - vendor/bin/parallel-lint sources/ tests/
   - vendor/bin/phpcs -sp sources/ tests/
