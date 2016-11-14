@@ -1,5 +1,5 @@
 <?php
-namespace EngineWorks\DBAL\Tests\Sqlite;
+namespace EngineWorks\DBAL\Tests\Mssql;
 
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Factory;
@@ -8,7 +8,7 @@ use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
-class DBALDisconnectedTest extends TestCase
+class MssqlDbalDisconnectedTest extends TestCase
 {
     /** @var Factory */
     private $factory;
@@ -23,12 +23,9 @@ class DBALDisconnectedTest extends TestCase
     {
         parent::setUp();
         if ($this->dbal === null) {
-            $this->factory = new Factory('EngineWorks\DBAL\Sqlite');
-            $this->settings = $this->factory->settings([
-                'filename' => ':memory:',
-            ]);
+            $this->factory = new Factory('EngineWorks\DBAL\Mssql');
+            $this->settings = $this->factory->settings();
             $this->dbal = $this->factory->dbal($this->settings);
-            $this->dbal->connect();
         }
     }
 
@@ -53,50 +50,23 @@ class DBALDisconnectedTest extends TestCase
      * connect & disconnect tests
      *
      */
-    public function testDisconnect()
-    {
-        $this->assertTrue($this->dbal->isConnected());
-        $this->dbalSetArrayLogger();
-        $this->dbal->disconnect();
-        $expectedLogs = [
-            'info: -- Disconnection',
-        ];
-        $this->assertFalse($this->dbal->isConnected());
-        $this->assertSame($expectedLogs, $this->dbalGetArrayLogger()->allMessages());
-        $this->dbal->disconnect();
-        $this->assertSame(
-            $expectedLogs,
-            $this->dbalGetArrayLogger()->allMessages(),
-            'Disconnect create two logs instead of only one'
-        );
-    }
-
     public function testConnectReturnFalseWhenCannotConnect()
     {
         $dbal = $this->factory->dbal($this->factory->settings([
-            'filename' => 'non-existent',
-            'flags' => 0,
         ]));
         $logger = new ArrayLogger();
         $dbal->setLogger($logger);
         $this->assertFalse($dbal->connect());
         $expectedLogs = [
             'info: -- Connection fail',
-            'error: Cannot create SQLite3 object: Unable to open database: out of memory',
+            'error: Cannot create',
         ];
-        $this->assertSame($expectedLogs, $logger->allMessages());
-    }
-
-    public function testConnectSuccessfully()
-    {
-        $this->assertTrue($this->dbal->isConnected());
-        $this->dbal->disconnect();
-        $this->dbalSetArrayLogger();
-        $this->assertTrue($this->dbal->connect());
-        $expectedLogs = [
-            'info: -- Connection success',
-        ];
-        $this->assertSame($expectedLogs, $this->dbalGetArrayLogger()->allMessages());
+        $messages = $logger->allMessages();
+        $count = 0;
+        foreach ($expectedLogs as $expectedLog) {
+            $this->assertContains($expectedLog, $messages[$count]);
+            $count = $count + 1;
+        }
     }
 
     /*
@@ -111,7 +81,7 @@ class DBALDisconnectedTest extends TestCase
             'prefix' => 'foo_',
 
         ]));
-        $expectedName = '"foo_bar" AS "x"';
+        $expectedName = '[foo_bar] AS x';
         $this->assertSame($expectedName, $dbal->sqlTable('bar', 'x'));
     }
 
@@ -128,6 +98,7 @@ class DBALDisconnectedTest extends TestCase
             'text zero' => ["'0'", 0, DBAL::TTEXT, false],
             'text integer' => ["'9'", 9, DBAL::TTEXT, false],
             'text float' => ["'1.2'", 1.2, DBAL::TTEXT, false],
+            'text multibyte' => ["'á é í ó ú'", 'á é í ó ú', DBAL::TTEXT, false],
             // integer
             'integer normal' => ['9', 9, DBAL::TINT, false],
             'integer float' => ['1', 1.2, DBAL::TINT, false],
@@ -170,6 +141,9 @@ class DBALDisconnectedTest extends TestCase
             'null date notnull' => ["'1970-01-01'", null, DBAL::TDATE, false],
             'null time notnull' => ["'00:00:00'", null, DBAL::TTIME, false],
             'null datetime notnull' => ["'1970-01-01 00:00:00'", null, DBAL::TDATETIME, false],
+            // special chars
+            "special char '" => ["''''", "'", DBAL::TTEXT, false],
+            'special char \"' => ["'\"'", '"', DBAL::TTEXT, false],
         ];
     }
 
@@ -203,7 +177,7 @@ class DBALDisconnectedTest extends TestCase
 
     public function testSqlRandomFunc()
     {
-        $this->assertSame('random()', $this->dbal->sqlRandomFunc());
+        $this->assertSame('RAND()', $this->dbal->sqlRandomFunc());
     }
 
     public function testSqlIsNull()
@@ -215,7 +189,7 @@ class DBALDisconnectedTest extends TestCase
     public function testSqlIf()
     {
         $this->assertSame(
-            'CASE WHEN (condition) THEN true ELSE false',
+            'CASE WHEN (condition) THEN true ELSE false END',
             $this->dbal->sqlIf('condition', 'true', 'false')
         );
     }
@@ -227,7 +201,7 @@ class DBALDisconnectedTest extends TestCase
 
     public function testSqlLimit()
     {
-        $expected = 'SELECT a LIMIT 20 OFFSET 80;';
+        $expected = 'SELECT a OFFSET 80 ROWS FETCH NEXT 20 ROWS ONLY;';
         $this->assertSame($expected, $this->dbal->sqlLimit('SELECT a ', 5, 20));
         $this->assertSame($expected, $this->dbal->sqlLimit('SELECT a;', 5, 20));
     }
@@ -258,8 +232,8 @@ class DBALDisconnectedTest extends TestCase
 
     public function testSqlConcatenate()
     {
-        $this->assertSame('9 || 8 || 7', $this->dbal->sqlConcatenate(...['9', '8', '7']));
-        $this->assertSame('a || b || c', $this->dbal->sqlConcatenate('a', 'b', 'c'));
+        $this->assertSame('CONCAT(9, 8, 7)', $this->dbal->sqlConcatenate(...['9', '8', '7']));
+        $this->assertSame('CONCAT(a, b, c)', $this->dbal->sqlConcatenate('a', 'b', 'c'));
         $this->assertSame("''", $this->dbal->sqlConcatenate());
     }
 }

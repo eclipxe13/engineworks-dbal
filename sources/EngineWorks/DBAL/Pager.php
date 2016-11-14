@@ -242,7 +242,7 @@ class Pager
         if (false === $value) {
             throw new \RuntimeException("Unable to query the record count using a subquery: $query");
         }
-        return $value;
+        return (int) $value;
     }
 
     /**
@@ -255,7 +255,7 @@ class Pager
         if (false === $value) {
             throw new \RuntimeException("Unable to query the record count using a query: $query");
         }
-        return $value;
+        return (int) $value;
     }
 
     /**

@@ -18,11 +18,9 @@ class SettingsMap implements SettingsInterface
      */
     protected $map = [];
 
-    public function __construct(array $settings = null)
+    public function __construct(array $settings = [])
     {
-        if (null !== $settings) {
-            $this->setAll($settings);
-        }
+        $this->setAll($settings);
     }
 
     /**

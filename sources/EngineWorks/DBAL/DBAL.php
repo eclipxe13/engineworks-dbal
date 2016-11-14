@@ -490,12 +490,14 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     /**
      * Returns a Recordset Object from the query, false if error
      * @param string $query
+     * @param string $overrideEntity
+     * @param string[] $overrideKeys
      * @return Recordset|false
      */
-    final public function queryRecordset($query)
+    final public function queryRecordset($query, $overrideEntity = '', array $overrideKeys = [])
     {
         $recordset = new Recordset($this);
-        if (! $recordset->query($query)) {
+        if (! $recordset->query($query, $overrideEntity, $overrideKeys)) {
             $this->logger->error("DBAL::queryRecorset failure running $query");
             return false;
         }

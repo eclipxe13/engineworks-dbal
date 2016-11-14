@@ -8,6 +8,9 @@ use EngineWorks\DBAL\Traits\ResultImplementsCountable;
 use EngineWorks\DBAL\Traits\ResultImplementsIterator;
 use SQLite3Result;
 
+/**
+ * Result class implementing EngineWorks\DBAL\Result based on Sqlite3 functions
+ */
 class Result implements ResultInterface
 {
     use ResultGetFieldsCachedTrait;
@@ -18,13 +21,26 @@ class Result implements ResultInterface
      * Sqlite3 element
      * @var SQLite3Result
      */
-    private $query = false;
+    private $query;
 
     /**
      * The number of the result rows
      * @var int
      */
     private $numRows;
+
+    /**
+     * each call to fetchArray() returns the next result from SQLite3Result in an array,
+     * until there are no more results, whereupon the next fetchArray() call will return FALSE.
+     *
+     * HOWEVER an additional call of fetchArray() at this point will reset back to the beginning of the result
+     * set and once again return the first result. This does not seem to explicitly documented.
+     *
+     * http://php.net/manual/en/sqlite3result.fetcharray.php#115856
+     *
+     * @var bool
+     */
+    private $hasReachEOL = false;
 
     /**
      * Result based on Sqlite3
@@ -35,10 +51,7 @@ class Result implements ResultInterface
     public function __construct(SQLite3Result $result, $numRows)
     {
         $this->query = $result;
-        if ($numRows < 0) {
-            $numRows = $this->obtainNumRows();
-        }
-        $this->numRows = $numRows;
+        $this->numRows = ($numRows < 0) ? $this->obtainNumRows() : $numRows;
     }
 
     /**
@@ -50,6 +63,27 @@ class Result implements ResultInterface
         $this->query = null;
     }
 
+    private function internalFetch($mode)
+    {
+        if ($this->hasReachEOL) {
+            return false;
+        }
+        $values = $this->query->fetchArray($mode);
+        if (false === $values) {
+            $this->hasReachEOL = true;
+        }
+        return $values;
+    }
+
+    private function internalReset()
+    {
+        if (! $this->hasReachEOL) {
+            return $this->query->reset();
+        }
+        $this->hasReachEOL = false;
+        return true;
+    }
+
     /**
      * Internal method to retrieve the number of rows if not supplied from constructor
      *
@@ -58,10 +92,14 @@ class Result implements ResultInterface
     private function obtainNumRows()
     {
         $count = 0;
-        while (false !== $this->query->fetchArray(SQLITE3_NUM)) {
+        if (false !== $this->internalFetch(SQLITE3_NUM)) {
+            $this->getFields();
+            $count = 1;
+        }
+        while (false !== $this->internalFetch(SQLITE3_NUM)) {
             $count = $count + 1;
         }
-        $this->query->reset();
+        $this->internalReset();
         return $count;
     }
 
@@ -74,7 +112,6 @@ class Result implements ResultInterface
                 'name' => $this->query->columnName($i),
                 'commontype' => $this->getCommonType($this->query->columnType($i)),
                 'table' => '',
-                'flags' => null,  // extra: used for getting the ids in the query
             ];
         }
         return $fields;
@@ -95,7 +132,7 @@ class Result implements ResultInterface
             // static::SQLITE3_BLOB => CommonTypes::TTEXT,
             // static::SQLITE3_NULL => CommonTypes::TTEXT,
         ];
-        return (array_key_exists($field, $types)) ? $types[$field] : CommonTypes::TTEXT;
+        return ($field !== false && array_key_exists($field, $types)) ? $types[$field] : CommonTypes::TTEXT;
     }
 
     public function getIdFields()
@@ -111,7 +148,7 @@ class Result implements ResultInterface
 
     public function fetchRow()
     {
-        $return = $this->query->fetchArray(SQLITE3_ASSOC);
+        $return = $this->internalFetch(SQLITE3_ASSOC);
         return (! is_array($return)) ? false : $return;
     }
 
@@ -131,7 +168,7 @@ class Result implements ResultInterface
         }
         // move to the offset
         for ($i = 0; $i < $offset; $i++) {
-            if (false === $this->query->fetchArray(SQLITE3_NUM)) {
+            if (false === $this->internalFetch(SQLITE3_NUM)) {
                 return false;
             }
         }
@@ -143,6 +180,6 @@ class Result implements ResultInterface
         if ($this->resultCount() <= 0) {
             return false;
         }
-        return $this->query->reset();
+        return $this->internalReset();
     }
 }

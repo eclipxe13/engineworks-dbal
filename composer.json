@@ -14,10 +14,17 @@
         "psr/log": "^1.0"
     },
     "require-dev": {
+        "ext-pdo": "*",
+        "ext-sqlite3": "*",
         "phpunit/phpunit": "@stable",
         "fzaninotto/faker": "@stable",
         "squizlabs/php_codesniffer": "@stable",
-        "jakub-onderka/php-parallel-lint": "^0.9.2"
+        "jakub-onderka/php-parallel-lint": "@stable",
+        "vlucas/phpdotenv": "@stable"
+    },
+    "suggest": {
+        "ext-mysql": "*",
+        "ext-mssql": "*"
     },
     "autoload": {
         "psr-4": {

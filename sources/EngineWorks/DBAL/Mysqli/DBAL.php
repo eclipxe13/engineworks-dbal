@@ -1,8 +1,8 @@
 <?php
 namespace EngineWorks\DBAL\Mysqli;
 
-use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\DBAL as AbstractDBAL;
+use EngineWorks\DBAL\Traits\MethodSqlConcatenate;
 use EngineWorks\DBAL\Traits\MethodSqlIsNull;
 use EngineWorks\DBAL\Traits\MethodSqlLike;
 use EngineWorks\DBAL\Traits\MethodSqlLimit;
@@ -19,6 +19,7 @@ class DBAL extends AbstractDBAL
     use MethodSqlLike;
     use MethodSqlIsNull;
     use MethodSqlLimit;
+    use MethodSqlConcatenate;
 
     /**
      * Contains the connection resource for mysqli
@@ -156,17 +157,8 @@ class DBAL extends AbstractDBAL
         return chr(96) . $tableName . chr(96) . (($asTable) ? ' AS ' . $asTable : '');
     }
 
-    public function sqlConcatenate(...$strings)
-    {
-        if (! count($strings)) {
-            return $this->sqlQuote('', CommonTypes::TTEXT);
-        }
-        return 'CONCAT(' . implode(', ', $strings) . ')';
-    }
-
     public function sqlDatePart($part, $expression)
     {
-        $format = '';
         switch (strtoupper($part)) {
             case 'YEAR':
                 $format = '%Y';
@@ -195,12 +187,10 @@ class DBAL extends AbstractDBAL
             case 'SECOND':
                 $format = '%s';
                 break;
+            default:
+                throw new \InvalidArgumentException("Date part $part is not valid");
         }
-        $sql = '';
-        if ($format) {
-            $sql = 'DATE_FORMAT(' . $expression . ", '" . $format . "')";
-        }
-        return $sql;
+        return 'DATE_FORMAT(' . $expression . ", '" . $format . "')";
     }
 
     public function sqlIf($condition, $truePart, $falsePart)
