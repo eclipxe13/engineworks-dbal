@@ -3,6 +3,13 @@ namespace EngineWorks\DBAL\Tests;
 
 abstract class TestCaseWithSqliteDatabase extends TestCaseWithDatabase
 {
+    protected function checkIsAvailable()
+    {
+        if (! class_exists('\SQLite3')) {
+            $this->markTestSkipped('Environment does not have the extension sqlite3');
+        }
+    }
+
     protected function getFactoryNamespace()
     {
         return 'EngineWorks\DBAL\Sqlite';
@@ -19,7 +26,7 @@ abstract class TestCaseWithSqliteDatabase extends TestCaseWithDatabase
     {
         $this->executeStatements([
             'CREATE ' . ' TABLE albums ('
-            . ' albumid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,'
+            . ' albumid INTEGER PRIMARY KEY NOT NULL,'
             . ' title NVARCHAR(160) NOT NULL,'
             . ' votes INTEGER NULL,'
             . ' lastview DATETIME NULL,'
