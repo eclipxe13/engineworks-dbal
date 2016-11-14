@@ -29,6 +29,12 @@ The Recordset class mimics the main methods of the recordset:
 - Use of magic methods Update and Delete
 - Convert from/to database types to common types
 
+Some drivers does not know how to get the primary keys on a query,
+in that case you can specify the entity to affect and also the primary keys.
+
+Mysql driver support this feature, it will check for primary keys,
+auto incrementing fields or unique indexes.
+
 ## EngineWorks\DBAL\Pager
 
 The Pager class uses Recordset to access a limited page of a query, it does not load
@@ -36,7 +42,29 @@ all the records but only the requested ones
 
 ## About drivers
 
-It support Mysqli and Sqlite3 drivers, you are free to create your own and share it with me.
+It support Mysqli, Mssql and Sqlite3 drivers, you are free to create your own and (please) share it with me.
+
+### Mysqli
+
+- This is the most tested driver on production.
+
+### Mssql
+
+- This driver is based on PDO dblib, you will need FreeTDS.
+- Result does not know the entity or primary keys of the query.
+  Use overrideEntity and overrideKeys when create a Recordset for update or delete.
+- The function to quote (PDO::quote) fail with multibyte strings, we are
+  using simple replacements of `'` to `''`
+
+### Sqlite3
+
+- Result does not know the entity or primary keys of the query.
+  Use overrideEntity and overrideKeys when create a Recordset for update or delete.
+- When a result is empty (nothing to fetch) it is not possible to know the type
+  of the fields, this make this driver unstable to update using Recordset.
+- The method SQLite3Result::fetchArray put the cursor in the first position
+  when called after end of list. This behavior is corrected on Result and fetch
+  returns always false.
 
 ## Compatibility
 
