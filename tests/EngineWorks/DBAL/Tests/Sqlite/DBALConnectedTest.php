@@ -1,6 +1,7 @@
 <?php
 namespace EngineWorks\DBAL\Tests\Sqlite;
 
+use EngineWorks\DBAL\Tests\RecordsetTester;
 use EngineWorks\DBAL\Tests\TestCaseWithSqliteDatabase;
 
 class DBALConnectedTest extends TestCaseWithSqliteDatabase
@@ -30,5 +31,11 @@ class DBALConnectedTest extends TestCaseWithSqliteDatabase
 
         $expectedRows = $this->convertArrayFixedValuesToStrings($this->getFixedValuesWithLabels(1, 5));
         $this->assertEquals($expectedRows, $result);
+    }
+
+    public function testRecordsetUsingTester()
+    {
+        $tester = new RecordsetTester($this, $this->dbal);
+        $tester->execute();
     }
 }

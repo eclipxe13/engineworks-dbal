@@ -1,12 +1,12 @@
 <?php
-namespace EngineWorks\DBAL\Tests\Sqlite;
+namespace EngineWorks\DBAL\Tests\Mssql;
 
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Iterators\ResultIterator;
 use EngineWorks\DBAL\Result;
-use EngineWorks\DBAL\Tests\TestCaseWithSqliteDatabase;
+use EngineWorks\DBAL\Tests\TestCaseWithMssqlDatabase;
 
-class ResultTest extends TestCaseWithSqliteDatabase
+class ResultTest extends TestCaseWithMssqlDatabase
 {
     /** @var Result */
     private $result;
@@ -19,6 +19,13 @@ class ResultTest extends TestCaseWithSqliteDatabase
                 'SELECT * FROM albums WHERE (albumid between 1 and 3);'
             );
         }
+    }
+
+    protected function tearDown()
+    {
+        unset($this->result);
+        $this->result = null;
+        parent::tearDown();
     }
 
     public function testResultCount()
@@ -72,14 +79,11 @@ class ResultTest extends TestCaseWithSqliteDatabase
 
     public function testFetchRowSequence()
     {
-        // this is made to check undocumented behavior on SQLite3Result::fetchArray
-        // http://php.net/manual/en/sqlite3result.fetcharray.php#115856
         $this->assertInternalType('array', $this->result->fetchRow());
         $this->assertInternalType('array', $this->result->fetchRow());
         $this->assertInternalType('array', $this->result->fetchRow());
-        $this->assertSame(false, $this->result->fetchRow(), 'First fetch row on EOF must return FALSE');
-        $this->assertSame(false, $this->result->fetchRow(), 'Second fetch row on EOF must return FALSE');
-        $this->assertSame(false, $this->result->fetchRow(), 'Third fetch row on EOF must return FALSE');
+        $this->assertSame(false, $this->result->fetchRow());
+        $this->assertSame(false, $this->result->fetchRow());
     }
 
     public function testGetFields()
@@ -103,12 +107,12 @@ class ResultTest extends TestCaseWithSqliteDatabase
             ],
             [
                 'name' => 'lastview',
-                'commontype' => CommonTypes::TTEXT,
+                'commontype' => CommonTypes::TDATETIME,
                 'table' => '',
             ],
             [
                 'name' => 'isfree',
-                'commontype' => CommonTypes::TINT,
+                'commontype' => CommonTypes::TBOOL,
                 'table' => '',
             ],
             [
@@ -118,14 +122,6 @@ class ResultTest extends TestCaseWithSqliteDatabase
             ],
         ];
         $this->assertEquals($expected, $this->result->getFields());
-    }
-
-    public function testGetFieldsWithNoContents()
-    {
-        $this->markTestSkipped('Already know that Sqlite fail when the result does not have contents');
-        $result = $this->dbal->queryResult('SELECT albumid FROM albums WHERE (albumid = -1);');
-        $fields = $result->getFields();
-        $this->assertEquals(CommonTypes::TINT, $fields[0]['commontype']);
     }
 
     public function testGetIdFields()
@@ -146,6 +142,13 @@ class ResultTest extends TestCaseWithSqliteDatabase
         $this->assertFalse($result->moveFirst());
         $this->assertFalse($result->moveTo(0));
         $this->assertFalse($result->moveTo(10));
+    }
+
+    public function testWithNoContents()
+    {
+        $result = $this->dbal->queryResult('SELECT albumid FROM albums WHERE (albumid = -1);');
+        $fields = $result->getFields();
+        $this->assertEquals(CommonTypes::TINT, $fields[0]['commontype']);
     }
 
     private function getForEach()

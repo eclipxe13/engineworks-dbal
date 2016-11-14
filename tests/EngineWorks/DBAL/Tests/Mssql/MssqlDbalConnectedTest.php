@@ -4,6 +4,7 @@ namespace EngineWorks\DBAL\Tests\Mssql;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Recordset;
 use EngineWorks\DBAL\Result;
+use EngineWorks\DBAL\Tests\RecordsetTester;
 use EngineWorks\DBAL\Tests\TestCaseWithMssqlDatabase;
 
 class MssqlDbalConnectedTest extends TestCaseWithMssqlDatabase
@@ -27,7 +28,7 @@ class MssqlDbalConnectedTest extends TestCaseWithMssqlDatabase
     public function testQueryOneWithError()
     {
         $expected = -10;
-        $value = $this->dbal->queryOne('SELECT NULL FROM albums WHERE (albumid = -1);', $expected);
+        $value = $this->dbal->queryOne('SELECT albumid FROM albums WHERE (albumid = -1);', $expected);
 
         $this->assertSame($expected, $value);
     }
@@ -102,5 +103,11 @@ class MssqlDbalConnectedTest extends TestCaseWithMssqlDatabase
             $recordset->moveNext();
             $index = $index + 1;
         }
+    }
+
+    public function testRecordsetUsingTester()
+    {
+        $tester = new RecordsetTester($this, $this->dbal);
+        $tester->execute();
     }
 }
