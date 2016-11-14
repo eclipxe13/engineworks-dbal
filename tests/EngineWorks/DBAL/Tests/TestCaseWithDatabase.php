@@ -28,9 +28,12 @@ abstract class TestCaseWithDatabase extends TestCase
 
     abstract protected function createDatabaseStructure();
 
+    abstract protected function checkIsAvailable();
+
     protected function setUp()
     {
         parent::setUp();
+        $this->checkIsAvailable();
         if (null === $this->dbal) {
             $this->createDatabase();
         }
@@ -52,10 +55,7 @@ abstract class TestCaseWithDatabase extends TestCase
         $this->settings = $this->factory->settings($this->getSettingsArray());
         $this->dbal = $this->factory->dbal($this->settings, $this->logger);
         if (! $this->dbal->connect()) {
-            $this->markTestSkipped(implode("\n", array_merge(
-                ['Cannot test ' . $this->getFactoryNamespace()],
-                $this->logger->messages(LogLevel::ERROR)
-            )));
+            $this->fail('Cannot connect to test ' . $this->getFactoryNamespace());
         }
         $this->dbal->isConnected();
         $this->createDatabaseStructure();
@@ -146,8 +146,9 @@ abstract class TestCaseWithDatabase extends TestCase
         }
         $statements = [];
         foreach ($data as $row) {
-            $statements[] = 'INSERT ' . ' INTO albums (title, votes, lastview, isfree, collect) VALUES'
-                . ' (' . $this->dbal->sqlQuote($row[1], DBAL::TTEXT)
+            $statements[] = 'INSERT ' . ' INTO albums (albumid, title, votes, lastview, isfree, collect) VALUES'
+                . ' (' . $this->dbal->sqlQuote($row[0], DBAL::TINT)
+                . ', ' . $this->dbal->sqlQuote($row[1], DBAL::TTEXT)
                 . ', ' . $this->dbal->sqlQuote($row[2], DBAL::TINT)
                 . ', ' . $this->dbal->sqlQuote($row[3], DBAL::TDATETIME)
                 . ', ' . $this->dbal->sqlQuote($row[4], DBAL::TBOOL)
