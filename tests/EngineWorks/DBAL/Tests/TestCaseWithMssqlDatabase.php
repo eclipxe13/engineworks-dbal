@@ -3,12 +3,17 @@ namespace EngineWorks\DBAL\Tests;
 
 class TestCaseWithMssqlDatabase extends TestCaseWithDatabase
 {
-    protected function setUp()
+    protected function checkIsAvailable()
     {
-        if (! function_exists('mssql_connect')) {
-            $this->markTestSkipped('Environment does not have the extension mssql');
+        if (getenv('testMssql') !== 'yes') {
+            $this->markTestSkipped('Environment does not include mssql tests');
         }
-        parent::setUp();
+        if (! function_exists('pdo_drivers')) {
+            $this->markTestSkipped('Environment does not have the extension pdo');
+        }
+        if (! in_array('dblib', pdo_drivers())) {
+            $this->markTestSkipped('Environment does not have the extension pdo-dblib');
+        }
     }
 
     protected function getFactoryNamespace()
@@ -19,11 +24,11 @@ class TestCaseWithMssqlDatabase extends TestCaseWithDatabase
     protected function getSettingsArray()
     {
         return [
-            'host' => 'localhost',
-            'port' => '9433',
+            'host' => getenv('testMssql_server'),
+            'port' => getenv('testMssql_port'),
             'database' => '',
-            'user' => 'sa',
-            'password' => '',
+            'user' => getenv('testMssql_username'),
+            'password' => getenv('testMssql_password'),
             'encoding' => '',
         ];
     }
@@ -36,7 +41,7 @@ class TestCaseWithMssqlDatabase extends TestCaseWithDatabase
             'CREATE DATABASE dbaltest;',
             'USE dbaltest;',
             'CREATE ' . ' TABLE albums ('
-            . ' albumid INTEGER IDENTITY(1,1) PRIMARY KEY,'
+            . ' albumid INTEGER PRIMARY KEY NOT NULL,'
             . ' title NVARCHAR(160) NOT NULL,'
             . ' votes INTEGER NULL,'
             . ' lastview DATETIME NULL,'
