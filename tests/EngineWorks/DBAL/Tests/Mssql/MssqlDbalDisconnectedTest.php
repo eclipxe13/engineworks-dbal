@@ -91,6 +91,7 @@ class MssqlDbalDisconnectedTest extends TestCase
         $date = '2016-12-31';
         $time = '23:31:59';
         $datetime = "$date $time";
+        $xmlValue = (new \SimpleXMLElement('<' . 'd v="55.1"/>'))['v'];
         return [
             // texts
             'text normal' => ["'foo'", 'foo', DBAL::TTEXT, false],
@@ -144,6 +145,15 @@ class MssqlDbalDisconnectedTest extends TestCase
             // special chars
             "special char '" => ["''''", "'", DBAL::TTEXT, false],
             'special char \"' => ["'\"'", '"', DBAL::TTEXT, false],
+            //
+            // object
+            //
+            'object to string' => ["'55.1'", $xmlValue, DBAL::TTEXT, true],
+            'object to string not null' => ["'55.1'", $xmlValue, DBAL::TTEXT, false],
+            'object to int' => ["55", $xmlValue, DBAL::TINT, true],
+            'object to int not null' => ["55", $xmlValue, DBAL::TINT, false],
+            'object to number' => ["55.1", $xmlValue, DBAL::TNUMBER, true],
+            'object to number not null' => ["55.1", $xmlValue, DBAL::TNUMBER, false],
         ];
     }
 
