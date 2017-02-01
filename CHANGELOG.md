@@ -1,3 +1,14 @@
+# version 1.3.1 2017-01-31
+- Fix bug when sqlQuote receives a stringable object but it does not take value to parse it as int or float
+
+# version 1.3.0  2016-11-14
+- Add Mssql driver
+- Allow pass entity and primary keys to Recordset
+- Sqlite uses fetch behavior to reset the query
+- Improve tests
+- Add Travis-CI support
+- Improve documentation
+
 # version 1.2.3 2016-09-01
 - Rename project to eclipxe/engineworks-dbal
 - Move from gitlab to github

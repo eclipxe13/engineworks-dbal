@@ -14,6 +14,9 @@ trait MethodSqlQuote
         if (! $asInteger && $isIntOrFloat) {
             return floatval($value);
         }
+        if (is_object($value)) {
+            $value = strval($value);
+        }
         if (! is_string($value)) {
             return 0;
         }
