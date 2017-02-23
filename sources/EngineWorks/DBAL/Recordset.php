@@ -337,9 +337,9 @@ class Recordset implements \IteratorAggregate, \Countable
                 continue;
             }
             if (null === $this->originalValues[$fieldname]) {
-                $conditions[] = '(' . $this->dbal->sqlIsNull($fieldname) . ')';
+                $conditions[] = '(' . $this->dbal->sqlIsNull($this->dbal->sqlFieldEscape($fieldname)) . ')';
             } else {
-                $conditions[] = '(' . $fieldname . ' = '
+                $conditions[] = '(' . $this->dbal->sqlFieldEscape($fieldname) . ' = '
                     . $this->dbal->sqlQuote($this->originalValues[$fieldname], $field['commontype'], false) . ')';
             }
         }
@@ -355,12 +355,13 @@ class Recordset implements \IteratorAggregate, \Countable
         $inserts = [];
         foreach ($this->datafields as $fieldname => $field) {
             $value = (array_key_exists($fieldname, $this->values)) ? $this->values[$fieldname] : null;
-            $inserts[$field['name']] = $this->dbal->sqlQuote($value, $field['commontype'], true);
+            $escapedFieldName = $this->dbal->sqlFieldEscape($field['name']);
+            $inserts[$escapedFieldName] = $this->dbal->sqlQuote($value, $field['commontype'], true);
         }
         if (! count($inserts)) {
             throw new \LogicException('Recordset: Insert does not have any fields to insert');
         }
-        return 'INSERT INTO ' . $this->entity
+        return 'INSERT INTO ' . $this->dbal->sqlTableEscape($this->entity)
         . ' (' . implode(', ', array_keys($inserts)) . ')'
         . ' VALUES (' . implode(', ', $inserts) . ')'
         . ';';
@@ -387,7 +388,7 @@ class Recordset implements \IteratorAggregate, \Countable
                 $this->values[$fieldname] = null;
             }
             if ($this->valueIsDifferent($this->originalValues[$fieldname], $this->values[$fieldname])) {
-                $updates[] = $fieldname . ' = '
+                $updates[] = $this->dbal->sqlFieldEscape($fieldname) . ' = '
                     . $this->dbal->sqlQuote($this->values[$fieldname], $field['commontype'], true);
             }
         }
@@ -396,7 +397,7 @@ class Recordset implements \IteratorAggregate, \Countable
             return '';
         }
         // return the update statement
-        return 'UPDATE ' . $this->entity
+        return 'UPDATE ' . $this->dbal->sqlTableEscape($this->entity)
         . ' SET ' . implode(', ', $updates)
         . ' WHERE ' . implode(' AND ', $conditions)
         . ';';
@@ -416,7 +417,7 @@ class Recordset implements \IteratorAggregate, \Countable
         if (! count($conditions)) {
             throw new \LogicException('Recordset: The current record does not have any conditions to delete');
         }
-        return 'DELETE FROM ' . $this->entity
+        return 'DELETE FROM ' . $this->dbal->sqlTableEscape($this->entity)
         . ' WHERE ' . implode(' AND ', $conditions)
         . ';';
     }
