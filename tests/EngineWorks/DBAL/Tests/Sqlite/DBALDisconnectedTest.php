@@ -104,15 +104,30 @@ class DBALDisconnectedTest extends TestCase
      * sql tests
      *
      */
+
+    public function testSqlField()
+    {
+        $dbal = $this->factory->dbal($this->factory->settings([]));
+        $expectedName = 'some-field AS "some - label"';
+        $this->assertSame($expectedName, $dbal->sqlField('some-field', 'some - label'));
+    }
+
+    public function testSqlFieldEscape()
+    {
+        $dbal = $this->factory->dbal($this->factory->settings([]));
+        $expectedName = '"some-field" AS "some - label"';
+        $this->assertSame($expectedName, $dbal->sqlFieldEscape('some-field', 'some - label'));
+    }
+
     public function testSqlTable()
     {
         $dbal = $this->factory->dbal($this->factory->settings([
-            'filename' => 'non-existent',
             'prefix' => 'foo_',
-
         ]));
         $expectedName = '"foo_bar" AS "x"';
         $this->assertSame($expectedName, $dbal->sqlTable('bar', 'x'));
+        $expectedNoSuffix = '"bar" AS "x"';
+        $this->assertSame($expectedNoSuffix, $dbal->sqlTableEscape('bar', 'x'));
     }
 
     public function providerSqlQuote()
