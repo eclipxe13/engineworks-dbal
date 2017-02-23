@@ -1,5 +1,5 @@
 <?php
-namespace EngineWorks\DBAL\Tests\Mssql;
+namespace EngineWorks\DBAL\Tests\Mysqli;
 
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Factory;
@@ -8,7 +8,7 @@ use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
-class MssqlDbalDisconnectedTest extends TestCase
+class DBALDisconnectedTest extends TestCase
 {
     /** @var Factory */
     private $factory;
@@ -23,7 +23,7 @@ class MssqlDbalDisconnectedTest extends TestCase
     {
         parent::setUp();
         if ($this->dbal === null) {
-            $this->factory = new Factory('EngineWorks\DBAL\Mssql');
+            $this->factory = new Factory('EngineWorks\DBAL\Mysqli');
             $this->settings = $this->factory->settings();
             $this->dbal = $this->factory->dbal($this->settings);
         }
@@ -45,28 +45,13 @@ class MssqlDbalDisconnectedTest extends TestCase
         $this->dbal->setLogger(new NullLogger());
     }
 
-    /*
-     *
-     * connect & disconnect tests
-     *
-     */
     public function testConnectReturnFalseWhenCannotConnect()
     {
-        $dbal = $this->factory->dbal($this->factory->settings([
-        ]));
+        /* @var \EngineWorks\DBAL\Mysqli\DBAL $dbal */
+        $dbal = $this->factory->dbal($this->factory->settings([]));
         $logger = new ArrayLogger();
         $dbal->setLogger($logger);
         $this->assertFalse($dbal->connect());
-        $expectedLogs = [
-            'info: -- Connection fail',
-            'error: Cannot create',
-        ];
-        $messages = $logger->allMessages();
-        $count = 0;
-        foreach ($expectedLogs as $expectedLog) {
-            $this->assertContains($expectedLog, $messages[$count]);
-            $count = $count + 1;
-        }
     }
 
     /*
@@ -77,16 +62,14 @@ class MssqlDbalDisconnectedTest extends TestCase
 
     public function testSqlField()
     {
-        $dbal = $this->factory->dbal($this->factory->settings([]));
-        $expectedName = 'some-field AS [some - label]';
-        $this->assertSame($expectedName, $dbal->sqlField('some-field', 'some - label'));
+        $expectedName = 'some-field AS `some - label`';
+        $this->assertSame($expectedName, $this->dbal->sqlField('some-field', 'some - label'));
     }
 
     public function testSqlFieldEscape()
     {
-        $dbal = $this->factory->dbal($this->factory->settings([]));
-        $expectedName = '[some-field] AS [some - label]';
-        $this->assertSame($expectedName, $dbal->sqlFieldEscape('some-field', 'some - label'));
+        $expectedName = '`some-field` AS `some - label`';
+        $this->assertSame($expectedName, $this->dbal->sqlFieldEscape('some-field', 'some - label'));
     }
 
     public function testSqlTable()
@@ -94,9 +77,9 @@ class MssqlDbalDisconnectedTest extends TestCase
         $dbal = $this->factory->dbal($this->factory->settings([
             'prefix' => 'foo_',
         ]));
-        $expectedName = '[foo_bar] AS [x]';
+        $expectedName = '`foo_bar` AS `x`';
         $this->assertSame($expectedName, $dbal->sqlTable('bar', 'x'));
-        $expectedNoSuffix = '[bar] AS [x]';
+        $expectedNoSuffix = '`bar` AS `x`';
         $this->assertSame($expectedNoSuffix, $dbal->sqlTableEscape('bar', 'x'));
     }
 
@@ -114,7 +97,6 @@ class MssqlDbalDisconnectedTest extends TestCase
             'text zero' => ["'0'", 0, DBAL::TTEXT, false],
             'text integer' => ["'9'", 9, DBAL::TTEXT, false],
             'text float' => ["'1.2'", 1.2, DBAL::TTEXT, false],
-            'text multibyte' => ["'á é í ó ú'", 'á é í ó ú', DBAL::TTEXT, false],
             // integer
             'integer normal' => ['9', 9, DBAL::TINT, false],
             'integer float' => ['1', 1.2, DBAL::TINT, false],
@@ -157,9 +139,6 @@ class MssqlDbalDisconnectedTest extends TestCase
             'null date notnull' => ["'1970-01-01'", null, DBAL::TDATE, false],
             'null time notnull' => ["'00:00:00'", null, DBAL::TTIME, false],
             'null datetime notnull' => ["'1970-01-01 00:00:00'", null, DBAL::TDATETIME, false],
-            // special chars
-            "special char '" => ["''''", "'", DBAL::TTEXT, false],
-            'special char \"' => ["'\"'", '"', DBAL::TTEXT, false],
             //
             // object
             //
@@ -193,11 +172,11 @@ class MssqlDbalDisconnectedTest extends TestCase
 
     public function testSqlString()
     {
-        $this->assertSame("  foo\tbar  \n", $this->dbal->sqlString("  foo\tbar  \n"));
-        $this->assertSame("''", $this->dbal->sqlString("'"));
-        $this->assertSame('ab', $this->dbal->sqlString("a\0b"));
-        $this->assertSame('\\', $this->dbal->sqlString('\\'));
-        $this->assertSame("''''''", $this->dbal->sqlString("'''"));
+        $this->assertSame("  foo\tbar  \\n", $this->dbal->sqlString("  foo\tbar  \n"));
+        $this->assertSame("\\'", $this->dbal->sqlString("'"));
+        $this->assertSame('a\\0b', $this->dbal->sqlString("a\0b"));
+        $this->assertSame('\\\\', $this->dbal->sqlString('\\'));
+        $this->assertSame("\\'\\'\\'", $this->dbal->sqlString("'''"));
     }
 
     public function testSqlRandomFunc()
@@ -214,7 +193,7 @@ class MssqlDbalDisconnectedTest extends TestCase
     public function testSqlIf()
     {
         $this->assertSame(
-            'CASE WHEN (condition) THEN true ELSE false END',
+            'IF(condition, true, false)',
             $this->dbal->sqlIf('condition', 'true', 'false')
         );
     }
@@ -226,7 +205,7 @@ class MssqlDbalDisconnectedTest extends TestCase
 
     public function testSqlLimit()
     {
-        $expected = 'SELECT a OFFSET 80 ROWS FETCH NEXT 20 ROWS ONLY;';
+        $expected = 'SELECT a LIMIT 20 OFFSET 80;';
         $this->assertSame($expected, $this->dbal->sqlLimit('SELECT a ', 5, 20));
         $this->assertSame($expected, $this->dbal->sqlLimit('SELECT a;', 5, 20));
     }

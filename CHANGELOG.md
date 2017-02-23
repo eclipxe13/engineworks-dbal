@@ -1,3 +1,11 @@
+# version 1.4.1 2017-02-23
+- There were some errors using the recordset on weird table and field names, this version make the following changes:
+    - `sqlField(a, b) => a as "b"`: New method, only escape the alias
+    - `sqlFieldEscape(a, b) => "a" as "b"`: New method, escape both, the name and the alias
+    - `sqlTable(a, b) => "suffix_a" as "b"`: Not changed
+    - `sqlTableEscape(a, b) => "a" as "b"`: Changed from protected to public
+- Change Recordset to use this methods when building the sql sentences.
+
 # version 1.3.1 2017-01-31
 - Fix bug when sqlQuote receives a stringable object but it does not take value to parse it as int or float
 
