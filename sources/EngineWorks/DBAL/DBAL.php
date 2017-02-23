@@ -105,8 +105,9 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     abstract public function transRollback();
 
     /**
-     * Escapes a table name and optionally renames it
-     * This function use the prefix setting
+     * Escapes a table name including its prefix and optionally renames it.
+     * This is the same method as sqlTableEscape but using the table prefix from settings.
+     * Optionaly renames it as an alias.
      *
      * @param string $tableName
      * @param string $asTable
@@ -116,6 +117,43 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     {
         return $this->sqlTableEscape($this->settings->get('prefix', '') . $tableName, $asTable);
     }
+
+    /**
+     * Escapes a table name to not get confused with reserved words or invalid chars.
+     * Optionaly renames it as an alias.
+     *
+     * @param string $tableName
+     * @param string $asTable
+     * @return string
+     */
+    abstract public function sqlTableEscape($tableName, $asTable = '');
+
+    /**
+     * Return a field name
+     * Optionaly renames it as an alias.
+     * This function do not escape the field name.
+     *
+     * Use example: $dbal->sqlField('COUNT(*)', 'rows'); or $dbal->sqlField('name')
+     *
+     * @see self::sqlFieldEscape
+     * @param string $fieldName
+     * @param string $asFieldName
+     * @return mixed
+     */
+    final public function sqlField($fieldName, $asFieldName = '')
+    {
+        return $fieldName . (('' !== $asFieldName) ? ' AS ' . $this->sqlFieldEscape($asFieldName) : '');
+    }
+
+    /**
+     * Escapes a table name to not get confused with reserved words or invalid chars.
+     * Optionaly renames it as an alias.
+     *
+     * @param string $tableName
+     * @param string $asTable
+     * @return string
+     */
+    abstract public function sqlFieldEscape($tableName, $asTable = '');
 
     /**
      * Parses a value to secure SQL
@@ -249,14 +287,6 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     /* -----
      * protected methods (to override)
      */
-
-    /**
-     * Function to escape a table name to not get confused with functions or so
-     * @param string $tableName
-     * @param string $asTable
-     * @return string
-     */
-    abstract protected function sqlTableEscape($tableName, $asTable);
 
     /**
      * Executes a query and return a Result

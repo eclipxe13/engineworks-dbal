@@ -152,9 +152,14 @@ class DBAL extends AbstractDBAL
         return 'Cannot get the error because there are no active connection';
     }
 
-    protected function sqlTableEscape($tableName, $asTable)
+    public function sqlTableEscape($tableName, $asTable = '')
     {
-        return chr(96) . $tableName . chr(96) . (($asTable) ? ' AS ' . $asTable : '');
+        return '`' . $tableName . '`' . (('' !== $asTable) ? ' AS `' . $asTable . '`' : '');
+    }
+
+    public function sqlFieldEscape($fieldName, $asFieldName = '')
+    {
+        return '`' . $fieldName . '`' . (('' !== $asFieldName) ? ' AS `' . $asFieldName . '`' : '');
     }
 
     public function sqlDatePart($part, $expression)
