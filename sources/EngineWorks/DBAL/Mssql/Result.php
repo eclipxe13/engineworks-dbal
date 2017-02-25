@@ -3,7 +3,6 @@ namespace EngineWorks\DBAL\Mssql;
 
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result as ResultInterface;
-use EngineWorks\DBAL\Traits\ResultGetFieldsCachedTrait;
 use EngineWorks\DBAL\Traits\ResultImplementsCountable;
 use EngineWorks\DBAL\Traits\ResultImplementsIterator;
 use PDO;
@@ -11,7 +10,6 @@ use PDOStatement;
 
 class Result implements ResultInterface
 {
-    use ResultGetFieldsCachedTrait;
     use ResultImplementsCountable;
     use ResultImplementsIterator;
 
@@ -26,6 +24,12 @@ class Result implements ResultInterface
      * @var int
      */
     private $numRows;
+
+    /**
+     * The place where getFields result is cached
+     * @var array
+     */
+    private $cachedGetFields;
 
     /**
      * Result based on PDOStatement
@@ -64,8 +68,11 @@ class Result implements ResultInterface
         return $count;
     }
 
-    protected function realGetFields()
+    public function getFields()
     {
+        if (null !== $this->cachedGetFields) {
+            return $this->cachedGetFields;
+        }
         $columnsCount = $this->stmt->columnCount();
         $columns = [];
         for ($column = 0; $column < $columnsCount; $column++) {
@@ -79,6 +86,7 @@ class Result implements ResultInterface
                 'table' => isset($fetched['table']) ? $fetched['table'] : '',
             ];
         }
+        $this->cachedGetFields = $fields;
         return $fields;
     }
 

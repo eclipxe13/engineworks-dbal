@@ -3,7 +3,6 @@ namespace EngineWorks\DBAL\Sqlite;
 
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result as ResultInterface;
-use EngineWorks\DBAL\Traits\ResultGetFieldsCachedTrait;
 use EngineWorks\DBAL\Traits\ResultImplementsCountable;
 use EngineWorks\DBAL\Traits\ResultImplementsIterator;
 use SQLite3Result;
@@ -13,7 +12,6 @@ use SQLite3Result;
  */
 class Result implements ResultInterface
 {
-    use ResultGetFieldsCachedTrait;
     use ResultImplementsCountable;
     use ResultImplementsIterator;
 
@@ -28,6 +26,18 @@ class Result implements ResultInterface
      * @var int
      */
     private $numRows;
+
+    /**
+     * Set of fieldname and commontype to use instead of detectedTypes
+     * @var array
+     */
+    private $overrideTypes;
+
+    /**
+     * The place where getFields result is cached
+     * @var array
+     */
+    private $cachedGetFields;
 
     /**
      * each call to fetchArray() returns the next result from SQLite3Result in an array,
@@ -46,11 +56,13 @@ class Result implements ResultInterface
      * Result based on Sqlite3
      * @param SQLite3Result $result
      * @param int $numRows If negative number then the number of rows will be obtained
+     * @param array $overrideTypes
      * from fetching all the rows and reset the result
      */
-    public function __construct(SQLite3Result $result, $numRows)
+    public function __construct(SQLite3Result $result, $numRows, array $overrideTypes = [])
     {
         $this->query = $result;
+        $this->overrideTypes = $overrideTypes;
         $this->numRows = ($numRows < 0) ? $this->obtainNumRows() : $numRows;
     }
 
@@ -103,27 +115,33 @@ class Result implements ResultInterface
         return $count;
     }
 
-    public function realGetFields()
+    public function getFields()
     {
+        if (null !== $this->cachedGetFields) {
+            return $this->cachedGetFields;
+        }
         $fields = [];
         $numcolumns = $this->query->numColumns();
         for ($i = 0; $i < $numcolumns; $i++) {
+            $columnName = $this->query->columnName($i);
             $fields[] = [
-                'name' => $this->query->columnName($i),
-                'commontype' => $this->getCommonType($this->query->columnType($i)),
+                'name' => $columnName,
+                'commontype' => $this->getCommonType($columnName, $this->query->columnType($i)),
                 'table' => '',
             ];
         }
+        $this->cachedGetFields = $fields;
         return $fields;
     }
 
     /**
      * Private function to get the CommonType from the information of the field
      *
+     * @param string $columnName
      * @param int $field
      * @return string
      */
-    private function getCommonType($field)
+    private function getCommonType($columnName, $field)
     {
         static $types = [
             SQLITE3_INTEGER => CommonTypes::TINT,
@@ -132,7 +150,13 @@ class Result implements ResultInterface
             // static::SQLITE3_BLOB => CommonTypes::TTEXT,
             // static::SQLITE3_NULL => CommonTypes::TTEXT,
         ];
-        return ($field !== false && array_key_exists($field, $types)) ? $types[$field] : CommonTypes::TTEXT;
+        if (isset($this->overrideTypes[$columnName])) {
+            return $this->overrideTypes[$columnName];
+        }
+        if ($field !== false && array_key_exists($field, $types)) {
+            return $types[$field];
+        }
+        return CommonTypes::TTEXT;
     }
 
     public function getIdFields()
