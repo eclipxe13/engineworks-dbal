@@ -6,7 +6,7 @@ use EngineWorks\DBAL\Iterators\ResultIterator;
 use EngineWorks\DBAL\Result;
 use EngineWorks\DBAL\Tests\TestCaseWithMssqlDatabase;
 
-class ResultTest extends TestCaseWithMssqlDatabase
+class MssqlResultTest extends TestCaseWithMssqlDatabase
 {
     /** @var Result */
     private $result;
@@ -154,9 +154,9 @@ class ResultTest extends TestCaseWithMssqlDatabase
     private function getForEach()
     {
         $array = [];
-        foreach ($this->result as $values) {
+        foreach ($this->result as $key => $values) {
             $this->assertInternalType('array', $values);
-            $array[] = $values;
+            $array[$key] = $values;
         }
         return $array;
     }

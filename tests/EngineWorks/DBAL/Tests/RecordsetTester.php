@@ -26,6 +26,7 @@ class RecordsetTester
             $this->test->markTestSkipped('The database is not connected');
             return;
         }
+        $this->testIterator();
         $this->testQueryRecordsetOnNonExistent();
         $values = [
             'albumid' => 888,
@@ -113,5 +114,34 @@ class RecordsetTester
 
         $recordset = $this->queryRecordset($values['albumid']);
         $this->test->assertTrue($recordset->eof());
+    }
+
+    public function testIterator()
+    {
+        /* @var \EngineWorks\DBAL\Tests\TestCaseWithDatabase $test */
+        $test = $this->test;
+        $overrideTypes = [
+            'lastview' => CommonTypes::TDATETIME,
+            'isfree' => CommonTypes::TBOOL,
+        ];
+        $sql = 'SELECT * FROM albums WHERE (albumid between 1 and 5);';
+        $recordset = $this->dbal->queryRecordset($sql, 'albums', ['albumid'], $overrideTypes);
+        $test->assertSame('albums', $recordset->getEntityName());
+        $test->assertSame(['albumid'], $recordset->getIdFields());
+        $test->assertInstanceOf(Recordset::class, $recordset);
+        $test->assertSame(5, $recordset->getRecordCount());
+        $test->assertFalse($recordset->eof());
+        $test->assertInternalType('array', $recordset->values);
+        $test->assertEquals(
+            ['albumid', 'title', 'votes', 'lastview', 'isfree', 'collect'],
+            array_keys($recordset->values)
+        );
+        $expectedRows = $test->getFixedValuesWithLabels(1, 5);
+        $index = 0;
+        foreach ($recordset as $iteratedValues) {
+            $expectedValues = $expectedRows[$index];
+            $test->assertEquals($expectedValues, $iteratedValues);
+            $index = $index + 1;
+        }
     }
 }

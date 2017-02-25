@@ -1,5 +1,5 @@
 <?php
-namespace EngineWorks\DBAL\Tests\Mysqli;
+namespace EngineWorks\DBAL\Tests\Sqlite;
 
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Factory;
@@ -7,7 +7,7 @@ use EngineWorks\DBAL\Settings;
 use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
 use PHPUnit\Framework\TestCase;
 
-class DBALDisconnectedTest extends TestCase
+class SqliteDisconnectedTest extends TestCase
 {
     /** @var Factory */
     private $factory;
@@ -22,9 +22,10 @@ class DBALDisconnectedTest extends TestCase
     {
         parent::setUp();
         if ($this->dbal === null) {
-            $this->factory = new Factory('EngineWorks\DBAL\Mysqli');
+            $this->factory = new Factory('EngineWorks\DBAL\Sqlite');
             $this->settings = $this->factory->settings([
-                'user' => 'non-existent'
+                'filename' => 'non-existent',
+                'flags' => 0, // prevent to create
             ]);
             $this->dbal = $this->factory->dbal($this->settings);
         }
@@ -37,13 +38,9 @@ class DBALDisconnectedTest extends TestCase
         $this->assertFalse($this->dbal->connect());
         $expectedLogs = [
             'info: -- Connection fail',
-            'error: ',
+            'error: Cannot create SQLite3 object: Unable to open database: out of memory',
         ];
-        $expectedLogsCount = count($expectedLogs);
-        $actualLogs = $logger->allMessages();
-        for ($i = 0; $i < $expectedLogsCount; $i++) {
-            $this->assertStringStartsWith($expectedLogs[$i], $actualLogs[$i]);
-        }
+        $this->assertSame($expectedLogs, $logger->allMessages());
     }
 
     /*
@@ -54,14 +51,16 @@ class DBALDisconnectedTest extends TestCase
 
     public function testSqlField()
     {
-        $expectedName = 'some-field AS `some - label`';
-        $this->assertSame($expectedName, $this->dbal->sqlField('some-field', 'some - label'));
+        $dbal = $this->factory->dbal($this->factory->settings([]));
+        $expectedName = 'some-field AS "some - label"';
+        $this->assertSame($expectedName, $dbal->sqlField('some-field', 'some - label'));
     }
 
     public function testSqlFieldEscape()
     {
-        $expectedName = '`some-field` AS `some - label`';
-        $this->assertSame($expectedName, $this->dbal->sqlFieldEscape('some-field', 'some - label'));
+        $dbal = $this->factory->dbal($this->factory->settings([]));
+        $expectedName = '"some-field" AS "some - label"';
+        $this->assertSame($expectedName, $dbal->sqlFieldEscape('some-field', 'some - label'));
     }
 
     public function testSqlTable()
@@ -69,9 +68,9 @@ class DBALDisconnectedTest extends TestCase
         $dbal = $this->factory->dbal($this->factory->settings([
             'prefix' => 'foo_',
         ]));
-        $expectedName = '`foo_bar` AS `x`';
+        $expectedName = '"foo_bar" AS "x"';
         $this->assertSame($expectedName, $dbal->sqlTable('bar', 'x'));
-        $expectedNoSuffix = '`bar` AS `x`';
+        $expectedNoSuffix = '"bar" AS "x"';
         $this->assertSame($expectedNoSuffix, $dbal->sqlTableEscape('bar', 'x'));
     }
 
@@ -136,10 +135,10 @@ class DBALDisconnectedTest extends TestCase
             //
             'object to string' => ["'55.1'", $xmlValue, DBAL::TTEXT, true],
             'object to string not null' => ["'55.1'", $xmlValue, DBAL::TTEXT, false],
-            'object to int' => ["55", $xmlValue, DBAL::TINT, true],
-            'object to int not null' => ["55", $xmlValue, DBAL::TINT, false],
-            'object to number' => ["55.1", $xmlValue, DBAL::TNUMBER, true],
-            'object to number not null' => ["55.1", $xmlValue, DBAL::TNUMBER, false],
+            'object to int' => ['55', $xmlValue, DBAL::TINT, true],
+            'object to int not null' => ['55', $xmlValue, DBAL::TINT, false],
+            'object to number' => ['55.1', $xmlValue, DBAL::TNUMBER, true],
+            'object to number not null' => ['55.1', $xmlValue, DBAL::TNUMBER, false],
         ];
     }
 
@@ -164,16 +163,16 @@ class DBALDisconnectedTest extends TestCase
 
     public function testSqlString()
     {
-        $this->assertSame("  foo\tbar  \\n", $this->dbal->sqlString("  foo\tbar  \n"));
-        $this->assertSame("\\'", $this->dbal->sqlString("'"));
-        $this->assertSame('a\\0b', $this->dbal->sqlString("a\0b"));
-        $this->assertSame('\\\\', $this->dbal->sqlString('\\'));
-        $this->assertSame("\\'\\'\\'", $this->dbal->sqlString("'''"));
+        $this->assertSame("  foo\tbar  \n", $this->dbal->sqlString("  foo\tbar  \n"));
+        $this->assertSame("''", $this->dbal->sqlString("'"));
+        $this->assertSame('ab', $this->dbal->sqlString("a\0b"));
+        $this->assertSame('\\', $this->dbal->sqlString('\\'));
+        $this->assertSame("''''''", $this->dbal->sqlString("'''"));
     }
 
     public function testSqlRandomFunc()
     {
-        $this->assertSame('RAND()', $this->dbal->sqlRandomFunc());
+        $this->assertSame('random()', $this->dbal->sqlRandomFunc());
     }
 
     public function testSqlIsNull()
@@ -185,7 +184,7 @@ class DBALDisconnectedTest extends TestCase
     public function testSqlIf()
     {
         $this->assertSame(
-            'IF(condition, true, false)',
+            'CASE WHEN (condition) THEN true ELSE false',
             $this->dbal->sqlIf('condition', 'true', 'false')
         );
     }
@@ -228,8 +227,8 @@ class DBALDisconnectedTest extends TestCase
 
     public function testSqlConcatenate()
     {
-        $this->assertSame('CONCAT(9, 8, 7)', $this->dbal->sqlConcatenate(...['9', '8', '7']));
-        $this->assertSame('CONCAT(a, b, c)', $this->dbal->sqlConcatenate('a', 'b', 'c'));
+        $this->assertSame('9 || 8 || 7', $this->dbal->sqlConcatenate(...['9', '8', '7']));
+        $this->assertSame('a || b || c', $this->dbal->sqlConcatenate('a', 'b', 'c'));
         $this->assertSame("''", $this->dbal->sqlConcatenate());
     }
 }

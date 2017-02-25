@@ -1,12 +1,12 @@
 <?php
-namespace EngineWorks\DBAL\Tests\Mssql;
+namespace EngineWorks\DBAL\Tests\Mysqli;
 
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result;
 use EngineWorks\DBAL\Tests\RecordsetTester;
-use EngineWorks\DBAL\Tests\TestCaseWithMssqlDatabase;
+use EngineWorks\DBAL\Tests\TestCaseWithMysqliDatabase;
 
-class MssqlDbalConnectedTest extends TestCaseWithMssqlDatabase
+class MysqliDbalConnectedTest extends TestCaseWithMysqliDatabase
 {
     public function testConnectAndDisconnect()
     {
@@ -92,14 +92,23 @@ class MssqlDbalConnectedTest extends TestCaseWithMssqlDatabase
         $this->assertEquals($fetchedFirst, $fetchedSecond);
 
         $expectedFields = [
-            ['name' => 'albumid', 'commontype' => CommonTypes::TINT, 'table' => ''],
-            ['name' => 'title', 'commontype' => CommonTypes::TTEXT, 'table' => ''],
-            ['name' => 'votes', 'commontype' => CommonTypes::TINT, 'table' => ''],
-            ['name' => 'lastview', 'commontype' => CommonTypes::TDATETIME, 'table' => ''],
-            ['name' => 'isfree', 'commontype' => CommonTypes::TBOOL, 'table' => ''],
-            ['name' => 'collect', 'commontype' => CommonTypes::TNUMBER, 'table' => ''],
+            ['name' => 'albumid', 'commontype' => CommonTypes::TINT, 'table' => 'albums'],
+            ['name' => 'title', 'commontype' => CommonTypes::TTEXT, 'table' => 'albums'],
+            ['name' => 'votes', 'commontype' => CommonTypes::TINT, 'table' => 'albums'],
+            ['name' => 'lastview', 'commontype' => CommonTypes::TDATETIME, 'table' => 'albums'],
+            ['name' => 'isfree', 'commontype' => CommonTypes::TBOOL, 'table' => 'albums'],
+            ['name' => 'collect', 'commontype' => CommonTypes::TNUMBER, 'table' => 'albums'],
         ];
-        $this->assertEquals($expectedFields, $result->getFields());
+        $actualFields = [];
+        $retrievedFields = $result->getFields();
+        foreach ($retrievedFields as $retrievedField) {
+            $actualFields[] = [
+                'name' => $retrievedField['name'],
+                'commontype' => $retrievedField['commontype'],
+                'table' => $retrievedField['table'],
+            ];
+        }
+        $this->assertEquals($expectedFields, $actualFields);
     }
 
     public function testRecordsetUsingTester()

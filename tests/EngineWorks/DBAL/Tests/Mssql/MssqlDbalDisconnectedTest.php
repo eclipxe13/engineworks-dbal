@@ -140,10 +140,10 @@ class MssqlDbalDisconnectedTest extends TestCase
             //
             'object to string' => ["'55.1'", $xmlValue, DBAL::TTEXT, true],
             'object to string not null' => ["'55.1'", $xmlValue, DBAL::TTEXT, false],
-            'object to int' => ["55", $xmlValue, DBAL::TINT, true],
-            'object to int not null' => ["55", $xmlValue, DBAL::TINT, false],
-            'object to number' => ["55.1", $xmlValue, DBAL::TNUMBER, true],
-            'object to number not null' => ["55.1", $xmlValue, DBAL::TNUMBER, false],
+            'object to int' => ['55', $xmlValue, DBAL::TINT, true],
+            'object to int not null' => ['55', $xmlValue, DBAL::TINT, false],
+            'object to number' => ['55.1', $xmlValue, DBAL::TNUMBER, true],
+            'object to number not null' => ['55.1', $xmlValue, DBAL::TNUMBER, false],
         ];
     }
 

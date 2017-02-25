@@ -1,12 +1,12 @@
 <?php
-namespace EngineWorks\DBAL\Tests\Mssql;
+namespace EngineWorks\DBAL\Tests\Sqlite;
 
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result;
 use EngineWorks\DBAL\Tests\RecordsetTester;
-use EngineWorks\DBAL\Tests\TestCaseWithMssqlDatabase;
+use EngineWorks\DBAL\Tests\TestCaseWithSqliteDatabase;
 
-class MssqlDbalConnectedTest extends TestCaseWithMssqlDatabase
+class SqliteConnectedTest extends TestCaseWithSqliteDatabase
 {
     public function testConnectAndDisconnect()
     {
@@ -16,7 +16,7 @@ class MssqlDbalConnectedTest extends TestCaseWithMssqlDatabase
         $this->logger->clear();
         $this->assertTrue($this->dbal->connect());
         $expectedLogs = [
-            'info: -- Connect and database select OK',
+            'info: -- Connection success',
         ];
         $this->assertEquals($expectedLogs, $this->logger->allMessages());
 
@@ -43,13 +43,13 @@ class MssqlDbalConnectedTest extends TestCaseWithMssqlDatabase
         $expected = 45;
         $value = $this->dbal->queryOne('SELECT COUNT(*) FROM albums;');
 
-        $this->assertEquals($expected, $value);
+        $this->assertSame($expected, $value);
     }
 
     public function testQueryOneWithError()
     {
         $expected = -10;
-        $value = $this->dbal->queryOne('SELECT albumid FROM albums WHERE (albumid = -1);', $expected);
+        $value = $this->dbal->queryOne('SELECT NULL FROM albums WHERE (albumid = -1);', $expected);
 
         $this->assertSame($expected, $value);
     }
@@ -71,15 +71,20 @@ class MssqlDbalConnectedTest extends TestCaseWithMssqlDatabase
         $this->assertInternalType('array', $result);
         $this->assertCount(5, $result);
 
-        $expectedRows = $this->getFixedValuesWithLabels(1, 5);
-        $result = $this->convertArrayStringsToFixedValues($result);
+        $expectedRows = $this->convertArrayFixedValuesToStrings($this->getFixedValuesWithLabels(1, 5));
         $this->assertEquals($expectedRows, $result);
     }
 
     public function testQueryResult()
     {
+        // it is known that sqlite does not have date, datetime, time or boolean
+        $overrideTypes = [
+            'lastview' => CommonTypes::TDATETIME,
+            'isfree' => CommonTypes::TBOOL,
+        ];
         $sql = 'SELECT * FROM albums WHERE (albumid = 5);';
-        $result = $this->dbal->queryResult($sql);
+        /* @var \EngineWorks\DBAL\Sqlite\Result $result */
+        $result = $this->dbal->queryResult($sql, $overrideTypes);
         $this->assertInstanceOf(Result::class, $result);
         $this->assertEquals(1, $result->resultCount());
         // get first
