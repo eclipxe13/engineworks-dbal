@@ -77,10 +77,10 @@ class DBAL extends AbstractDBAL
         // return SQLite3::escapeString($variable);
     }
 
-    public function queryResult($query)
+    public function queryResult($query, array $overrideTypes = [])
     {
         if (false !== $rslt = $this->sqlite->query($query)) {
-            return new Result($rslt, -1);
+            return new Result($rslt, -1, $overrideTypes);
         }
         return false;
     }

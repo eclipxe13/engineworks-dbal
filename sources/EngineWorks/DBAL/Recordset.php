@@ -80,16 +80,17 @@ class Recordset implements \IteratorAggregate, \Countable
      * @param string $sql
      * @param string $overrideEntity
      * @param string[] $overrideKeys
+     * @param string[] $overrideTypes
      *
      * @return bool
      */
-    final public function query($sql, $overrideEntity = '', array $overrideKeys = [])
+    final public function query($sql, $overrideEntity = '', array $overrideKeys = [], array $overrideTypes = [])
     {
         $this->initialize();
         if (! $this->hasDBAL()) {
             throw new \LogicException('Recordset: object does not have a connected DBAL');
         }
-        $result = $this->dbal->query($sql);
+        $result = $this->dbal->queryResult($sql, $overrideTypes);
         if (! $result instanceof Result) {
             throw new \LogicException("Recordset: Unable to perform query $sql");
         }

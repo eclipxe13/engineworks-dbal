@@ -1,3 +1,12 @@
+# version 1.5.0 2017-02-24
+- Add `$overrideTypes` parameter for `DBAL::queryResult` and `DBAL::queryRecordset` methods.
+  The driver Sqlite does not recognize properly the commontypes of fields
+- Deprecate `DBAL::query` method
+- Improve test, add Mysqli and environment configuration for mysql
+- Use new validation rules of php-cs-fixer
+- Do not build using hhvm, include php 7.1, add mysql
+- Add compatibility on php 7.1 by fixing contructor on `EngineWorks\DBAL::Settings`
+
 # version 1.4.1 2017-02-23
 - There were some errors using the recordset on weird table and field names, this version make the following changes:
     - `sqlField(a, b) => a as "b"`: New method, only escape the alias

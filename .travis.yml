@@ -4,11 +4,10 @@ language: php
 php:
   - 5.6
   - 7.0
-  - hhvm
+  - 7.1
 
-matrix:
-  allow_failures:
-    - php: hhvm
+services:
+  - mysql
 
 # This triggers builds to run on the new TravisCI infrastructure.
 # See: http://docs.travis-ci.com/user/workers/container-based-infrastructure/
@@ -19,10 +18,11 @@ before_script:
   - travis_retry composer install --no-interaction --prefer-dist
 
 script:
-  - cp tests/.env.example tests/.env
+  - cp tests/.env.travis tests/.env
   - mkdir -p build/tests/
   - vendor/bin/parallel-lint sources/ tests/
   - vendor/bin/phpcs -sp sources/ tests/
+  - vendor/bin/php-cs-fixer fix --using-cache=no --dry-run --verbose
   - vendor/bin/phpunit --coverage-text --coverage-clover=build/tests/coverage.xml
 
 after_script:

@@ -291,9 +291,10 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     /**
      * Executes a query and return a Result
      * @param string $query
+     * @param array $overrideTypes, use this to override detected types
      * @return Result|false
      */
-    abstract public function queryResult($query);
+    abstract public function queryResult($query, array $overrideTypes = []);
 
     /**
      * Executes a query and return the number of affected rows
@@ -328,12 +329,16 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * Executes a query and return a Result
-     * @access protected
+     *
+     * @deprecated since version 1.5.0 in favor of queryResult
+     * @see queryResult
+     * @access private
      * @param string $query
      * @return Result|false
      */
     final public function query($query)
     {
+        trigger_error(__METHOD__ . ' is deprecated, use queryResult instead', E_USER_DEPRECATED);
         return $this->queryResult($query);
     }
 
@@ -347,7 +352,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     final public function queryOne($query, $default = false)
     {
         $return = $default;
-        if (false !== $result = $this->query($query)) {
+        if (false !== $result = $this->queryResult($query)) {
             if (false !== $row = $result->fetchRow()) {
                 $keys = array_keys($row);
                 $return = $row[$keys[0]];
@@ -365,7 +370,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     final public function queryRow($query)
     {
         $return = false;
-        if (false !== $result = $this->query($query)) {
+        if (false !== $result = $this->queryResult($query)) {
             if (false !== $row = $result->fetchRow()) {
                 $return = $row;
             }
@@ -399,7 +404,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     final public function queryArray($query)
     {
         $return = false;
-        if (false !== $result = $this->query($query)) {
+        if (false !== $result = $this->queryResult($query)) {
             $return = [];
             while (false !== $row = $result->fetchRow()) {
                 $return[] = $row;
@@ -439,7 +444,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     final public function queryArrayKey($query, $keyField, $keyPrefix = '')
     {
         $return = false;
-        if (false !== $result = $this->query($query)) {
+        if (false !== $result = $this->queryResult($query)) {
             $retarray = [];
             while (false !== $row = $result->fetchRow()) {
                 if (! array_key_exists($keyField, $row)) {
@@ -488,7 +493,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     final public function queryArrayOne($query, $field = '')
     {
         $return = false;
-        if (false !== $result = $this->query($query)) {
+        if (false !== $result = $this->queryResult($query)) {
             $return = [];
             while (false !== $row = $result->fetchRow()) {
                 if ('' === $field) {
@@ -522,12 +527,17 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param string $query
      * @param string $overrideEntity
      * @param string[] $overrideKeys
+     * @param string[] $overrideTypes
      * @return Recordset|false
      */
-    final public function queryRecordset($query, $overrideEntity = '', array $overrideKeys = [])
-    {
+    final public function queryRecordset(
+        $query,
+        $overrideEntity = '',
+        array $overrideKeys = [],
+        array $overrideTypes = []
+    ) {
         $recordset = new Recordset($this);
-        if (! $recordset->query($query, $overrideEntity, $overrideKeys)) {
+        if (! $recordset->query($query, $overrideEntity, $overrideKeys, $overrideTypes)) {
             $this->logger->error("DBAL::queryRecorset failure running $query");
             return false;
         }

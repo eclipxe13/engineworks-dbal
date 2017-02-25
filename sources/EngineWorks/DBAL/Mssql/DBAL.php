@@ -141,10 +141,10 @@ class DBAL extends AbstractDBAL
         }
     }
 
-    public function queryResult($query)
+    public function queryResult($query, array $overrideTypes = [])
     {
         if (false !== $stmt = $this->queryDriver($query)) {
-            return new Result($stmt, -1);
+            return new Result($stmt, -1, $overrideTypes);
         }
         return false;
     }

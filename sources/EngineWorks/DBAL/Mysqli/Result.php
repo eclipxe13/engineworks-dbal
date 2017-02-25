@@ -3,14 +3,12 @@ namespace EngineWorks\DBAL\Mysqli;
 
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result as ResultInterface;
-use EngineWorks\DBAL\Traits\ResultGetFieldsCachedTrait;
 use EngineWorks\DBAL\Traits\ResultImplementsCountable;
 use EngineWorks\DBAL\Traits\ResultImplementsIterator;
 use mysqli_result;
 
 class Result implements ResultInterface
 {
-    use ResultGetFieldsCachedTrait;
     use ResultImplementsCountable;
     use ResultImplementsIterator;
 
@@ -19,6 +17,12 @@ class Result implements ResultInterface
      * @var mysqli_result
      */
     private $query = false;
+
+    /**
+     * The place where getFields result is cached
+     * @var array
+     */
+    private $cachedGetFields;
 
     /**
      * Result based on Mysqli
@@ -39,8 +43,11 @@ class Result implements ResultInterface
         $this->query = null;
     }
 
-    protected function realGetFields()
+    public function getFields()
     {
+        if (null !== $this->cachedGetFields) {
+            return $this->cachedGetFields;
+        }
         $fields = [];
         foreach ($this->query->fetch_fields() as $fetched) {
             $fields[] = [
@@ -50,6 +57,7 @@ class Result implements ResultInterface
                 'flags' => $fetched->flags,  // extra: used for getting the ids in the query
             ];
         }
+        $this->cachedGetFields = $fields;
         return $fields;
     }
 

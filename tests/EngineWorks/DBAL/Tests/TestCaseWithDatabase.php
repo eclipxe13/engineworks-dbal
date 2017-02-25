@@ -64,7 +64,7 @@ abstract class TestCaseWithDatabase extends TestCase
         $this->logger->clear();
     }
 
-    protected function getFixedValuesWithLabels($idFrom = 1, $idTo = 10)
+    public function getFixedValuesWithLabels($idFrom = 1, $idTo = 10)
     {
         $array = $this->getFixedValues($idFrom, $idTo);
         $keys = ['albumid', 'title', 'votes', 'lastview', 'isfree', 'collect'];

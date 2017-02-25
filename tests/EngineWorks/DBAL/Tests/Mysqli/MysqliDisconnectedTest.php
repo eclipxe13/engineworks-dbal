@@ -6,9 +6,8 @@ use EngineWorks\DBAL\Factory;
 use EngineWorks\DBAL\Settings;
 use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
 
-class DBALDisconnectedTest extends TestCase
+class MysqliDisconnectedTest extends TestCase
 {
     /** @var Factory */
     private $factory;
@@ -24,34 +23,27 @@ class DBALDisconnectedTest extends TestCase
         parent::setUp();
         if ($this->dbal === null) {
             $this->factory = new Factory('EngineWorks\DBAL\Mysqli');
-            $this->settings = $this->factory->settings();
+            $this->settings = $this->factory->settings([
+                'user' => 'non-existent',
+            ]);
             $this->dbal = $this->factory->dbal($this->settings);
         }
     }
 
-    /** @return ArrayLogger|\Psr\Log\LoggerInterface */
-    protected function dbalGetArrayLogger()
-    {
-        return $this->dbal->getLogger();
-    }
-
-    protected function dbalSetArrayLogger()
-    {
-        $this->dbal->setLogger(new ArrayLogger());
-    }
-
-    protected function dbalUnsetArrayLogger()
-    {
-        $this->dbal->setLogger(new NullLogger());
-    }
-
     public function testConnectReturnFalseWhenCannotConnect()
     {
-        /* @var \EngineWorks\DBAL\Mysqli\DBAL $dbal */
-        $dbal = $this->factory->dbal($this->factory->settings([]));
         $logger = new ArrayLogger();
-        $dbal->setLogger($logger);
-        $this->assertFalse($dbal->connect());
+        $this->dbal->setLogger($logger);
+        $this->assertFalse($this->dbal->connect());
+        $expectedLogs = [
+            'info: -- Connection fail',
+            'error: ',
+        ];
+        $expectedLogsCount = count($expectedLogs);
+        $actualLogs = $logger->allMessages();
+        for ($i = 0; $i < $expectedLogsCount; $i++) {
+            $this->assertStringStartsWith($expectedLogs[$i], $actualLogs[$i]);
+        }
     }
 
     /*
@@ -144,10 +136,10 @@ class DBALDisconnectedTest extends TestCase
             //
             'object to string' => ["'55.1'", $xmlValue, DBAL::TTEXT, true],
             'object to string not null' => ["'55.1'", $xmlValue, DBAL::TTEXT, false],
-            'object to int' => ["55", $xmlValue, DBAL::TINT, true],
-            'object to int not null' => ["55", $xmlValue, DBAL::TINT, false],
-            'object to number' => ["55.1", $xmlValue, DBAL::TNUMBER, true],
-            'object to number not null' => ["55.1", $xmlValue, DBAL::TNUMBER, false],
+            'object to int' => ['55', $xmlValue, DBAL::TINT, true],
+            'object to int not null' => ['55', $xmlValue, DBAL::TINT, false],
+            'object to number' => ['55.1', $xmlValue, DBAL::TNUMBER, true],
+            'object to number not null' => ['55.1', $xmlValue, DBAL::TNUMBER, false],
         ];
     }
 

@@ -222,7 +222,7 @@ class Pager
     protected function getTotalRecordsByRecordCount()
     {
         $query = $this->getQueryData();
-        $result = $this->dbal->query($query);
+        $result = $this->dbal->queryResult($query);
         if (false === $result) {
             throw new \RuntimeException("Unable to query the record count by getting all the results: $query");
         }

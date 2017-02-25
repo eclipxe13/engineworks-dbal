@@ -11,7 +11,7 @@ interface Settings
      * Settings constructor.
      * @param array|null $settings Subset of settings to initialize in the object
      */
-    public function __construct(array $settings = null);
+    public function __construct(array $settings = []);
 
     /**
      * Get a setting
