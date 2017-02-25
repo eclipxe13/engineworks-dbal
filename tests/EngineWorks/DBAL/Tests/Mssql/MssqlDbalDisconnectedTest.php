@@ -6,7 +6,6 @@ use EngineWorks\DBAL\Factory;
 use EngineWorks\DBAL\Settings;
 use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
 
 class MssqlDbalDisconnectedTest extends TestCase
 {
@@ -29,43 +28,19 @@ class MssqlDbalDisconnectedTest extends TestCase
         }
     }
 
-    /** @return ArrayLogger|\Psr\Log\LoggerInterface */
-    protected function dbalGetArrayLogger()
-    {
-        return $this->dbal->getLogger();
-    }
-
-    protected function dbalSetArrayLogger()
-    {
-        $this->dbal->setLogger(new ArrayLogger());
-    }
-
-    protected function dbalUnsetArrayLogger()
-    {
-        $this->dbal->setLogger(new NullLogger());
-    }
-
-    /*
-     *
-     * connect & disconnect tests
-     *
-     */
     public function testConnectReturnFalseWhenCannotConnect()
     {
-        $dbal = $this->factory->dbal($this->factory->settings([
-        ]));
         $logger = new ArrayLogger();
-        $dbal->setLogger($logger);
-        $this->assertFalse($dbal->connect());
+        $this->dbal->setLogger($logger);
+        $this->assertFalse($this->dbal->connect());
         $expectedLogs = [
             'info: -- Connection fail',
-            'error: Cannot create',
+            'error: ',
         ];
-        $messages = $logger->allMessages();
-        $count = 0;
-        foreach ($expectedLogs as $expectedLog) {
-            $this->assertContains($expectedLog, $messages[$count]);
-            $count = $count + 1;
+        $expectedLogsCount = count($expectedLogs);
+        $actualLogs = $logger->allMessages();
+        for ($i = 0; $i < $expectedLogsCount; $i++) {
+            $this->assertStringStartsWith($expectedLogs[$i], $actualLogs[$i]);
         }
     }
 
