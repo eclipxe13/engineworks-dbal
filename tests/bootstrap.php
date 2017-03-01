@@ -13,4 +13,5 @@ call_user_func(function () {
     $dotenv = new \Dotenv\Dotenv(__DIR__);
     $dotenv->load();
     $dotenv->required('testMssql')->allowedValues(['yes', 'no']);
+    $dotenv->required('testMysqli')->allowedValues(['yes', 'no']);
 });
