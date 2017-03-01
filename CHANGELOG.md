@@ -1,3 +1,12 @@
+# version 1.5.1 2017-02-28
+- Follow scrutinizer recommendations like change logical operators and avoid error suppressing when not necesary
+- Documentation:
+    - add keywords to composer.json
+    - correct license years
+    - add badges
+    - document known problems in todo 
+- Remove coveralls
+
 # version 1.5.0 2017-02-24
 - Add `$overrideTypes` parameter for `DBAL::queryResult` and `DBAL::queryRecordset` methods.
   The driver Sqlite does not recognize properly the commontypes of fields
