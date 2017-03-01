@@ -1,4 +1,4 @@
-# eclipxe/engineworks-dbal - Database Abstraction Layer
+# eclipxe13/engineworks-dbal - Database Abstraction Layer
 
 This library was created to abstract the interactions with a relational database.
 At the time it was created the PDO extension does not exists.
@@ -78,14 +78,32 @@ Not taking particular efforts to make this library compatible with hhvm.
 
 ## Contributing
 
-Contributions are welcome! Please read [CONTRIBUTING][] for details.
-Take a look in the [TODO][].
+Contributions are welcome! Please read [CONTRIBUTING][] for details
+and don't forget to take a look in the [TODO][] and [CHANGELOG][] files.
 
-## Copyright and License
+## License
 
-The eclipxe/engineworks-dbal library is copyright © [Carlos C Soto](https://eclipxe.com.mx/)
+The eclipxe13/engineworks-dbal library is copyright © [Carlos C Soto](https://eclipxe.com.mx/)
 and licensed for use under the MIT License (MIT). Please see [LICENSE][] for more information.
 
-[contributing]: CONTRIBUTING.md
-[todo]: TODO.md
-[license]: LICENSE
+[contributing]: https://github.com/eclipxe13/engineworks-dbal/blob/master/CONTRIBUTING.md
+[changelog]: https://github.com/eclipxe13/engineworks-dbal/blob/master/CHANGELOG.md
+[todo]: https://github.com/eclipxe13/engineworks-dbal/blob/master/TODO.md
+
+[source]: https://github.com/eclipxe13/engineworks-dbal
+[release]: https://github.com/eclipxe13/engineworks-dbal/releases
+[license]: https://github.com/eclipxe13/engineworks-dbal/blob/master/LICENSE
+[build]: https://travis-ci.org/eclipxe13/engineworks-dbal?branch=master
+[quality]: https://scrutinizer-ci.com/g/eclipxe13/engineworks-dbal/
+[sensiolabs]: https://insight.sensiolabs.com/projects/26f47360-dc06-4387-b258-b619ff1bca50
+[coverage]: https://scrutinizer-ci.com/g/eclipxe13/engineworks-dbal/code-structure/master
+[downloads]: https://packagist.org/packages/eclipxe/engineworks-dbal
+
+[badge-source]: http://img.shields.io/badge/source-eclipxe13/engineworks--templates-blue.svg?style=flat-square
+[badge-release]: https://img.shields.io/github/release/eclipxe13/engineworks-dbal.svg?style=flat-square
+[badge-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
+[badge-build]: https://img.shields.io/travis/eclipxe13/engineworks-dbal/master.svg?style=flat-square
+[badge-quality]: https://img.shields.io/scrutinizer/g/eclipxe13/engineworks-dbal/master.svg?style=flat-square
+[badge-sensiolabs]: https://insight.sensiolabs.com/projects/26f47360-dc06-4387-b258-b619ff1bca50/mini.png
+[badge-coverage]: https://img.shields.io/scrutinizer/coverage/g/eclipxe13/engineworks-dbal/master.svg?style=flat-square
+[badge-downloads]: https://img.shields.io/packagist/dt/eclipxe/engineworks-dbal.svg?style=flat-square
