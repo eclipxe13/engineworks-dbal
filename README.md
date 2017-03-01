@@ -1,5 +1,14 @@
 # eclipxe13/engineworks-dbal - Database Abstraction Layer
 
+[![Source Code][badge-source]][source]
+[![Latest Version][badge-release]][release]
+[![Software License][badge-license]][license]
+[![Build Status][badge-build]][build]
+[![Scrutinizer][badge-quality]][quality]
+[![Coverage Status][badge-coverage]][coverage]
+[![Total Downloads][badge-downloads]][downloads]
+[![SensioLabsInsight][badge-sensiolabs]][sensiolabs]
+
 This library was created to abstract the interactions with a relational database.
 At the time it was created the PDO extension does not exists.
 If possible try to use PDO instead of this library, mostly because prepared statements.

@@ -1,3 +1,10 @@
+# version 1.5.2 2017-03-01
+- Remove TODO comment
+- Continuous Integration
+    - add the missing .scrutinizer.yml file
+- Documentation
+    - where were the badges again?
+
 # version 1.5.1 2017-02-28
 - Follow scrutinizer recommendations like change logical operators and avoid error suppressing when not necesary
 - Documentation:
