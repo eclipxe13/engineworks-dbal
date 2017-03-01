@@ -1,6 +1,7 @@
 {
     "name": "eclipxe/engineworks-dbal",
     "description": "PHP Database Abstraction Layer",
+    "keywords": ["dbal", "mysqli", "mssql", "sqlite", "sql", "recordset", "reader", "database abstraction layer"],
     "homepage": "https://github.com/eclipxe13/engineworks-dbal",
     "license": "MIT",
     "authors": [
