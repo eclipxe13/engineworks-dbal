@@ -16,14 +16,13 @@
     "require-dev": {
         "ext-pdo": "*",
         "ext-sqlite3": "*",
-        "phpunit/phpunit": "@stable",
         "vlucas/phpdotenv": "@stable",
         "fzaninotto/faker": "@stable",
+        "phpunit/phpunit": "@stable",
         "jakub-onderka/php-parallel-lint": "@stable",
         "squizlabs/php_codesniffer": "@stable",
         "friendsofphp/php-cs-fixer": "@stable",
-        "scrutinizer/ocular": "@stable",
-        "satooshi/php-coveralls": "@stable"
+        "scrutinizer/ocular": "@stable"
     },
     "suggest": {
         "ext-mysql": "*",
