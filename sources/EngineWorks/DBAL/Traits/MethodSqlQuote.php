@@ -41,7 +41,7 @@ trait MethodSqlQuote
 
     public function sqlQuote($variable, $commonType = CommonTypes::TTEXT, $includeNull = false)
     {
-        if ($includeNull and is_null($variable)) {
+        if ($includeNull && is_null($variable)) {
             return 'NULL';
         }
         switch (strtoupper($commonType)) {

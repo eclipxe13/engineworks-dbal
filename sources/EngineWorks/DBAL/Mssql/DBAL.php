@@ -76,15 +76,6 @@ class DBAL extends AbstractDBAL
             $this->logger->error('Cannot create PDO object for MS SQL');
             return false;
         }
-        // check there are no connection errors
-
-        if (false and $this->pdo->errorCode()) {
-            $errormsg = $this->getLastErrorMessage();
-            $this->logger->info('-- Connection fail ' . $errormsg);
-            $this->logger->error($errormsg);
-            $this->pdo = null;
-            return false;
-        }
         // OK, we are connected
         $this->logger->info('-- Connect and database select OK');
         return true;

@@ -71,6 +71,7 @@ class Result implements ResultInterface
      */
     public function __destruct()
     {
+        // suppress errors because of bug https://bugs.php.net/bug.php?id=72502
         @$this->query->finalize();
         $this->query = null;
     }
@@ -161,7 +162,6 @@ class Result implements ResultInterface
 
     public function getIdFields()
     {
-        // TODO: investigate how to get the ID Fields from the SQLite3Result
         return false;
     }
 

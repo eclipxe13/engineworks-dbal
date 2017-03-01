@@ -472,13 +472,12 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     final public function queryPairs($query, $keyField, $valueField, $keyPrefix = '', $default = false)
     {
         $return = [];
-        if (false != $arr = $this->queryArray($query) and count($arr)) {
-            $arrCount = count($arr);
-            for ($i = 0; $i < $arrCount; $i++) {
-                $iName = $keyPrefix . (array_key_exists($keyField, $arr[$i]) ? strval($arr[$i][$keyField]) : '');
-                $iValue = (array_key_exists($valueField, $arr[$i])) ? $arr[$i][$valueField] : $default;
-                $return[$iName] = $iValue;
-            }
+        $arr = $this->queryArray($query);
+        $arrCount = (is_array($arr)) ? count($arr) : 0;
+        for ($i = 0; $i < $arrCount; $i++) {
+            $iName = $keyPrefix . (array_key_exists($keyField, $arr[$i]) ? strval($arr[$i][$keyField]) : '');
+            $iValue = (array_key_exists($valueField, $arr[$i])) ? $arr[$i][$valueField] : $default;
+            $return[$iName] = $iValue;
         }
         return $return;
     }
@@ -516,7 +515,8 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     final public function queryOnString($query, $default = '', $separator = ', ')
     {
         $return = $default;
-        if (false !== $arr = $this->queryArrayOne($query) and count($arr) > 0) {
+        $arr = $this->queryArrayOne($query);
+        if (is_array($arr)) {
             $return = implode($separator, $arr);
         }
         return $return;

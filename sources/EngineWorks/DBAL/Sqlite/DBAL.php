@@ -74,7 +74,6 @@ class DBAL extends AbstractDBAL
     public function sqlString($variable)
     {
         return str_replace(["\0", "'"], ['', "''"], $variable);
-        // return SQLite3::escapeString($variable);
     }
 
     public function queryResult($query, array $overrideTypes = [])

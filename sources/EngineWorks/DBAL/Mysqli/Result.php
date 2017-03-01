@@ -101,9 +101,9 @@ class Result implements ResultInterface
         $type = CommonTypes::TTEXT;
         if (array_key_exists($field->type, $types)) {
             $type = $types[$field->type];
-            if ($field->length == 1 and ($type == CommonTypes::TINT or $type == CommonTypes::TNUMBER)) {
+            if (1 == $field->length && ($type == CommonTypes::TINT || $type == CommonTypes::TNUMBER)) {
                 $type = CommonTypes::TBOOL;
-            } elseif ($type == CommonTypes::TNUMBER and $field->decimals == 0) {
+            } elseif ($type == CommonTypes::TNUMBER && $field->decimals == 0) {
                 $type = CommonTypes::TINT;
             }
         }

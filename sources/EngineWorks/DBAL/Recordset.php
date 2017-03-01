@@ -157,7 +157,7 @@ class Recordset implements \IteratorAggregate, \Countable
      */
     final public function isOpen()
     {
-        return ($this->hasDBAL() and $this->result !== null);
+        return ($this->hasDBAL() && $this->result !== null);
     }
 
     /**
@@ -166,7 +166,7 @@ class Recordset implements \IteratorAggregate, \Countable
      */
     final public function hasDBAL()
     {
-        return ($this->dbal->isConnected() or $this->dbal->connect());
+        return ($this->dbal->isConnected() || $this->dbal->connect());
     }
 
     /**
@@ -193,7 +193,7 @@ class Recordset implements \IteratorAggregate, \Countable
      */
     public function canModify()
     {
-        return ($this->mode !== self::RSMODE_NOTCONNECTED and '' !== $this->entity);
+        return ($this->mode !== self::RSMODE_NOTCONNECTED && '' !== $this->entity);
     }
 
     /**
@@ -283,11 +283,11 @@ class Recordset implements \IteratorAggregate, \Countable
         $originalIsNull = is_null($original);
         $currentIsNull = is_null($current);
         // both are null, there are no difference
-        if ($originalIsNull and $currentIsNull) {
+        if ($originalIsNull && $currentIsNull) {
             return false;
         }
         // one is null, the other isn't, there is a difference
-        if ($originalIsNull or $currentIsNull) {
+        if ($originalIsNull || $currentIsNull) {
             return true;
         }
         // do not continue using the object
@@ -398,10 +398,11 @@ class Recordset implements \IteratorAggregate, \Countable
             return '';
         }
         // return the update statement
-        return 'UPDATE ' . $this->dbal->sqlTableEscape($this->entity)
-        . ' SET ' . implode(', ', $updates)
-        . ' WHERE ' . implode(' AND ', $conditions)
-        . ';';
+        return 'UPDATE'
+            . ' ' . $this->dbal->sqlTableEscape($this->entity)
+            . ' SET ' . implode(', ', $updates)
+            . ' WHERE ' . implode(' AND ', $conditions)
+            . ';';
     }
 
     /**
@@ -418,9 +419,10 @@ class Recordset implements \IteratorAggregate, \Countable
         if (! count($conditions)) {
             throw new \LogicException('Recordset: The current record does not have any conditions to delete');
         }
-        return 'DELETE FROM ' . $this->dbal->sqlTableEscape($this->entity)
-        . ' WHERE ' . implode(' AND ', $conditions)
-        . ';';
+        return 'DELETE'
+            . ' FROM ' . $this->dbal->sqlTableEscape($this->entity)
+            . ' WHERE ' . implode(' AND ', $conditions)
+            . ';';
     }
 
     /**
@@ -433,7 +435,7 @@ class Recordset implements \IteratorAggregate, \Countable
     final public function update($extraWhereClause = '')
     {
         // check the current mode is on ADDNEW or EDIT
-        if (self::RSMODE_CONNECTED_ADDNEW !== $this->mode and self::RSMODE_CONNECTED_EDIT !== $this->mode) {
+        if (self::RSMODE_CONNECTED_ADDNEW !== $this->mode && self::RSMODE_CONNECTED_EDIT !== $this->mode) {
             throw new \LogicException(
                 "Recordset: The recordset is not on edit or addnew mode [current: {$this->mode}]"
             );
@@ -507,7 +509,7 @@ class Recordset implements \IteratorAggregate, \Countable
      */
     final public function moveNext()
     {
-        return ($this->isOpen() and $this->fetchLoadValues());
+        return ($this->isOpen() && $this->fetchLoadValues());
     }
 
     /**
@@ -516,7 +518,7 @@ class Recordset implements \IteratorAggregate, \Countable
      */
     final public function moveFirst()
     {
-        return ($this->isOpen() and $this->result->moveFirst() and $this->fetchLoadValues());
+        return ($this->isOpen() && $this->result->moveFirst() && $this->fetchLoadValues());
     }
 
     /**
@@ -536,7 +538,7 @@ class Recordset implements \IteratorAggregate, \Countable
         $validrow = (! is_null($row) && is_array($row));
         foreach ($this->datafields as $fieldname => $field) {
             $variant = null;
-            if ($validrow and array_key_exists($fieldname, $row) and ! is_null($row[$fieldname])) {
+            if ($validrow && array_key_exists($fieldname, $row) && ! is_null($row[$fieldname])) {
                 $variant = $row[$fieldname];
                 // these are sorted by the most common data types to avoid extra comparisons
                 switch ($field['commontype']) {

@@ -81,7 +81,7 @@ class DBAL extends AbstractDBAL
     {
         if ($this->isConnected()) {
             $this->logger->info('-- Disconnection');
-            @$this->mysqli->close();
+            $this->mysqli->close();
         }
         $this->translevel = 0;
         $this->mysqli = null;

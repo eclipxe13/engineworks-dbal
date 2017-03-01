@@ -156,7 +156,7 @@ class Pager
      */
     protected function setQueryCount($query)
     {
-        if (! is_string($query) or empty($query)) {
+        if (! is_string($query) || empty($query)) {
             throw new \InvalidArgumentException('setQueryCount require a valid string argument');
         }
         $this->queryCount = $query;
