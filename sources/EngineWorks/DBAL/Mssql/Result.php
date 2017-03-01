@@ -132,7 +132,6 @@ class Result implements ResultInterface
 
     public function getIdFields()
     {
-        // TODO: investigate how to get the ID Fields from the PDOStatement
         return false;
     }
 
