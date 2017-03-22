@@ -56,8 +56,8 @@ class Result implements ResultInterface
      * Result based on Sqlite3
      * @param SQLite3Result $result
      * @param int $numRows If negative number then the number of rows will be obtained
-     * @param array $overrideTypes
      * from fetching all the rows and reset the result
+     * @param array $overrideTypes
      */
     public function __construct(SQLite3Result $result, $numRows, array $overrideTypes = [])
     {
