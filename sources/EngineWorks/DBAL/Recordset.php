@@ -66,7 +66,7 @@ class Recordset implements \IteratorAggregate, \Countable
     /**
      * Recordset constructor.
      * @param DBAL $dbal
-     * @param LoggerInterface|null $logger, If not provided it uses the DBAL Logger
+     * @param LoggerInterface|null $logger If not provided it uses the DBAL Logger
      */
     public function __construct(DBAL $dbal, LoggerInterface $logger = null)
     {
