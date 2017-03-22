@@ -89,7 +89,7 @@ class DBAL extends AbstractDBAL
 
     public function isConnected()
     {
-        return ($this->mysqli instanceof mysqli); // and $this->mi->ping();
+        return ($this->mysqli instanceof mysqli);
     }
 
     public function lastInsertedID()
