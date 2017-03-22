@@ -31,7 +31,7 @@ class Pager
     /** @var string SQL to query the data */
     private $queryData;
 
-    /** @var string|false SQL to query the count */
+    /** @var string SQL to query the count */
     private $queryCount;
 
     /** @var int */
@@ -92,7 +92,7 @@ class Pager
         $this->totalRecords = null;
         $this->recordset = null;
         // request
-        $page = min($this->getTotalPages(), max(1, intval($requestedPage)));
+        $page = (int) min($this->getTotalPages(), max(1, intval($requestedPage)));
         $query = $this->dbal->sqlLimit($this->getQueryData(), $page, $this->getPageSize());
         $recordset = $this->dbal->queryRecordset($query);
         if (! $recordset instanceof Recordset) {
