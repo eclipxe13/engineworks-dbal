@@ -34,7 +34,7 @@ class Recordset implements \IteratorAggregate, \Countable
 
     /**
      * Array of original values
-     * @var array
+     * @var array|null
      */
     private $originalValues;
 
