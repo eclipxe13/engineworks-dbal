@@ -391,7 +391,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     /**
      * Executes a query and return a Result
      * @param string $query
-     * @param array $overrideTypes, use this to override detected types
+     * @param array $overrideTypes use this to override detected types
      * @return Result|false
      */
     abstract public function queryResult($query, array $overrideTypes = []);
