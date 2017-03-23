@@ -1,3 +1,6 @@
+# use sudo since we will use docker
+sudo: required
+
 language: php
 
 # php compatibility
@@ -8,16 +11,16 @@ php:
 
 services:
   - mysql
-
-# This triggers builds to run on the new TravisCI infrastructure.
-# See: http://docs.travis-ci.com/user/workers/container-based-infrastructure/
-sudo: false
+  - docker
 
 before_script:
+  - docker pull microsoft/mssql-server-linux
+  - docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=secret' -p 1433:1433 -d microsoft/mssql-server-linux
   - travis_retry composer self-update
   - travis_retry composer install --no-interaction --prefer-dist
 
 script:
+  - docker ps -a
   - cp tests/.env.travis tests/.env
   - mkdir -p build/tests/
   - vendor/bin/parallel-lint sources/ tests/
