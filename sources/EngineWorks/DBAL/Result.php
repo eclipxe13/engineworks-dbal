@@ -17,7 +17,7 @@ interface Result extends \IteratorAggregate, \Countable
     /**
      * Return an array with the fields information
      * Each row must contain the keys: [name, commontype, table]
-     * @return array|false
+     * @return array
      */
     public function getFields();
 
