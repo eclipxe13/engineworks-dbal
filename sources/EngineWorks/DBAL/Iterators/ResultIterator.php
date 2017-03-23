@@ -11,7 +11,7 @@ class ResultIterator implements \Iterator
     /** @var int autonumeric index */
     private $index;
 
-    /** @var array Store of current values */
+    /** @var array|false Store of current values */
     private $currentValues;
 
     /**
