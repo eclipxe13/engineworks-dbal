@@ -77,3 +77,26 @@ it will result in a complete build failure. Before you can run these, be sure to
 ./vendor/bin/phpcs sources tests --encoding=utf-8 --standard=psr2 -sp
 ./vendor/bin/phpunit --coverage-text
 ```
+
+### Testing Mssql
+
+Ensure that you have a file with the configuration on `tests/.env`, you can use `tests/.env.example` as start point.
+In the configuration file setup your Mssql instance.
+
+If you don't have one you can use Docker with the image `microsoft/mssql-server-linux` of Microsoft SQL Server vNext.
+
+```bash
+# install the microsoft image
+docker pull microsoft/mssql-server-linux
+# run an instance of mssql
+docker run --name dbal-mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Password-123456' -p 1433:1433 -d microsoft/mssql-server-linux
+# stop the instance
+docker stop dbal-mssql
+# remove the instance 
+docker rm dbal-mssql
+```
+
+### Testing Mysql
+
+Ensure that you have a file with the configuration on `tests/.env`, you can use `tests/.env.example` as start point.
+In the configuration file setup your Mysql instance. Installation instructions depends on your OS.
