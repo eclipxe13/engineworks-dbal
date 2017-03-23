@@ -16,6 +16,7 @@ services:
 before_script:
   - docker pull microsoft/mssql-server-linux
   - docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=secret' -p 1433:1433 -d microsoft/mssql-server-linux
+  - pecl install sybase
   - travis_retry composer self-update
   - travis_retry composer install --no-interaction --prefer-dist
 
