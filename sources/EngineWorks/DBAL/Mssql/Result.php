@@ -26,6 +26,12 @@ class Result implements ResultInterface
     private $numRows;
 
     /**
+     * Set of fieldname and commontype to use instead of detectedTypes
+     * @var array
+     */
+    private $overrideTypes;
+
+    /**
      * The place where getFields result is cached
      * @var array
      */
@@ -37,10 +43,12 @@ class Result implements ResultInterface
      * @param PDOStatement $result
      * @param int $numRows If negative number then the number of rows will be obtained
      * from fetching all the rows and move first
+     * @param array $overrideTypes
      */
-    public function __construct(PDOStatement $result, $numRows)
+    public function __construct(PDOStatement $result, $numRows, array $overrideTypes = [])
     {
         $this->stmt = $result;
+        $this->overrideTypes = $overrideTypes;
         $this->numRows = ($numRows < 0) ? $this->obtainNumRows() : $numRows;
     }
 
@@ -82,7 +90,7 @@ class Result implements ResultInterface
         foreach ($columns as $fetched) {
             $fields[] = [
                 'name' => $fetched['name'],
-                'commontype' => $this->getCommonType($fetched['native_type']),
+                'commontype' => $this->getCommonType($fetched['name'], $fetched['native_type']),
                 'table' => isset($fetched['table']) ? $fetched['table'] : '',
             ];
         }
@@ -92,12 +100,12 @@ class Result implements ResultInterface
 
     /**
      * Private function to get the common type from the information of the field
+     * @param string $fieldName
      * @param string $nativeType
      * @return string
      */
-    private function getCommonType($nativeType)
+    private function getCommonType($fieldName, $nativeType)
     {
-        $nativeType = strtolower($nativeType);
         static $types = [
             // integers
             'int' => CommonTypes::TINT,
@@ -123,6 +131,10 @@ class Result implements ResultInterface
             'varchar' => CommonTypes::TTEXT,
             'text' => CommonTypes::TTEXT,
         ];
+        if (isset($this->overrideTypes[$fieldName])) {
+            return $this->overrideTypes[$fieldName];
+        }
+        $nativeType = strtolower($nativeType);
         $type = CommonTypes::TTEXT;
         if (array_key_exists($nativeType, $types)) {
             $type = $types[$nativeType];

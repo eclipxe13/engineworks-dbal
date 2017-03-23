@@ -25,13 +25,21 @@ class Result implements ResultInterface
     private $cachedGetFields;
 
     /**
+     * Set of fieldname and commontype to use instead of detectedTypes
+     * @var array
+     */
+    private $overrideTypes;
+
+    /**
      * Result based on Mysqli
      *
      * @param mysqli_result $result
+     * @param array $overrideTypes
      */
-    public function __construct(mysqli_result $result)
+    public function __construct(mysqli_result $result, array $overrideTypes = [])
     {
         $this->query = $result;
+        $this->overrideTypes = $overrideTypes;
     }
 
     /**
@@ -98,6 +106,9 @@ class Result implements ResultInterface
             MYSQLI_TYPE_VAR_STRING => CommonTypes::TTEXT,
             MYSQLI_TYPE_YEAR => CommonTypes::TINT,
         ];
+        if (isset($this->overrideTypes[$field->name])) {
+            return $this->overrideTypes[$field->name];
+        }
         $type = CommonTypes::TTEXT;
         if (array_key_exists($field->type, $types)) {
             $type = $types[$field->type];

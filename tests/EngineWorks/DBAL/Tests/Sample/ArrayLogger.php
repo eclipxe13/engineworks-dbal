@@ -47,4 +47,11 @@ class ArrayLogger extends AbstractLogger
     {
         $this->logs = [];
     }
+
+    public function lastMessage($level)
+    {
+        $list = $this->retrieve($level);
+        $count = count($list);
+        return (0 == $count) ? '' : $list[$count - 1]['message'];
+    }
 }

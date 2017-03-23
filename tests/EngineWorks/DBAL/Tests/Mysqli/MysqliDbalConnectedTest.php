@@ -5,6 +5,7 @@ use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result;
 use EngineWorks\DBAL\Tests\RecordsetTester;
 use EngineWorks\DBAL\Tests\TestCaseWithMysqliDatabase;
+use EngineWorks\DBAL\Tests\TransactionsTester;
 
 class MysqliDbalConnectedTest extends TestCaseWithMysqliDatabase
 {
@@ -111,9 +112,24 @@ class MysqliDbalConnectedTest extends TestCaseWithMysqliDatabase
         $this->assertEquals($expectedFields, $actualFields);
     }
 
+    public function testExecuteWithError()
+    {
+        $expectedMessage = 'Invalid SQL Statement';
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage($expectedMessage);
+
+        $this->dbal->execute('BAD STATEMENT;', $expectedMessage);
+    }
+
     public function testRecordsetUsingTester()
     {
         $tester = new RecordsetTester($this, $this->dbal);
+        $tester->execute();
+    }
+
+    public function testTransactionsUsingTester()
+    {
+        $tester = new TransactionsTester($this, $this->dbal);
         $tester->execute();
     }
 }

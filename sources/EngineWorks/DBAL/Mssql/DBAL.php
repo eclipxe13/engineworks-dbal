@@ -21,12 +21,6 @@ class DBAL extends AbstractDBAL
     /** @var PDO */
     protected $pdo;
 
-    /**
-     * Contains the transaction level to do nested transactions
-     * @var int
-     */
-    protected $translevel = 0;
-
     protected function getPDOConnectionString()
     {
         $vars = [
@@ -86,7 +80,7 @@ class DBAL extends AbstractDBAL
         if ($this->isConnected()) {
             $this->logger->info('-- Disconnection');
         }
-        $this->translevel = 0;
+        $this->transactionLevel = 0;
         $this->pdo = null;
     }
 
@@ -210,42 +204,6 @@ class DBAL extends AbstractDBAL
         return 'RAND()';
     }
 
-    public function transBegin()
-    {
-        $this->logger->info('-- TRANSACTION BEGIN');
-        $this->translevel++;
-        if ($this->translevel != 1) {
-            $this->logger->info("-- BEGIN (not executed because there are {$this->translevel} transactions running)");
-        } else {
-            $this->pdo->beginTransaction();
-        }
-    }
-
-    public function transCommit()
-    {
-        $this->logger->info('-- TRANSACTION COMMIT');
-        $this->translevel--;
-        if ($this->translevel != 0) {
-            $this->logger->info("-- COMMIT (not executed because there are {$this->translevel} transactions running)");
-        } else {
-            $this->pdo->commit();
-            return true;
-        }
-        return false;
-    }
-
-    public function transRollback()
-    {
-        $this->logger->info('-- TRANSACTION ROLLBACK ');
-        $this->pdo->rollBack();
-        $this->translevel--;
-        if ($this->translevel != 0) {
-            $this->logger->info('-- ROLLBACK (this rollback is out of sync) [' . $this->translevel . ']');
-            return false;
-        }
-        return true;
-    }
-
     public function sqlLimit($query, $requestedPage, $recordsPerPage = 20)
     {
         $requestedPage = max(1, (int) $requestedPage) - 1; // zero indexed
@@ -266,5 +224,27 @@ class DBAL extends AbstractDBAL
         );
         return $fieldName . " LIKE '"
             . (($wildcardBegin) ? '%' : '') . $this->sqlString($searchString) . (($wildcardEnd) ? '%' : '') . "'";
+    }
+
+    protected function commandSavepoint($name)
+    {
+        $this->execute(
+            'SAVE TRANSACTION ' . $this->sqlFieldEscape($name) . ';',
+            "Cannot begin nested transaction $name"
+        );
+    }
+
+    protected function commandReleaseSavepoint($name)
+    {
+        // do not execute, the command commit transaction does not works with save transaction
+        $this->logger->debug("-- COMMIT TRANSACTION $name");
+    }
+
+    protected function commandRollbackToSavepoint($name)
+    {
+        $this->execute(
+            'ROLLBACK TRANSACTION ' . $this->sqlFieldEscape($name) . ';',
+            "Cannot rollback nested transaction $name"
+        );
     }
 }

@@ -34,6 +34,12 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      */
     protected $settings;
 
+    /**
+     * Contains the transaction level to do nested transactions
+     * @var int
+     */
+    protected $transactionLevel = 0;
+
     /* -----
      * magic methods
      */
@@ -87,22 +93,116 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     abstract public function lastInsertedID();
 
     /**
-     * start a transaction
-     * @return int The transaction level
+     * Implement the transaction begin command
+     * @return void
      */
-    abstract public function transBegin();
+    protected function commandTransactionBegin()
+    {
+        $this->execute('BEGIN TRANSACTION', 'Cannot start transaction');
+    }
 
     /**
-     * commit a transaction
-     * @return int The transaction level
+     * Implement the transaction commit command
+     * @return void
      */
-    abstract public function transCommit();
+    protected function commandTransactionCommit()
+    {
+        $this->execute('COMMIT', 'Cannot commit transaction');
+    }
+
+    /**
+     * Implement the transaction rollback command
+     * @return void
+     */
+    protected function commandTransactionRollback()
+    {
+        $this->execute('ROLLBACK', 'Cannot rollback transaction');
+    }
+
+    /**
+     * Implement the savepoint command
+     * @param string $name
+     * @return void
+     */
+    protected function commandSavepoint($name)
+    {
+        $this->execute("SAVEPOINT $name", "Cannot create savepoint $name");
+    }
+
+    /**
+     * Implement the release savepoint command
+     * @param string $name
+     * @return void
+     */
+    protected function commandReleaseSavepoint($name)
+    {
+        $this->execute("RELEASE SAVEPOINT $name", "Cannot release savepoint $name");
+    }
+
+    /**
+     * Implement the rollback to savepoint command
+     * @param string $name
+     * @return void
+     */
+    protected function commandRollbackToSavepoint($name)
+    {
+        $this->execute("ROLLBACK TO SAVEPOINT $name", "Cannot rollback to savepoint $name");
+    }
+
+    /**
+     * Return the current transaction level (managed by the object, not the database)
+     * @return int
+     */
+    final public function getTransactionLevel()
+    {
+        return $this->transactionLevel;
+    }
+
+    /**
+     * start a transaction
+     */
+    final public function transBegin()
+    {
+        $this->logger->info('-- TRANSACTION BEGIN');
+        if (0 === $this->transactionLevel) {
+            $this->commandTransactionBegin();
+        } else {
+            $this->commandSavepoint("LEVEL_{$this->transactionLevel}");
+        }
+        $this->transactionLevel = $this->transactionLevel + 1;
+    }
+
+    /**
+     * Commit a transaction
+     */
+    final public function transCommit()
+    {
+        $this->logger->info('-- TRANSACTION COMMIT');
+        // reduce the transaction level
+        $this->transactionLevel = $this->transactionLevel - 1;
+        // do commit or savepoint
+        if (0 === $this->transactionLevel) {
+            $this->commandTransactionCommit();
+        } else {
+            $this->commandReleaseSavepoint("LEVEL_{$this->transactionLevel}");
+        }
+    }
 
     /**
      * rollback a transaction
-     * @return int The transaction level
      */
-    abstract public function transRollback();
+    final public function transRollback()
+    {
+        $this->logger->info('-- TRANSACTION ROLLBACK ');
+        // reduce the transaction level
+        $this->transactionLevel = $this->transactionLevel - 1;
+        // do rollback or savepoint
+        if (0 === $this->transactionLevel) {
+            $this->commandTransactionRollback();
+        } else {
+            $this->commandRollbackToSavepoint("LEVEL_{$this->transactionLevel}");
+        }
+    }
 
     /**
      * Escapes a table name including its prefix and optionally renames it.
@@ -317,12 +417,16 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     /**
      * Executes a query and return the affected rows
      * @param string $query
+     * @param string $exceptionMessage
      * @return int|bool Number of affected rows or FALSE on error
+     * @throws \RuntimeException if the result is FALSE and the $exceptionMessage was set
      */
-    final public function execute($query)
+    final public function execute($query, $exceptionMessage = '')
     {
         if (false !== $return = $this->queryAffectedRows($query)) {
             $this->logger->info("-- AffectedRows: $return");
+        } elseif ('' !== $exceptionMessage) {
+            throw new \RuntimeException($exceptionMessage, 0, new \RuntimeException($this->getLastErrorMessage()));
         }
         return $return;
     }

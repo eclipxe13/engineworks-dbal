@@ -27,12 +27,6 @@ class DBAL extends AbstractDBAL
      */
     protected $mysqli = null;
 
-    /**
-     * Contains the transaction level to do nested transactions
-     * @var int
-     */
-    protected $translevel = 0;
-
     public function connect()
     {
         // disconnect
@@ -67,6 +61,8 @@ class DBAL extends AbstractDBAL
         }
         // OK, we are connected
         $this->logger->info('-- Connect and database select OK');
+        // disabling autocommit
+        $this->mysqli->autocommit(false);
         // set encoding if needed
         if ('' !== $encoding = $this->settings->get('encoding')) {
             $this->logger->info("-- Setting encoding to $encoding;");
@@ -83,13 +79,13 @@ class DBAL extends AbstractDBAL
             $this->logger->info('-- Disconnection');
             $this->mysqli->close();
         }
-        $this->translevel = 0;
+        $this->transactionLevel = 0;
         $this->mysqli = null;
     }
 
     public function isConnected()
     {
-        return ($this->mysqli instanceof mysqli); // and $this->mi->ping();
+        return ($this->mysqli instanceof mysqli);
     }
 
     public function lastInsertedID()
@@ -213,39 +209,8 @@ class DBAL extends AbstractDBAL
         return 'RAND()';
     }
 
-    public function transBegin()
+    protected function commandTransactionBegin()
     {
-        $this->logger->info('-- TRANSACTION BEGIN');
-        $this->translevel++;
-        if ($this->translevel != 1) {
-            $this->logger->info("-- BEGIN (not executed because there are {$this->translevel} transactions running)");
-        } else {
-            $this->execute('BEGIN');
-        }
-    }
-
-    public function transCommit()
-    {
-        $this->logger->info('-- TRANSACTION COMMIT');
-        $this->translevel--;
-        if ($this->translevel != 0) {
-            $this->logger->info("-- COMMIT (not executed because there are {$this->translevel} transactions running)");
-        } else {
-            $this->execute('COMMIT');
-            return true;
-        }
-        return false;
-    }
-
-    public function transRollback()
-    {
-        $this->logger->info('-- TRANSACTION ROLLBACK ');
-        $this->execute('ROLLBACK');
-        $this->translevel--;
-        if ($this->translevel != 0) {
-            $this->logger->info('-- ROLLBACK (this rollback is out of sync) [' . $this->translevel . ']');
-            return false;
-        }
-        return true;
+        $this->execute('START TRANSACTION', 'Cannot start transaction');
     }
 }
