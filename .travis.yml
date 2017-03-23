@@ -8,21 +8,26 @@ php:
 
 services:
   - mysql
+  - docker
 
 # This triggers builds to run on the new TravisCI infrastructure.
 # See: http://docs.travis-ci.com/user/workers/container-based-infrastructure/
 sudo: required
 
 before_script:
-  - travis_retry composer self-update
-  - travis_retry composer install --no-interaction --prefer-dist
-
-script:
   - sudo add-apt-repository ppa:ondrej/php -y
   - sudo apt-get update -qq
   - if [[ $TRAVIS_PHP_VERSION == '5.6' ]]; then sudo apt-get install -y php5-sybase; fi
   - if [[ $TRAVIS_PHP_VERSION == '7.0' ]]; then sudo apt-get install -y php7.0-sybase; fi
   - if [[ $TRAVIS_PHP_VERSION == '7.1' ]]; then sudo apt-get install -y php7.1-sybase; fi
+  - php -i
+  - docker pull microsoft/mssql-server-linux
+  - docker run --name dbal-mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Password-123456' -p 1433:1433 -d microsoft/mssql-server-linux
+  - docker ps -a
+  - travis_retry composer self-update
+  - travis_retry composer install --no-interaction --prefer-dist
+
+script:
   - cp tests/.env.travis tests/.env
   - mkdir -p build/tests/
   - vendor/bin/parallel-lint sources/ tests/
