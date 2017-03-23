@@ -1,3 +1,12 @@
+# version 1.6.1 2017-03-22
+- Mysqli set autocommit to false
+- Support for nested transactions using savepoints
+- Internal API change due transactions refactory
+- Test transactions using a tester
+- DBAL::execute now has a new parameter to throw an exception instead of return false
+- Fix several docblocks
+- Implement overrideTypes on mssql and mysqli
+
 # version 1.5.2 2017-03-01
 - Remove TODO comment
 - Continuous Integration
