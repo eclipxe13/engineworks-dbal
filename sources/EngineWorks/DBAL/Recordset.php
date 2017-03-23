@@ -248,7 +248,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * Get the last inserted id by asking to the DBAL object.
      * This means that if an insertion happends between Update and LastInsertedID then the result
      * will not be related to the Update
-     * @return int|double
+     * @return int|float
      */
     final public function lastInsertedID()
     {
