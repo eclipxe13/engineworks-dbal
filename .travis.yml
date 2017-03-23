@@ -14,7 +14,10 @@ services:
   - docker
 
 before_script:
-  - pecl install sybase
+  - sudo apt-get update
+  - if [[ $TRAVIS_PHP_VERSION == '5.6' ]]; then sudo apt-get install -y php5-sybase; fi
+  - if [[ $TRAVIS_PHP_VERSION == '7.0' ]]; then sudo apt-get install -y php7.0-sybase; fi
+  - if [[ $TRAVIS_PHP_VERSION == '7.1' ]]; then sudo apt-get install -y php7.1-sybase; fi
   - travis_retry composer self-update
   - travis_retry composer install --no-interaction --prefer-dist
   - docker pull microsoft/mssql-server-linux
@@ -31,7 +34,7 @@ script:
   - vendor/bin/phpunit --coverage-text --coverage-clover=build/tests/coverage.xml
 
 after_script:
-  - if [[ $TRAVIS_PHP_VERSION == '5.6' ]]; then php vendor/bin/ocular code-coverage:upload --format=php-clover build/tests/coverage.xml; fi
+  - if [[ $TRAVIS_PHP_VERSION == '7.0' ]]; then php vendor/bin/ocular code-coverage:upload --format=php-clover build/tests/coverage.xml; fi
 
 notifications:
   email: false
