@@ -76,6 +76,10 @@ class Result implements ResultInterface
         $this->query = null;
     }
 
+    /**
+     * @param int $mode one constant value of SQLITE3 Modes
+     * @return array|false
+     */
     private function internalFetch($mode)
     {
         if ($this->hasReachEOL) {
