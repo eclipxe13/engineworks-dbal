@@ -34,6 +34,7 @@ class TransactionsTester
         $this->testNestedCommit();
         $this->testNestedRollback();
         $this->testNestedRollbackCommitRollback();
+        $this->testNestedCommitRollbackCommit();
     }
 
     public function testTransactionLevelBeginRollbackCommit()
@@ -149,6 +150,28 @@ class TransactionsTester
         $this->test->assertEquals($this->count + 2, $this->getRecordCount());
 
         $this->dbal->transRollback();
+        $this->test->assertEquals($this->count, $this->getRecordCount());
+    }
+
+    public function testNestedCommitRollbackCommit()
+    {
+        $this->dbal->transBegin();
+        $this->insertRecord(1000);
+        $this->dbal->transBegin();
+        $this->insertRecord(1001);
+        $this->dbal->transBegin();
+        $this->insertRecord(1002);
+
+        $this->dbal->transCommit();
+        $this->test->assertEquals($this->count + 3, $this->getRecordCount());
+
+        $this->dbal->transRollback();
+        $this->test->assertEquals($this->count + 1, $this->getRecordCount());
+
+        $this->dbal->transCommit();
+        $this->test->assertEquals($this->count + 1, $this->getRecordCount());
+
+        $this->deleteRecord(1000);
         $this->test->assertEquals($this->count, $this->getRecordCount());
     }
 
