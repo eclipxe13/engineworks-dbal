@@ -86,7 +86,7 @@ class DBAL extends AbstractDBAL
 
     public function isConnected()
     {
-        return ($this->pdo instanceof PDO); // and $this->mi->ping();
+        return ($this->pdo instanceof PDO);
     }
 
     public function lastInsertedID()
