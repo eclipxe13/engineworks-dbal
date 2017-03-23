@@ -1,3 +1,9 @@
+# version 1.6.2 2017-03-23
+- Minor fixes mostly on dockblocks by Scrutinizer recommendations
+- Add validations before using Recordset::originalValues
+- Add additional test for nested transactions with begin-begin-begin-commit-rollback-commit
+- Add information to run test mssql using docker in CONTRIBUTING.md
+
 # version 1.6.1 2017-03-22
 - Mysqli set autocommit to false
 - Support for nested transactions using savepoints
