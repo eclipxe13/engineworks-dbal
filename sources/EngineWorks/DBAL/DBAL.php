@@ -238,7 +238,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @see self::sqlFieldEscape
      * @param string $fieldName
      * @param string $asFieldName
-     * @return mixed
+     * @return string
      */
     final public function sqlField($fieldName, $asFieldName = '')
     {
