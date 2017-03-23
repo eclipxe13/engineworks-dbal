@@ -259,6 +259,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * Check whether the current values are different from the original ones
      * The base are the original values
      * @return bool
+     * @throws \RuntimeException if no original values exists
      */
     final public function valuesHadChanged()
     {
