@@ -146,7 +146,7 @@ class Recordset implements \IteratorAggregate, \Countable
         $this->mode = self::RSMODE_NOTCONNECTED;
         $this->result = null;
         $this->originalValues = null;
-        $this->datafields = null;
+        $this->datafields = [];
         $this->values = [];
         $this->idFields = [];
     }
@@ -262,6 +262,9 @@ class Recordset implements \IteratorAggregate, \Countable
      */
     final public function valuesHadChanged()
     {
+        if (! is_array($this->originalValues)) {
+            throw new \RuntimeException('The recordset does not contain any original values');
+        }
         foreach ($this->originalValues as $field => $value) {
             $current = array_key_exists($field, $this->values) ? $this->values[$field] : null;
             if ($this->valueIsDifferent($value, $current)) {
@@ -456,11 +459,13 @@ class Recordset implements \IteratorAggregate, \Countable
         $altered = $this->dbal->execute($sql);
         if (0 === $altered) {
             $diffs = [];
-            foreach ($this->originalValues as $name => $value) {
-                if (! $this->valueIsDifferent($value, $this->values[$name])) {
-                    continue;
+            if (is_array($this->originalValues)) {
+                foreach ($this->originalValues as $name => $value) {
+                    if (! $this->valueIsDifferent($value, $this->values[$name])) {
+                        continue;
+                    }
+                    $diffs[] = $name;
                 }
-                $diffs[] = $name;
             }
             $this->logger->warning(print_r([
                 'message' => "Recordset: The statement $sql return zero affected rows but the values are different",
