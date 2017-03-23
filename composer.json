@@ -17,6 +17,7 @@
     "require-dev": {
         "ext-pdo": "*",
         "ext-sqlite3": "*",
+        "ext-pdo_dblib": "*",
         "vlucas/phpdotenv": "@stable",
         "fzaninotto/faker": "@stable",
         "phpunit/phpunit": "@stable",
