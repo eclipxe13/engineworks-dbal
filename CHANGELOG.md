@@ -1,3 +1,6 @@
+# version 1.6.3 2017-03-23
+- Remove autocommit disabled. If it is disabled dbal will not store data unless is inside a transaction.
+
 # version 1.6.2 2017-03-23
 - Minor fixes mostly on dockblocks by Scrutinizer recommendations
 - Add validations before using Recordset::originalValues

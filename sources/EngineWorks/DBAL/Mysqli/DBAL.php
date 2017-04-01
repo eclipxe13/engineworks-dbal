@@ -61,8 +61,6 @@ class DBAL extends AbstractDBAL
         }
         // OK, we are connected
         $this->logger->info('-- Connect and database select OK');
-        // disabling autocommit
-        $this->mysqli->autocommit(false);
         // set encoding if needed
         if ('' !== $encoding = $this->settings->get('encoding')) {
             $this->logger->info("-- Setting encoding to $encoding;");
