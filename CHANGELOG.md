@@ -1,4 +1,9 @@
-# version 1.6.3 2017-03-23
+# version 1.6.4 2017-05-04
+- Trigger a E_USER_NOTICE when rollback or commit without a transaction
+- Create TransactionsWithExceptionsTestTrait to probe previous behavior,
+  the testers cannot test exceptions since all the execution runs as only one test. 
+
+# version 1.6.3 2017-03-31
 - Remove autocommit disabled. If it is disabled dbal will not store data unless is inside a transaction.
 
 # version 1.6.2 2017-03-23
