@@ -9,7 +9,7 @@ use PHPUnit\Framework\Error\Notice;
 trait TransactionsWithExceptionsTestTrait
 {
     /** @return DBAL */
-    protected abstract function getDbal();
+    abstract protected function getDbal();
 
     public function testCommitThrowsWarningWithOutBegin()
     {
