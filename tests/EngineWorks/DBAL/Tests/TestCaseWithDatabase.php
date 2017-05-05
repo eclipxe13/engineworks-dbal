@@ -168,4 +168,9 @@ abstract class TestCaseWithDatabase extends TestCase
             $this->assertNotSame(false, $execute, "Fail to run $statement");
         }
     }
+
+    protected function getDbal()
+    {
+        return $this->dbal;
+    }
 }
