@@ -179,6 +179,10 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     {
         $this->logger->info('-- TRANSACTION COMMIT');
         // reduce the transaction level
+        if ($this->transactionLevel === 0) {
+            trigger_error('Try to call commit without a transaction', E_USER_NOTICE);
+            return;
+        }
         $this->transactionLevel = $this->transactionLevel - 1;
         // do commit or savepoint
         if (0 === $this->transactionLevel) {
@@ -195,6 +199,10 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     {
         $this->logger->info('-- TRANSACTION ROLLBACK ');
         // reduce the transaction level
+        if ($this->transactionLevel === 0) {
+            trigger_error('Try to call rollback without a transaction', E_USER_NOTICE);
+            return;
+        }
         $this->transactionLevel = $this->transactionLevel - 1;
         // do rollback or savepoint
         if (0 === $this->transactionLevel) {
