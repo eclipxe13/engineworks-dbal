@@ -55,7 +55,10 @@ abstract class TestCaseWithDatabase extends TestCase
         $this->settings = $this->factory->settings($this->getSettingsArray());
         $this->dbal = $this->factory->dbal($this->settings, $this->logger);
         if (! $this->dbal->connect()) {
-            $this->fail('Cannot connect to test ' . $this->getFactoryNamespace());
+            $this->fail(
+                'Cannot connect to test ' . $this->getFactoryNamespace() . ': '
+                . print_r($this->logger->allMessages(), true)
+            );
         }
         $this->dbal->isConnected();
         $this->createDatabaseStructure();
