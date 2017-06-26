@@ -1,3 +1,8 @@
+# version 1.6.5 2017-06-26
+- Fix typo in docblock, class name is ResultIterator
+- Fix docblock ResultImplementsIterator::getIterator() : \Iterator
+- Improve testing fail message on connect at createDatabase
+
 # version 1.6.4 2017-05-04
 - Trigger a E_USER_NOTICE when rollback or commit without a transaction
 - Create TransactionsWithExceptionsTestTrait to probe previous behavior,
