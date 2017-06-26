@@ -15,7 +15,7 @@ class ResultIterator implements \Iterator
     private $currentValues;
 
     /**
-     * RecordsetIterator constructor.
+     * ResultIterator constructor.
      * @param Result $result
      */
     public function __construct(Result $result)
