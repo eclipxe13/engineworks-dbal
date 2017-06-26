@@ -1,3 +1,7 @@
+# version 1.6.6 2017-06-26
+- Override docblock Result::getIterator() extended from \IteratorAggregate to explicity return an \Iterator object
+- Override docblock count extended from \Countable for coherence
+
 # version 1.6.5 2017-06-26
 - Fix typo in docblock, class name is ResultIterator
 - Fix docblock ResultImplementsIterator::getIterator() : \Iterator
