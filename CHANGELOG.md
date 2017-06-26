@@ -2,6 +2,7 @@
 - Fix typo in docblock, class name is ResultIterator
 - Fix docblock ResultImplementsIterator::getIterator() : \Iterator
 - Improve testing fail message on connect at createDatabase
+- Remove development dependence on scrutinizer/ocular, only install on travis
 
 # version 1.6.4 2017-05-04
 - Trigger a E_USER_NOTICE when rollback or commit without a transaction
