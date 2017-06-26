@@ -22,8 +22,7 @@
         "phpunit/phpunit": "@stable",
         "jakub-onderka/php-parallel-lint": "@stable",
         "squizlabs/php_codesniffer": "@stable",
-        "friendsofphp/php-cs-fixer": "@stable",
-        "scrutinizer/ocular": "@stable"
+        "friendsofphp/php-cs-fixer": "@stable"
     },
     "suggest": {
         "ext-mysql": "*",

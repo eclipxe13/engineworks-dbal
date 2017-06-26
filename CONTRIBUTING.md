@@ -86,7 +86,7 @@ In the configuration file setup your Mssql instance.
 If you don't have one you can use Docker with the image `microsoft/mssql-server-linux` of Microsoft SQL Server vNext.
 
 ```bash
-# install the microsoft image
+# install/update the microsoft image
 docker pull microsoft/mssql-server-linux
 # run an instance of mssql
 docker run --name dbal-mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Password-123456' -p 1433:1433 -d microsoft/mssql-server-linux
