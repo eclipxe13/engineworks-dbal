@@ -5,6 +5,9 @@ use EngineWorks\DBAL\Iterators\ResultIterator;
 
 trait ResultImplementsIterator
 {
+    /**
+     * @return \Iterator
+     */
     public function getIterator()
     {
         /* @var $this \EngineWorks\DBAL\Result */
