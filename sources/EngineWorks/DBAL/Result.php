@@ -45,4 +45,16 @@ interface Result extends \IteratorAggregate, \Countable
      * @return bool
      */
     public function moveTo($offset);
+
+    /**
+     * Retrieve an iterator
+     * @return \Iterator
+     */
+    public function getIterator();
+
+    /**
+     * Return the total recprds of the resultset
+     * @return int
+     */
+    public function count();
 }
