@@ -96,6 +96,8 @@ class SqliteDisconnectedTest extends TestCase
             'integer text numeric complex' => ['-1234', '- $ 1,234.56', DBAL::TINT, false],
             'integer empty' => ['0', '', DBAL::TINT, false],
             'integer whitespace' => ['0', ' ', DBAL::TINT, false],
+            'integer bool false' => ['0', false, DBAL::TINT, false],
+            'integer bool true' => ['1', true, DBAL::TINT, false],
             // float
             'float normal' => ['9.1', 9.1, DBAL::TNUMBER, false],
             'float int' => ['8', 8, DBAL::TNUMBER, false],

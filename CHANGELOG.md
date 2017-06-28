@@ -1,3 +1,6 @@
+# version 1.6.7 2017-06-28
+- Fix bug where a boolean must be quote as an integer and true does not return 1
+
 # version 1.6.6 2017-06-26
 - Override docblock Result::getIterator() extended from \IteratorAggregate to explicity return an \Iterator object
 - Override docblock count extended from \Countable for coherence
