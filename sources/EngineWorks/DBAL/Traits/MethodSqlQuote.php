@@ -7,6 +7,9 @@ trait MethodSqlQuote
 {
     private function sqlQuoteParseNumber($value, $asInteger = true)
     {
+        if (is_bool($value)) {
+            $value = ($value) ? 1 : 0;
+        }
         $isIntOrFloat = is_int($value) || is_float($value);
         if ($asInteger && $isIntOrFloat) {
             return intval($value);
