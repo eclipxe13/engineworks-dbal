@@ -38,9 +38,13 @@ class SqliteDisconnectedTest extends TestCase
         $this->assertFalse($this->dbal->connect());
         $expectedLogs = [
             'info: -- Connection fail',
-            'error: Cannot create SQLite3 object: Unable to open database: out of memory',
+            'error: Cannot create SQLite3 object: Unable to open database: ',
         ];
-        $this->assertSame($expectedLogs, $logger->allMessages());
+        $messages = $logger->allMessages();
+        $this->assertCount(count($expectedLogs), $messages);
+        foreach ($messages as $index => $message) {
+            $this->assertStringStartsWith($expectedLogs[$index], $message);
+        }
     }
 
     /*
