@@ -71,9 +71,9 @@ class Result implements ResultInterface
      */
     public function __destruct()
     {
-        // suppress errors because of bug https://bugs.php.net/bug.php?id=72502
+        // suppress errors because the query may already been closed
+        // see https://bugs.php.net/bug.php?id=72502
         @$this->query->finalize();
-        $this->query = null;
     }
 
     /**

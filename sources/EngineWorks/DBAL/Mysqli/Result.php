@@ -16,7 +16,7 @@ class Result implements ResultInterface
      * Mysqli element
      * @var mysqli_result
      */
-    private $query = false;
+    private $query;
 
     /**
      * The place where getFields result is cached
@@ -48,7 +48,6 @@ class Result implements ResultInterface
     public function __destruct()
     {
         $this->query->free();
-        $this->query = null;
     }
 
     public function getFields()
