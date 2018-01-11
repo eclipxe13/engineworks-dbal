@@ -109,7 +109,7 @@ class DBAL extends AbstractDBAL
      * This is the internal function to do the query according to the database functions
      * It's used by queryResult and queryAffectedRows methods
      * @param string $query
-     * @return mixed
+     * @return \PDOStatement|false
      */
     protected function queryDriver($query)
     {
@@ -136,7 +136,6 @@ class DBAL extends AbstractDBAL
 
     protected function queryAffectedRows($query)
     {
-        /* @var $stmt \PDOStatement */
         if (false !== $stmt = $this->queryDriver($query)) {
             return $stmt->rowCount();
         }
