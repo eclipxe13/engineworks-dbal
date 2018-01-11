@@ -185,6 +185,8 @@ class Pager
                 $this->totalRecords = $this->getTotalRecordsBySelectCount();
             } elseif ($this->getCountMethod() === self::COUNT_METHOD_RECORDCOUNT) {
                 $this->totalRecords = $this->getTotalRecordsByRecordCount();
+            } else {
+                throw new \LogicException('Cannot get a method to obtain the total count');
             }
         }
         return $this->totalRecords;
