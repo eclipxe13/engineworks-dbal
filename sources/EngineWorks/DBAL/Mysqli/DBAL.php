@@ -103,7 +103,7 @@ class DBAL extends AbstractDBAL
      * This is the internal function to do the query according to the database functions
      * It's used by queryResult and queryAffectedRows methods
      * @param string $query
-     * @return mixed
+     * @return \mysqli_result|false
      */
     protected function queryDriver($query)
     {
@@ -118,7 +118,8 @@ class DBAL extends AbstractDBAL
 
     public function queryResult($query, array $overrideTypes = [])
     {
-        if (false !== $result = $this->queryDriver($query)) {
+        $result = $this->queryDriver($query);
+        if (false !== $result) {
             return new Result($result, $overrideTypes);
         }
         return false;
