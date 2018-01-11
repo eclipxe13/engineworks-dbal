@@ -53,7 +53,7 @@ class Pager
     /**
      * If NULL then the value needs to be read from database
      *
-     * @var int
+     * @var int|null
      */
     private $totalRecords = null;
 
