@@ -241,7 +241,7 @@ class Recordset implements \IteratorAggregate, \Countable
     final public function addNew()
     {
         $this->originalValues = null;
-        $this->values = $this->setValuesFromDatafields(null);
+        $this->values = $this->emptyValuesFromDataFields();
         $this->mode = self::RSMODE_CONNECTED_ADDNEW;
     }
 
@@ -530,49 +530,61 @@ class Recordset implements \IteratorAggregate, \Countable
 
     /**
      * Internal function that returns an array with the content from fields and row
-     * This content is parsed according to common type to have a right type
-     * meaning that booleans, dates and numbers are loaded as that and not strings
-     * Anything else is loaded as string
-     *
-     * If the row is null or the content is null or does not exists then the value is placed as null
-     *
-     * @param array $row
      * @return array
      */
-    private function setValuesFromDatafields($row = null)
+    private function emptyValuesFromDataFields()
     {
-        $arr = [];
-        $validrow = (! is_null($row) && is_array($row));
+        return array_fill_keys(array_keys($this->datafields), null);
+    }
+
+    /**
+     * Internal function that returns an array with the content of all datafields
+     * filled with the values casted
+     *
+     * @param array $source
+     * @return array
+     */
+    private function setValuesFromDatafields(array $source)
+    {
+        $values = [];
         foreach ($this->datafields as $fieldname => $field) {
-            $variant = null;
-            if ($validrow && array_key_exists($fieldname, $row) && ! is_null($row[$fieldname])) {
-                $variant = $row[$fieldname];
-                // these are sorted by the most common data types to avoid extra comparisons
-                switch ($field['commontype']) {
-                    case CommonTypes::TTEXT:
-                        $variant = strval($variant);
-                        break;
-                    case CommonTypes::TINT:
-                        $variant = intval($variant);
-                        break;
-                    case CommonTypes::TNUMBER:
-                        $variant = floatval($variant);
-                        break;
-                    case CommonTypes::TBOOL:
-                        $variant = (bool)$variant;
-                        break;
-                    case CommonTypes::TDATE:
-                    case CommonTypes::TTIME:
-                    case CommonTypes::TDATETIME:
-                        $variant = strtotime($variant);
-                        break;
-                    default:
-                        $variant = strval($variant);
-                }
-            }
-            $arr[$fieldname] = $variant;
+            $values[$fieldname] = $this->castValueWithCommonType(
+                array_key_exists($fieldname, $source) ? $source[$fieldname] : null,
+                $field['commontype']
+            );
         }
-        return $arr;
+        return $values;
+    }
+
+    /**
+     * Cast a generic value from the source to a typed value, if null return null
+     *
+     * @param mixed $value
+     * @param string $commonType
+     * @return mixed
+     */
+    protected function castValueWithCommonType($value, $commonType)
+    {
+        // these are sorted by the most common data types to avoid extra comparisons
+        if (null === $value) {
+            return null;
+        }
+        if (CommonTypes::TTEXT === $commonType) {
+            return strval($value);
+        }
+        if (CommonTypes::TINT === $commonType) {
+            return intval($value);
+        }
+        if (CommonTypes::TNUMBER === $commonType) {
+            return floatval($value);
+        }
+        if (CommonTypes::TBOOL === $commonType) {
+            return (bool) $value;
+        }
+        if (in_array($commonType, [CommonTypes::TDATE, CommonTypes::TTIME, CommonTypes::TDATETIME], true)) {
+            return strtotime($value);
+        }
+        return strval($value);
     }
 
     /**

@@ -36,11 +36,17 @@ class TestCaseWithMssqlDatabase extends TestCaseWithDatabase
 
     protected function createDatabaseStructure()
     {
+        /*
+         * These statements were used to drop the database but in new version is very expensive,
+         * now is using pre-existent empty database tempdb and only drops table if exists
+         *
+         * 'USE master;',
+         * "IF EXISTS (SELECT * FROM sys.databases WHERE name = 'dbaltest') DROP DATABASE dbaltest;",
+         * 'CREATE DATABASE dbaltest;',
+         */
         $statements = [
-            'USE master;',
-            "IF EXISTS (SELECT * FROM sys.databases WHERE name = 'dbaltest') DROP DATABASE dbaltest;",
-            'CREATE DATABASE dbaltest;',
-            'USE dbaltest;',
+            'USE tempdb;',
+            "IF EXISTS (SELECT * FROM information_schema.tables WHERE table_name = 'albums') DROP TABLE albums;",
             'CREATE ' . ' TABLE albums ('
             . ' albumid INTEGER PRIMARY KEY NOT NULL,'
             . ' title NVARCHAR(160) NOT NULL,'

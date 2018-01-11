@@ -90,6 +90,9 @@ If you don't have one you can use Docker with the image `microsoft/mssql-server-
 docker pull microsoft/mssql-server-linux
 # run an instance of mssql
 docker run --name dbal-mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Password-123456' -p 1433:1433 -d microsoft/mssql-server-linux
+# access the instance and run mssql
+docker exec -it dbal-mssql /bin/bash
+/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Password-123456
 # stop the instance
 docker stop dbal-mssql
 # remove the instance 

@@ -22,6 +22,7 @@ class MysqliDbalConnectedTest extends TestCaseWithMysqliDatabase
         $this->assertTrue($this->dbal->connect());
         $expectedLogs = [
             'info: -- Connect and database select OK',
+            'info: -- Setting encoding to UTF8;',
         ];
         $this->assertEquals($expectedLogs, $this->logger->allMessages());
 
