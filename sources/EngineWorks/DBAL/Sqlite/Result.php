@@ -73,6 +73,7 @@ class Result implements ResultInterface
     {
         // suppress errors because the query may already been closed
         // see https://bugs.php.net/bug.php?id=72502
+        /** @scrutinizer ignore-unhandled */
         @$this->query->finalize();
     }
 
