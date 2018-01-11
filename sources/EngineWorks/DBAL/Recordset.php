@@ -28,7 +28,7 @@ class Recordset implements \IteratorAggregate, \Countable
     private $logger;
 
     /**
-     * @var Result
+     * @var Result|null
      */
     private $result;
 
@@ -99,7 +99,7 @@ class Recordset implements \IteratorAggregate, \Countable
         $this->source = $sql;
         $this->datafields = [];
         // get fields into a temporary array
-        $tmpfields = $this->result->getFields();
+        $tmpfields = $this->result()->getFields();
         $tmpfieldsCount = count($tmpfields);
         for ($i = 0; $i < $tmpfieldsCount; $i++) {
             $this->datafields[$tmpfields[$i]['name']] = $tmpfields[$i];
@@ -115,7 +115,8 @@ class Recordset implements \IteratorAggregate, \Countable
         }
         // set the id fields
         if (! count($overrideKeys)) {
-            $this->idFields = ($this->result->getIdFields()) ? : [];
+            $temporaryIdFields = $this->result()->getIdFields();
+            $this->idFields = $temporaryIdFields ? $temporaryIdFields : [];
         } else {
             foreach ($overrideKeys as $fieldName) {
                 if (! is_string($fieldName)) {
@@ -227,7 +228,7 @@ class Recordset implements \IteratorAggregate, \Countable
      */
     final public function getOriginalValues()
     {
-        if ($this->eof()) {
+        if ($this->eof() || ! is_array($this->originalValues)) {
             throw new \RuntimeException('There are no original values');
         }
         return $this->originalValues;
@@ -524,7 +525,7 @@ class Recordset implements \IteratorAggregate, \Countable
      */
     final public function moveFirst()
     {
-        return ($this->isOpen() && $this->result->moveFirst() && $this->fetchLoadValues());
+        return ($this->isOpen() && $this->result()->moveFirst() && $this->fetchLoadValues());
     }
 
     /**
@@ -582,7 +583,8 @@ class Recordset implements \IteratorAggregate, \Countable
      */
     private function fetchLoadValues()
     {
-        if (false !== $row = $this->result->fetchRow()) {
+        $row = $this->result()->fetchRow();
+        if (false !== $row) {
             $trow = $this->setValuesFromDatafields($row);
             $this->originalValues = $trow;
             $this->values = $trow;
@@ -599,7 +601,7 @@ class Recordset implements \IteratorAggregate, \Countable
      */
     final public function getRecordCount()
     {
-        return $this->result->resultCount();
+        return $this->result()->resultCount();
     }
 
     /**
@@ -629,5 +631,16 @@ class Recordset implements \IteratorAggregate, \Countable
     final public function getIterator()
     {
         return new Iterators\RecordsetIterator($this);
+    }
+
+    /**
+     * @return Result
+     */
+    private function result()
+    {
+        if (null === $this->result) {
+            throw new \RuntimeException('The current state of the result is NULL');
+        }
+        return $this->result;
     }
 }
