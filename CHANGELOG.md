@@ -1,3 +1,10 @@
+# version 1.6.8 2018-01-10
+- Run phpstan and fix all errors in folder sources, fix possible bugs
+- Change a test for different messages on sqlite
+- Dependences: Use version numbers instead of @stable
+- Travis: Add PHP 7.1
+- Scrutinizer: Update config file to recommended content
+
 # version 1.6.7 2017-06-28
 - Fix bug where a boolean must be quote as an integer and true does not return 1
 
