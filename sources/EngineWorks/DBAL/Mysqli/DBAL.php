@@ -8,6 +8,7 @@ use EngineWorks\DBAL\Traits\MethodSqlLike;
 use EngineWorks\DBAL\Traits\MethodSqlLimit;
 use EngineWorks\DBAL\Traits\MethodSqlQuote;
 use mysqli;
+use mysqli_result;
 
 /**
  * Mysqli implementation
@@ -103,17 +104,18 @@ class DBAL extends AbstractDBAL
      * This is the internal function to do the query according to the database functions
      * It's used by queryResult and queryAffectedRows methods
      * @param string $query
-     * @return \mysqli_result|false
+     * @return mysqli_result|false
      */
     protected function queryDriver($query)
     {
         $this->logger->debug($query);
-        if (false === $result = $this->mysqli()->query($query)) {
-            $this->logger->info("-- Query fail with SQL: $query");
-            $this->logger->error("FAIL: $query\nLast message:" . $this->getLastMessage());
-            return false;
+        $result = $this->mysqli()->query($query);
+        if ($result instanceof mysqli_result) {
+            return $result;
         }
-        return $result;
+        $this->logger->info("-- Query fail with SQL: $query");
+        $this->logger->error("FAIL: $query\nLast message:" . $this->getLastMessage());
+        return false;
     }
 
     public function queryResult($query, array $overrideTypes = [])
