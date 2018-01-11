@@ -26,7 +26,6 @@ class TestCaseWithMysqliDatabase extends TestCaseWithDatabase
             'database' => '',
             'user' => getenv('testMysqli_username'),
             'password' => getenv('testMysqli_password'),
-            'encoding' => '',
         ];
     }
 
