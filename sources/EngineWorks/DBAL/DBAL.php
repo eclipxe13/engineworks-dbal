@@ -683,13 +683,9 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      */
     final public function getLastMessage()
     {
-        $return = false;
         if ($this->isConnected()) {
-            $strError = $this->getLastErrorMessage();
-            if ($strError) {
-                $return = $strError;
-            }
+            return $this->getLastErrorMessage();
         }
-        return $return;
+        return '';
     }
 }

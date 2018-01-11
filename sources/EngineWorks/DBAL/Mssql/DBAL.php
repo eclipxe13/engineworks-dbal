@@ -18,8 +18,8 @@ class DBAL extends AbstractDBAL
     use MethodSqlIsNull;
     use MethodSqlConcatenate;
 
-    /** @var PDO */
-    protected $pdo;
+    /** @var PDO|null */
+    protected $pdo = null;
 
     protected function getPDOConnectionString()
     {
@@ -91,14 +91,14 @@ class DBAL extends AbstractDBAL
 
     public function lastInsertedID()
     {
-        return floatval($this->pdo->lastInsertId());
+        return floatval($this->pdo()->lastInsertId());
     }
 
     public function sqlString($variable)
     {
         // there are no function to escape without a link
         if ('' === 'THIS IS NOT WORKING WITH MULTIBYTE STRINGS' && $this->isConnected()) {
-            $quoted = $this->pdo->quote($variable);
+            $quoted = $this->pdo()->quote($variable);
             return substr($quoted, 1, strlen($quoted) - 2);
         }
         return str_replace(["\0", "'"], ['', "''"], $variable);
@@ -109,13 +109,13 @@ class DBAL extends AbstractDBAL
      * This is the internal function to do the query according to the database functions
      * It's used by queryResult and queryAffectedRows methods
      * @param string $query
-     * @return mixed
+     * @return \PDOStatement|false
      */
     protected function queryDriver($query)
     {
         $this->logger->debug($query);
         try {
-            if (false === $stmt = $this->pdo->query($query)) {
+            if (false === $stmt = $this->pdo()->query($query)) {
                 throw new \RuntimeException("Unable to prepare statement $query");
             }
             return $stmt;
@@ -128,7 +128,8 @@ class DBAL extends AbstractDBAL
 
     public function queryResult($query, array $overrideTypes = [])
     {
-        if (false !== $stmt = $this->queryDriver($query)) {
+        $stmt = $this->queryDriver($query);
+        if (false !== $stmt) {
             return new Result($stmt, -1, $overrideTypes);
         }
         return false;
@@ -136,7 +137,6 @@ class DBAL extends AbstractDBAL
 
     protected function queryAffectedRows($query)
     {
-        /* @var $stmt \PDOStatement */
         if (false !== $stmt = $this->queryDriver($query)) {
             return $stmt->rowCount();
         }
@@ -146,7 +146,7 @@ class DBAL extends AbstractDBAL
     protected function getLastErrorMessage()
     {
         if ($this->isConnected()) {
-            $info = $this->pdo->errorInfo();
+            $info = $this->pdo()->errorInfo();
             return '[' . $info[0] . '] ' . $info[2];
         }
         return 'Cannot get the error because there are no active connection';
@@ -246,5 +246,16 @@ class DBAL extends AbstractDBAL
             'ROLLBACK TRANSACTION ' . $this->sqlFieldEscape($name) . ';',
             "Cannot rollback nested transaction $name"
         );
+    }
+
+    /**
+     * @return PDO
+     */
+    private function pdo()
+    {
+        if (null === $this->pdo) {
+            throw new \RuntimeException('The current state of the connection is NULL');
+        }
+        return $this->pdo;
     }
 }

@@ -16,7 +16,7 @@ class Result implements ResultInterface
      * Mysqli element
      * @var mysqli_result
      */
-    private $query = false;
+    private $query;
 
     /**
      * The place where getFields result is cached
@@ -48,7 +48,6 @@ class Result implements ResultInterface
     public function __destruct()
     {
         $this->query->free();
-        $this->query = null;
     }
 
     public function getFields()
@@ -79,7 +78,7 @@ class Result implements ResultInterface
         static $types = [
             // MYSQLI_TYPE_BIT => CommonTypes::T,
             MYSQLI_TYPE_BLOB => CommonTypes::TTEXT,
-            MYSQLI_TYPE_CHAR => CommonTypes::TTEXT,
+            // MYSQLI_TYPE_CHAR => CommonTypes::TINT, // MYSQLI_TYPE_TINY is the same as MYSQLI_TYPE_CHAR
             MYSQLI_TYPE_DATE => CommonTypes::TDATE,
             MYSQLI_TYPE_DATETIME => CommonTypes::TDATETIME,
             MYSQLI_TYPE_DECIMAL => CommonTypes::TNUMBER,

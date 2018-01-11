@@ -23,7 +23,7 @@ class DBAL extends AbstractDBAL
 
     /**
      * Contains the connection resource for mysqli
-     * @var mysqli
+     * @var mysqli|null
      */
     protected $mysqli = null;
 
@@ -45,12 +45,6 @@ class DBAL extends AbstractDBAL
             $this->settings->get('flags')
         );
         error_reporting($errorLevel);
-        // check for a instance of mysqli
-        if (! $this->mysqli instanceof mysqli) {
-            $this->logger->info('-- Connection fail');
-            $this->logger->error('Cannot create mysqli object');
-            return false;
-        }
         // check there are no connection errors
         if ($this->mysqli->connect_errno) {
             $errormsg = "Connection fail [{$this->mysqli->connect_errno}] {$this->mysqli->connect_error}";
@@ -75,7 +69,7 @@ class DBAL extends AbstractDBAL
     {
         if ($this->isConnected()) {
             $this->logger->info('-- Disconnection');
-            $this->mysqli->close();
+            $this->mysqli()->close();
         }
         $this->transactionLevel = 0;
         $this->mysqli = null;
@@ -88,13 +82,13 @@ class DBAL extends AbstractDBAL
 
     public function lastInsertedID()
     {
-        return floatval($this->mysqli->insert_id);
+        return floatval($this->mysqli()->insert_id);
     }
 
     public function sqlString($variable)
     {
         if ($this->isConnected()) {
-            return $this->mysqli->escape_string($variable);
+            return $this->mysqli()->escape_string($variable);
         }
         // there are no function to escape without a link
         return str_replace(
@@ -114,7 +108,7 @@ class DBAL extends AbstractDBAL
     protected function queryDriver($query)
     {
         $this->logger->debug($query);
-        if (false === $result = $this->mysqli->query($query)) {
+        if (false === $result = $this->mysqli()->query($query)) {
             $this->logger->info("-- Query fail with SQL: $query");
             $this->logger->error("FAIL: $query\nLast message:" . $this->getLastMessage());
             return false;
@@ -133,7 +127,7 @@ class DBAL extends AbstractDBAL
     protected function queryAffectedRows($query)
     {
         if (false !== $this->queryDriver($query)) {
-            return $this->mysqli->affected_rows;
+            return $this->mysqli()->affected_rows;
         }
         return false;
     }
@@ -141,7 +135,7 @@ class DBAL extends AbstractDBAL
     protected function getLastErrorMessage()
     {
         if ($this->isConnected()) {
-            return '[' . $this->mysqli->errno . '] ' . $this->mysqli->error;
+            return '[' . $this->mysqli()->errno . '] ' . $this->mysqli()->error;
         }
         return 'Cannot get the error because there are no active connection';
     }
@@ -210,5 +204,16 @@ class DBAL extends AbstractDBAL
     protected function commandTransactionBegin()
     {
         $this->execute('START TRANSACTION', 'Cannot start transaction');
+    }
+
+    /**
+     * @return mysqli
+     */
+    private function mysqli()
+    {
+        if (null === $this->mysqli) {
+            throw new \RuntimeException('The current state of the connection is NULL');
+        }
+        return $this->mysqli;
     }
 }

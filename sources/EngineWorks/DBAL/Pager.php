@@ -25,7 +25,7 @@ class Pager
     /** @var DBAL */
     private $dbal;
 
-    /** @var Recordset */
+    /** @var Recordset|null */
     private $recordset;
 
     /** @var string SQL to query the data */
@@ -53,7 +53,7 @@ class Pager
     /**
      * If NULL then the value needs to be read from database
      *
-     * @var int
+     * @var int|null
      */
     private $totalRecords = null;
 
@@ -124,7 +124,7 @@ class Pager
 
     /**
      * The current recordset object
-     * @return Recordset
+     * @return Recordset|null
      */
     public function getRecordset()
     {
@@ -185,6 +185,8 @@ class Pager
                 $this->totalRecords = $this->getTotalRecordsBySelectCount();
             } elseif ($this->getCountMethod() === self::COUNT_METHOD_RECORDCOUNT) {
                 $this->totalRecords = $this->getTotalRecordsByRecordCount();
+            } else {
+                throw new \LogicException('Cannot get a method to obtain the total count');
             }
         }
         return $this->totalRecords;

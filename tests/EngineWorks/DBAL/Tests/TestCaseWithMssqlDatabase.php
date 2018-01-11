@@ -30,6 +30,7 @@ class TestCaseWithMssqlDatabase extends TestCaseWithDatabase
             'user' => getenv('testMssql_username'),
             'password' => getenv('testMssql_password'),
             'encoding' => '',
+            'connect-timeout' => 5,
         ];
     }
 

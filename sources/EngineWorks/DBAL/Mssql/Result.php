@@ -58,7 +58,6 @@ class Result implements ResultInterface
     public function __destruct()
     {
         $this->stmt->closeCursor();
-        $this->stmt = null;
     }
 
     /**

@@ -71,9 +71,9 @@ class Result implements ResultInterface
      */
     public function __destruct()
     {
-        // suppress errors because of bug https://bugs.php.net/bug.php?id=72502
+        // suppress errors because the query may already been closed
+        // see https://bugs.php.net/bug.php?id=72502
         @$this->query->finalize();
-        $this->query = null;
     }
 
     /**
@@ -143,7 +143,7 @@ class Result implements ResultInterface
      * Private function to get the CommonType from the information of the field
      *
      * @param string $columnName
-     * @param int $field
+     * @param int|false $field
      * @return string
      */
     private function getCommonType($columnName, $field)
@@ -158,7 +158,7 @@ class Result implements ResultInterface
         if (isset($this->overrideTypes[$columnName])) {
             return $this->overrideTypes[$columnName];
         }
-        if ($field !== false && array_key_exists($field, $types)) {
+        if (false !== $field && array_key_exists($field, $types)) {
             return $types[$field];
         }
         return CommonTypes::TTEXT;
