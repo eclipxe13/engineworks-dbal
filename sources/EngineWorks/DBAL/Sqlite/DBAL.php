@@ -18,7 +18,7 @@ class DBAL extends AbstractDBAL
 
     /**
      * Contains the connection resource for SQLite3
-     * @var SQLite3
+     * @var SQLite3|null
      */
     protected $sqlite = null;
 
@@ -40,7 +40,7 @@ class DBAL extends AbstractDBAL
         // OK, we are connected
         $this->logger->info('-- Connection success');
         if ($this->settings->get('enable-exceptions', false)) {
-            $this->sqlite->enableExceptions(true);
+            $this->sqlite()->enableExceptions(true);
         }
         return true;
     }
@@ -49,7 +49,7 @@ class DBAL extends AbstractDBAL
     {
         if ($this->isConnected()) {
             $this->logger->info('-- Disconnection');
-            $this->sqlite->close();
+            $this->sqlite()->close();
         }
         $this->transactionLevel = 0;
         $this->sqlite = null;
@@ -62,7 +62,7 @@ class DBAL extends AbstractDBAL
 
     public function lastInsertedID()
     {
-        return floatval($this->sqlite->lastInsertRowID());
+        return floatval($this->sqlite()->lastInsertRowID());
     }
 
     public function sqlString($variable)
@@ -72,7 +72,7 @@ class DBAL extends AbstractDBAL
 
     public function queryResult($query, array $overrideTypes = [])
     {
-        if (false !== $rslt = $this->sqlite->query($query)) {
+        if (false !== $rslt = $this->sqlite()->query($query)) {
             return new Result($rslt, -1, $overrideTypes);
         }
         return false;
@@ -82,14 +82,14 @@ class DBAL extends AbstractDBAL
     {
         $this->logger->debug($query);
         try {
-            $exec = $this->sqlite->exec($query);
+            $exec = $this->sqlite()->exec($query);
         } catch (\Exception $ex) {
             $exec = false;
             $this->logger->info("-- Query fail with SQL: $query");
             $this->logger->error("FAIL: $query\nLast message:" . $ex->getMessage());
         }
         if (false !== $exec) {
-            return $this->sqlite->changes();
+            return $this->sqlite()->changes();
         }
         return false;
     }
@@ -97,7 +97,7 @@ class DBAL extends AbstractDBAL
     protected function getLastErrorMessage()
     {
         if ($this->isConnected()) {
-            return '[' . $this->sqlite->lastErrorCode() . '] ' . $this->sqlite->lastErrorMsg();
+            return '[' . $this->sqlite()->lastErrorCode() . '] ' . $this->sqlite()->lastErrorMsg();
         }
         return 'Cannot get the error because there are no active connection';
     }
@@ -169,5 +169,16 @@ class DBAL extends AbstractDBAL
     public function sqlRandomFunc()
     {
         return 'random()';
+    }
+
+    /**
+     * @return SQLite3
+     */
+    private function sqlite()
+    {
+        if (null === $this->sqlite) {
+            throw new \RuntimeException('The current state of the connection is NULL');
+        }
+        return $this->sqlite;
     }
 }
