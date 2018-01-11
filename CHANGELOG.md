@@ -1,6 +1,6 @@
 # version 1.6.9 2018-01-10
-- Mysqli::queryResult now will warning if the query does not perform a result 
-- Fix issues set by scrutinizer
+- `Mysqli\DBAL::queryResult` now will warning if the query does not perform a result 
+- Fix issues discovered by scrutinizer
 - Testing locally using mssql server has been improved by not creating the database but using `tempdb`
 
 # version 1.6.8 2018-01-10
