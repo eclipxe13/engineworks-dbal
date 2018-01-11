@@ -25,7 +25,7 @@ class Pager
     /** @var DBAL */
     private $dbal;
 
-    /** @var Recordset */
+    /** @var Recordset|null */
     private $recordset;
 
     /** @var string SQL to query the data */
@@ -124,7 +124,7 @@ class Pager
 
     /**
      * The current recordset object
-     * @return Recordset
+     * @return Recordset|null
      */
     public function getRecordset()
     {
