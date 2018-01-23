@@ -5,10 +5,9 @@ use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Factory;
 use EngineWorks\DBAL\Settings;
 use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
-use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
 
-abstract class TestCaseWithDatabase extends TestCase
+abstract class TestCaseWithDatabase extends BaseTestCase
 {
     /** @var Factory */
     protected $factory;
