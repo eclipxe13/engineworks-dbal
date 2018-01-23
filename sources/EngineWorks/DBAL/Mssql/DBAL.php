@@ -65,12 +65,6 @@ class DBAL extends AbstractDBAL
         } finally {
             error_reporting($errorLevel);
         }
-        // check for a instance of mysqli
-        if (! $this->pdo instanceof PDO) {
-            $this->logger->info('-- Connection fail');
-            $this->logger->error('Cannot create PDO object for MS SQL');
-            return false;
-        }
         // OK, we are connected
         $this->logger->info('-- Connect and database select OK');
         return true;
