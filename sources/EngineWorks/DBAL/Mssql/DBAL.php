@@ -23,11 +23,11 @@ class DBAL extends AbstractDBAL
 
     protected function getPDOConnectionString()
     {
-        $vars = [
-            'version' => '7.0',
-            'host' => $this->settings->get('host')
-                . (($this->settings->get('port')) ? ':' . $this->settings->get('port') : ''),
-        ];
+        if ($this->settings->get('freetds-version')) {
+            $vars['version'] = $this->settings->get('freetds-version');
+        }
+        $vars['host'] = $this->settings->get('host')
+            . (($this->settings->get('port')) ? ':' . $this->settings->get('port') : '');
         if ($this->settings->get('database')) {
             $vars['dbname'] = $this->settings->get('database');
         }

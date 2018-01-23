@@ -29,8 +29,8 @@ class TestCaseWithMssqlDatabase extends TestCaseWithDatabase
             'database' => '',
             'user' => getenv('testMssql_username'),
             'password' => getenv('testMssql_password'),
-            'encoding' => '',
-            'connect-timeout' => 5,
+            'connect-timeout' => getenv('testMssql_connect_timeout'),
+            'freetds-version' => getenv('testMssql_freetds_version'),
         ];
     }
 
