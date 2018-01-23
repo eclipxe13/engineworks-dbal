@@ -5,12 +5,14 @@ use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result;
 use EngineWorks\DBAL\Tests\RecordsetTester;
 use EngineWorks\DBAL\Tests\TestCaseWithSqliteDatabase;
+use EngineWorks\DBAL\Tests\TransactionsPreventCommitTestTrait;
 use EngineWorks\DBAL\Tests\TransactionsTester;
 use EngineWorks\DBAL\Tests\TransactionsWithExceptionsTestTrait;
 
 class SqliteConnectedTest extends TestCaseWithSqliteDatabase
 {
     // composite with transactions trait
+    use TransactionsPreventCommitTestTrait;
     use TransactionsWithExceptionsTestTrait;
 
     public function testConnectAndDisconnect()

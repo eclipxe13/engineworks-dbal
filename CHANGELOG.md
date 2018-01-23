@@ -1,6 +1,13 @@
+# version 1.7.0 2018-01-23
+- Add feature to prevent final (higher) commit by `DBAL::transPreventCommit()`.
+- Add new setting for mssql `freetds-version` that defaults to `7.0` it was hardcoded before.
+- (DEV) Create BaseTestCase that includes `checkPhpUnitVersion`.
+  It will mark the test as incomplete if the php unit version is lower than required.
+  I'm not using annotation `@requires` because it does not work with composite traits.
+
 # version 1.6.9 2018-01-10
-- Mysqli::queryResult now will warning if the query does not perform a result 
-- Fix issues set by scrutinizer
+- `Mysqli\DBAL::queryResult` now will warning if the query does not perform a result 
+- Fix issues discovered by scrutinizer
 - Testing locally using mssql server has been improved by not creating the database but using `tempdb`
 
 # version 1.6.8 2018-01-10

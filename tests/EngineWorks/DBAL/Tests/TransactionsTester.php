@@ -4,12 +4,11 @@ namespace EngineWorks\DBAL\Tests;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
-use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
 
 class TransactionsTester
 {
-    /** @var TestCase */
+    /** @var BaseTestCase */
     private $test;
     /** @var DBAL */
     private $dbal;
@@ -18,7 +17,7 @@ class TransactionsTester
     /** @var int */
     private $count;
 
-    public function __construct(TestCase $test, DBAL $dbal)
+    public function __construct(BaseTestCase $test, DBAL $dbal)
     {
         $this->test = $test;
         $this->dbal = $dbal;

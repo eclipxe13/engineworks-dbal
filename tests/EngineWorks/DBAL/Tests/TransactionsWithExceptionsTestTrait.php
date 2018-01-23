@@ -13,18 +13,14 @@ trait TransactionsWithExceptionsTestTrait
 
     public function testCommitThrowsWarningWithOutBegin()
     {
-        if (version_compare(PHP_VERSION, '7.0', '<')) {
-            $this->markTestSkipped('This test only runs on php 7.0 or higher');
-        }
+        $this->checkPhpUnitVersion('6.0');
         $this->expectException(Notice::class);
         $this->getDbal()->transCommit();
     }
 
     public function testRollbackThrowsWarningWithOutBegin()
     {
-        if (version_compare(PHP_VERSION, '7.0', '<')) {
-            $this->markTestSkipped('This test only runs on php 7.0 or higher');
-        }
+        $this->checkPhpUnitVersion('6.0');
         $this->expectException(Notice::class);
         $this->getDbal()->transRollback();
     }

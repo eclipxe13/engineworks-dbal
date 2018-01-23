@@ -29,8 +29,8 @@ class TestCaseWithMssqlDatabase extends TestCaseWithDatabase
             'database' => '',
             'user' => getenv('testMssql_username'),
             'password' => getenv('testMssql_password'),
-            'encoding' => '',
-            'connect-timeout' => 5,
+            'connect-timeout' => getenv('testMssql_connect_timeout'),
+            'freetds-version' => getenv('testMssql_freetds_version'),
         ];
     }
 
@@ -40,9 +40,12 @@ class TestCaseWithMssqlDatabase extends TestCaseWithDatabase
          * These statements were used to drop the database but in new version is very expensive,
          * now is using pre-existent empty database tempdb and only drops table if exists
          *
+         * These are the old statements to drop & create the database:
          * 'USE master;',
          * "IF EXISTS (SELECT * FROM sys.databases WHERE name = 'dbaltest') DROP DATABASE dbaltest;",
          * 'CREATE DATABASE dbaltest;',
+         * 'USE dbaltest;',
+         *
          */
         $statements = [
             'USE tempdb;',

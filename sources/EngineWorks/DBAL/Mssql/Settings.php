@@ -31,6 +31,7 @@ class Settings extends SettingsMap
         'encoding' => 'UTF-8',
         'prefix' => '',
         'connect-timeout' => 5,
+        'freetds-version' => '7.0',
         'socket' => null,
         'flags' => null,
         'dump' => '',
