@@ -78,6 +78,14 @@ it will result in a complete build failure. Before you can run these, be sure to
 ./vendor/bin/phpunit --coverage-text
 ```
 
+### Testing PHP 5.6
+
+Notice that `composer.json` allows versions `^5.7.26` or `^6.5`. Composer already knows that `^6.5` is not compatible
+with PHP 5.6 so it will try to install `^5.7.26`.
+
+If you are running PHP 7.0 you may want to install dependences using `composer update --prefer-lowest`.
+Be aware that some test are skipped depending on phpunit version.
+
 ### Testing Mssql
 
 Ensure that you have a file with the configuration on `tests/.env`, you can use `tests/.env.example` as start point.
