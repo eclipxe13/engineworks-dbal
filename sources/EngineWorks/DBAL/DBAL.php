@@ -40,6 +40,12 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      */
     protected $transactionLevel = 0;
 
+    /**
+     * Contains the prevent commit state of transactions
+     * @var bool
+     */
+    protected $preventCommit = false;
+
     /* -----
      * magic methods
      */
@@ -186,6 +192,11 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         $this->transactionLevel = $this->transactionLevel - 1;
         // do commit or savepoint
         if (0 === $this->transactionLevel) {
+            if ($this->transPreventCommit()) {
+                $this->transactionLevel = 1;
+                trigger_error('Try to call final commit with prevent commit enabled', E_USER_ERROR);
+                return;
+            }
             $this->commandTransactionCommit();
         } else {
             $this->commandReleaseSavepoint("LEVEL_{$this->transactionLevel}");
@@ -210,6 +221,30 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         } else {
             $this->commandRollbackToSavepoint("LEVEL_{$this->transactionLevel}");
         }
+    }
+
+    /**
+     * This function prevent the upper transaction to commit
+     * In case of commit the transCommitMehod will trigger an error and return without commit
+     *
+     * If argument $preventCommit is null then this function will return the current prevent commit state
+     * Otherwise, It will set the prevent commit state to the argument value and return the previous value
+     *
+     * @param bool|null $preventCommit
+     * @return bool
+     * @throws \UnexpectedValueException If the $preventCommit argument is not boolean
+     */
+    final public function transPreventCommit($preventCommit = null)
+    {
+        if (null === $preventCommit) {
+            return $this->preventCommit;
+        }
+        if (! is_bool($preventCommit)) {
+            throw new \UnexpectedValueException('The prevent commit argument is not boolean');
+        }
+        $previous = $this->preventCommit;
+        $this->preventCommit = $preventCommit;
+        return $previous;
     }
 
     /**
