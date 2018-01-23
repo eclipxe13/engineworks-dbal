@@ -4,7 +4,6 @@ namespace EngineWorks\DBAL\Tests;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
-use PHPUnit\Framework\Error\Error;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
 
@@ -59,7 +58,7 @@ class TransactionsTester
         $lastCommitError = false;
         try {
             $this->dbal->transCommit();
-        } catch (Error $exception) {
+        } catch (\Throwable $exception) {
             $lastCommitError = true;
         }
         $this->test->assertSame(true, $lastCommitError);
