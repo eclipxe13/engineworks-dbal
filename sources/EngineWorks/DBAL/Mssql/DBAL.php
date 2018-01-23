@@ -23,6 +23,7 @@ class DBAL extends AbstractDBAL
 
     protected function getPDOConnectionString()
     {
+        $vars = [];
         if ($this->settings->get('freetds-version')) {
             $vars['version'] = $this->settings->get('freetds-version');
         }
