@@ -1,3 +1,7 @@
+# version 1.7.0 2018-01-23
+- Add feature to prevent final (higher) commit by `DBAL::transPreventCommit()`
+- Add new setting for mssql `freetds-version` that defaults to `7.0` it was hardcoded before.
+
 # version 1.6.9 2018-01-10
 - `Mysqli\DBAL::queryResult` now will warning if the query does not perform a result 
 - Fix issues discovered by scrutinizer
