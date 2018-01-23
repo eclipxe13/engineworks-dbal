@@ -5,12 +5,14 @@ use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result;
 use EngineWorks\DBAL\Tests\RecordsetTester;
 use EngineWorks\DBAL\Tests\TestCaseWithMysqliDatabase;
+use EngineWorks\DBAL\Tests\TransactionsPeventCommitTestTrait;
 use EngineWorks\DBAL\Tests\TransactionsTester;
 use EngineWorks\DBAL\Tests\TransactionsWithExceptionsTestTrait;
 
 class MysqliDbalConnectedTest extends TestCaseWithMysqliDatabase
 {
     // composite with transactions trait
+    use TransactionsPeventCommitTestTrait;
     use TransactionsWithExceptionsTestTrait;
 
     public function testConnectAndDisconnect()

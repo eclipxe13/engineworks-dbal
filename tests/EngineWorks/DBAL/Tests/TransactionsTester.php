@@ -34,38 +34,6 @@ class TransactionsTester
         $this->testNestedRollback();
         $this->testNestedRollbackCommitRollback();
         $this->testNestedCommitRollbackCommit();
-        $this->testTransactionPreventCommitChangeStatus();
-        $this->testTransactionPreventCommitError();
-    }
-
-    public function testTransactionPreventCommitChangeStatus()
-    {
-        $this->test->assertSame(false, $this->dbal->transPreventCommit());
-        $this->test->assertSame(false, $this->dbal->transPreventCommit(true));
-        $this->test->assertSame(true, $this->dbal->transPreventCommit(false));
-        $this->test->assertSame(false, $this->dbal->transPreventCommit());
-    }
-
-    public function testTransactionPreventCommitError()
-    {
-        $this->test->checkPhpUnitVersion('6.0');
-        $this->test->assertSame(0, $this->dbal->getTransactionLevel());
-        $this->dbal->transPreventCommit(true);
-
-        $this->dbal->transBegin();
-        $this->dbal->transBegin();
-        $this->dbal->transCommit();
-        $lastCommitError = false;
-        try {
-            $this->dbal->transCommit();
-        } catch (\Throwable $exception) {
-            $lastCommitError = true;
-        }
-        $this->test->assertSame(true, $lastCommitError);
-        $this->test->assertSame(1, $this->dbal->getTransactionLevel());
-        $this->dbal->transPreventCommit(false);
-        $this->dbal->transCommit();
-        $this->test->assertSame(0, $this->dbal->getTransactionLevel());
     }
 
     public function testTransactionLevelBeginRollbackCommit()

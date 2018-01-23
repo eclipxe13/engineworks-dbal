@@ -5,12 +5,14 @@ use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result;
 use EngineWorks\DBAL\Tests\RecordsetTester;
 use EngineWorks\DBAL\Tests\TestCaseWithMssqlDatabase;
+use EngineWorks\DBAL\Tests\TransactionsPeventCommitTestTrait;
 use EngineWorks\DBAL\Tests\TransactionsTester;
 use EngineWorks\DBAL\Tests\TransactionsWithExceptionsTestTrait;
 
 class MssqlDbalConnectedTest extends TestCaseWithMssqlDatabase
 {
     // composite with transactions trait
+    use TransactionsPeventCommitTestTrait;
     use TransactionsWithExceptionsTestTrait;
 
     public function testConnectAndDisconnect()
