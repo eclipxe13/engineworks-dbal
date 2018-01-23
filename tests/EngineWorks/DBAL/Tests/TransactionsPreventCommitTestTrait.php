@@ -5,7 +5,7 @@ use EngineWorks\DBAL\DBAL;
 
 /* @var $this \EngineWorks\DBAL\Tests\TestCaseWithDatabase */
 
-trait TransactionsPeventCommitTestTrait
+trait TransactionsPreventCommitTestTrait
 {
     /** @return DBAL */
     abstract protected function getDbal();
