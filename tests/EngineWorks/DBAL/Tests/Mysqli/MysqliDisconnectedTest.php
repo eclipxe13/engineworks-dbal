@@ -104,7 +104,7 @@ class MysqliDisconnectedTest extends TestCase
             'float int' => ['8', 8, DBAL::TNUMBER, false],
             'float text not numeric' => ['0', 'foo bar', DBAL::TNUMBER, false],
             'float text numeric simple' => ['987.654', '987.654', DBAL::TNUMBER, false],
-            'float text numeric complex' => ['-1234.56789', '- $ 1,234.567,89', DBAL::TNUMBER, false],
+            'float text numeric complex' => ['-1234.56789', "- $\t1,234.567,89 ", DBAL::TNUMBER, false],
             'float empty' => ['0', '', DBAL::TNUMBER, false],
             'float whitespace' => ['0', ' ', DBAL::TNUMBER, false],
             // bool

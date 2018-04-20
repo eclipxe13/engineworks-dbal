@@ -37,6 +37,7 @@ trait MethodSqlQuote
             $localeConv['currency_symbol'],
             $localeConv['int_curr_symbol'],
             ' ',
+            "\t",
         ];
         $value = str_replace($replacements, '', $value);
         return (is_numeric($value)) ? (($asInteger) ? intval($value, 10) : floatval($value)) : 0;
