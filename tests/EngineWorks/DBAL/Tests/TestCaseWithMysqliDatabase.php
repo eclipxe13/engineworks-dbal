@@ -32,7 +32,6 @@ class TestCaseWithMysqliDatabase extends TestCaseWithDatabase
     protected function createDatabaseStructure()
     {
         $statements = [
-            // 'USE master;',
             'DROP DATABASE IF EXISTS dbaltest;',
             'CREATE DATABASE dbaltest;',
             'USE dbaltest;',

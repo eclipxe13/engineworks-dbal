@@ -146,7 +146,7 @@ abstract class TestCaseWithDatabase extends BaseTestCase
                 round($faker->numberBetween(0, 99999999) / 100, 2),
             ];
         }
-        $statements = [];
+        $statements = ['DELETE ' . ' FROM albums;'];
         foreach ($data as $row) {
             $statements[] = 'INSERT ' . ' INTO albums (albumid, title, votes, lastview, isfree, collect) VALUES'
                 . ' (' . $this->dbal->sqlQuote($row[0], DBAL::TINT)
@@ -157,7 +157,9 @@ abstract class TestCaseWithDatabase extends BaseTestCase
                 . ', ' . $this->dbal->sqlQuote($row[5], DBAL::TNUMBER)
                 . ');';
         }
+        $this->dbal->transBegin();
         $this->executeStatements($statements);
+        $this->dbal->transCommit();
     }
 
     protected function executeStatements(array $statements)
