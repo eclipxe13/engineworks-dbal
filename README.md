@@ -105,7 +105,7 @@ and licensed for use under the MIT License (MIT). Please see [LICENSE][] for mor
 [build]: https://travis-ci.org/eclipxe13/engineworks-dbal?branch=master
 [quality]: https://scrutinizer-ci.com/g/eclipxe13/engineworks-dbal/
 [sensiolabs]: https://insight.sensiolabs.com/projects/26f47360-dc06-4387-b258-b619ff1bca50
-[coverage]: https://scrutinizer-ci.com/g/eclipxe13/engineworks-dbal/code-structure/master
+[coverage]: https://scrutinizer-ci.com/g/eclipxe13/engineworks-dbal/code-structure/master/code-coverage
 [downloads]: https://packagist.org/packages/eclipxe/engineworks-dbal
 
 [badge-source]: http://img.shields.io/badge/source-eclipxe13/engineworks--dbal-blue.svg?style=flat-square
