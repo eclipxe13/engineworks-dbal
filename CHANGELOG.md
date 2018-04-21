@@ -1,3 +1,13 @@
+# version 1.7.1 2018-04-20
+- Remove duplicated verification for creating the PDO object in `\EngineWorks\DBAL\Mssql\DBAL::connect()`
+- Initialize `$vars` array in `\EngineWorks\DBAL\Mssql\DBAL::getPDOConnectionString`
+- Move logic to parse a number `DBAL::sqlQuote` to `EngineWorks\DBAL\Internal\NumericParser`
+    - Now it removes tabulator also
+    - It does not remove anymore currency name (like USD), it never work very well.
+- Test sqlQuote to number using different locales: `C, en_US, en_US.utf-8, pt_BR`
+- Test populate database inside a transaction (run faster)
+- Fix some simple phpstan issues
+
 # version 1.7.0 2018-01-23
 - Add feature to prevent final (higher) commit by `DBAL::transPreventCommit()`.
 - Add new setting for mssql `freetds-version` that defaults to `7.0` it was hardcoded before.
