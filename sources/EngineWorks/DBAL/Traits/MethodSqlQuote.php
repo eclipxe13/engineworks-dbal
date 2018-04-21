@@ -2,45 +2,13 @@
 namespace EngineWorks\DBAL\Traits;
 
 use EngineWorks\DBAL\CommonTypes;
+use EngineWorks\DBAL\Internal\NumericParser;
 
 trait MethodSqlQuote
 {
     private function sqlQuoteParseNumber($value, $asInteger = true)
     {
-        if (is_bool($value)) {
-            $value = ($value) ? 1 : 0;
-        }
-        $isIntOrFloat = is_int($value) || is_float($value);
-        if ($asInteger && $isIntOrFloat) {
-            return intval($value);
-        }
-        if (! $asInteger && $isIntOrFloat) {
-            return floatval($value);
-        }
-        if (is_object($value)) {
-            $value = strval($value);
-        }
-        if (! is_string($value)) {
-            return 0;
-        }
-        $value = trim($value);
-        if ('' === $value) {
-            return 0;
-        }
-        if ('C' === setlocale(LC_NUMERIC, 0)) {
-            $localeConv = ['thousands_sep' => ',', 'currency_symbol' => '$', 'int_curr_symbol' => '$'];
-        } else {
-            $localeConv = localeconv();
-        }
-        $replacements = [
-            $localeConv['thousands_sep'],
-            $localeConv['currency_symbol'],
-            $localeConv['int_curr_symbol'],
-            ' ',
-            "\t",
-        ];
-        $value = str_replace($replacements, '', $value);
-        return (is_numeric($value)) ? (($asInteger) ? intval($value, 10) : floatval($value)) : 0;
+        return (new NumericParser())->parseAsEnglish($value, $asInteger);
     }
 
     public function sqlQuote($variable, $commonType = CommonTypes::TTEXT, $includeNull = false)
