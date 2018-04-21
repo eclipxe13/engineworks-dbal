@@ -105,15 +105,15 @@ class Result implements ResultInterface
             MYSQLI_TYPE_VAR_STRING => CommonTypes::TTEXT,
             MYSQLI_TYPE_YEAR => CommonTypes::TINT,
         ];
-        if (isset($this->overrideTypes[$field->name])) {
-            return $this->overrideTypes[$field->name];
+        if (isset($this->overrideTypes[$field->{'name'}])) {
+            return $this->overrideTypes[$field->{'name'}];
         }
         $type = CommonTypes::TTEXT;
-        if (array_key_exists($field->type, $types)) {
-            $type = $types[$field->type];
-            if (1 == $field->length && ($type == CommonTypes::TINT || $type == CommonTypes::TNUMBER)) {
+        if (array_key_exists($field->{'type'}, $types)) {
+            $type = $types[$field->{'type'}];
+            if (1 == $field->{'length'} && ($type == CommonTypes::TINT || $type == CommonTypes::TNUMBER)) {
                 $type = CommonTypes::TBOOL;
-            } elseif ($type == CommonTypes::TNUMBER && $field->decimals == 0) {
+            } elseif ($type == CommonTypes::TNUMBER && $field->{'decimals'} == 0) {
                 $type = CommonTypes::TINT;
             }
         }
