@@ -157,6 +157,35 @@ class MysqliDisconnectedTest extends TestCase
         $this->assertSame($expected, $this->dbal->sqlQuote($value, $type, $includeNull));
     }
 
+    /**
+     * @param $locale
+     * @param $expected
+     * @param $value
+     * @testWith ["C", "-1234.56789", "- $\t1,234.567,89 "]
+     *           ["en_US", "-1234.56789", "- $\t1,234.567,89 "]
+     *           ["en_US.utf-8", "-1234.56789", "- $\t1,234.567,89 "]
+     *           ["pt_BR", "-1234.56789", "- R$\t1.234,567.89 ", "NUMBER"]
+     */
+    public function testSqlQuoteWithLocale($locale, $expected, $value)
+    {
+        $currentNumeric = setlocale(LC_NUMERIC, '0');
+        $currentMonetary = setlocale(LC_MONETARY, '0');
+
+        // mark skipped if not found
+        if (false === setlocale(LC_NUMERIC, $locale) || false === setlocale(LC_MONETARY, $locale)) {
+            setlocale(LC_NUMERIC, $currentNumeric);
+            setlocale(LC_MONETARY, $currentMonetary);
+            $this->markTestSkipped("Cannot setup locale '$locale'");
+        }
+
+        // the test
+        $this->assertSame($expected, $this->dbal->sqlQuote($value, DBAL::TNUMBER, false));
+
+        // anyhow restore the previous locale
+        setlocale(LC_NUMERIC, $currentNumeric);
+        setlocale(LC_MONETARY, $currentMonetary);
+    }
+
     public function testSqlQuoteIn()
     {
         $expected = '(1, 2, 3, 4, 5)';
