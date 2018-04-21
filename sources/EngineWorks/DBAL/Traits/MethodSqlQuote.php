@@ -6,6 +6,11 @@ use EngineWorks\DBAL\Internal\NumericParser;
 
 trait MethodSqlQuote
 {
+    /**
+     * @param mixed $value
+     * @param bool $asInteger
+     * @return string
+     */
     private function sqlQuoteParseNumber($value, $asInteger = true)
     {
         return (new NumericParser())->parseAsEnglish($value, $asInteger);
@@ -18,17 +23,17 @@ trait MethodSqlQuote
         }
         switch (strtoupper($commonType)) {
             case CommonTypes::TINT:
-                return strval($this->sqlQuoteParseNumber($variable, true));
+                return $this->sqlQuoteParseNumber($variable, true);
             case CommonTypes::TNUMBER:
-                return strval($this->sqlQuoteParseNumber($variable, false));
+                return $this->sqlQuoteParseNumber($variable, false);
             case CommonTypes::TBOOL:
                 return ($variable) ? '1' : '0';
             case CommonTypes::TDATE:
-                return "'" . date('Y-m-d', $this->sqlQuoteParseNumber($variable, true)) . "'";
+                return "'" . date('Y-m-d', intval($variable, 10)) . "'";
             case CommonTypes::TTIME:
-                return "'" . date('H:i:s', $this->sqlQuoteParseNumber($variable, true)) . "'";
+                return "'" . date('H:i:s', intval($variable, 10)) . "'";
             case CommonTypes::TDATETIME:
-                return "'" . date('Y-m-d H:i:s', $this->sqlQuoteParseNumber($variable, true)) . "'";
+                return "'" . date('Y-m-d H:i:s', intval($variable, 10)) . "'";
             default:
                 return "'" . $this->sqlString($variable) . "'";
         }

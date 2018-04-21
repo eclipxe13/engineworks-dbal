@@ -29,7 +29,7 @@ class NumericParser
         }
         // is not string, early exit with 0
         if (is_string($value)) {
-            $value = $this->parseToEnglish($value);
+            $value = $this->parseToEnglish(trim($value));
             return ($asInteger) ? intval($value) : floatval($value);
         }
         return 0;
@@ -68,6 +68,9 @@ class NumericParser
      */
     protected function parseToEnglish($value)
     {
+        if (ctype_digit($value)) {
+            return $value;
+        }
         $localeConv = $this->getLocaleInfo();
         $replacements = [$localeConv['thousands_sep'], $localeConv['currency_symbol'], ' ', "\t"];
         $value = $this->numberToEnglish(str_replace($replacements, '', $value));
