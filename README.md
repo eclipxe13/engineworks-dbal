@@ -108,7 +108,7 @@ and licensed for use under the MIT License (MIT). Please see [LICENSE][] for mor
 [coverage]: https://scrutinizer-ci.com/g/eclipxe13/engineworks-dbal/code-structure/master
 [downloads]: https://packagist.org/packages/eclipxe/engineworks-dbal
 
-[badge-source]: http://img.shields.io/badge/source-eclipxe13/engineworks--templates-blue.svg?style=flat-square
+[badge-source]: http://img.shields.io/badge/source-eclipxe13/engineworks--dbal-blue.svg?style=flat-square
 [badge-release]: https://img.shields.io/github/release/eclipxe13/engineworks-dbal.svg?style=flat-square
 [badge-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
 [badge-build]: https://img.shields.io/travis/eclipxe13/engineworks-dbal/master.svg?style=flat-square
