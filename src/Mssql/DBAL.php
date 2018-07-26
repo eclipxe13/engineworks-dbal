@@ -58,7 +58,7 @@ class DBAL extends AbstractDBAL
                     PDO::ATTR_FETCH_TABLE_NAMES => true,
                 ]
             );
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->logger->info('-- Connection fail ' . $ex->getMessage());
             $this->logger->error('Cannot create PDO object for MS SQL ' . $ex->getMessage());
             return false;

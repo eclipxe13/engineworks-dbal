@@ -33,7 +33,6 @@ class DBAL extends AbstractDBAL
         if ($this->settings->get('database')) {
             $vars['Database'] = $this->settings->get('database');
         }
-        $vars['TransactionIsolation'] = PDO::SQLSRV_TXN_READ_UNCOMMITTED;
         $return = 'sqlsrv:';
         foreach ($vars as $key => $value) {
             $return .= $key . '=' . $value . ';';
@@ -57,7 +56,7 @@ class DBAL extends AbstractDBAL
                     PDO::ATTR_FETCH_TABLE_NAMES => true,
                 ]
             );
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->logger->info('-- Connection fail ' . $ex->getMessage());
             $this->logger->error('Cannot create PDO object for SqlSrv ' . $ex->getMessage());
             return false;
@@ -120,7 +119,7 @@ class DBAL extends AbstractDBAL
                 throw new \RuntimeException("Unable to execute statement $query");
             }
             return $stmt;
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->logger->info("-- Query fail with SQL: $query");
             $this->logger->error("FAIL: $query\nLast message:" . $this->getLastMessage());
             return false;
