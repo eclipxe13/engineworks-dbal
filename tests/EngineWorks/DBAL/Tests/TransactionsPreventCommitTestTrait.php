@@ -14,10 +14,10 @@ trait TransactionsPreventCommitTestTrait
     {
         $dbal = $this->getDbal();
 
-        $this->assertSame(false, $dbal->transPreventCommit());
-        $this->assertSame(false, $dbal->transPreventCommit(true));
-        $this->assertSame(true, $dbal->transPreventCommit(false));
-        $this->assertSame(false, $dbal->transPreventCommit());
+        $this->assertFalse($dbal->transPreventCommit());
+        $this->assertFalse($dbal->transPreventCommit(true));
+        $this->assertTrue($dbal->transPreventCommit(false));
+        $this->assertFalse($dbal->transPreventCommit());
     }
 
     public function testTransactionPreventCommitError()
@@ -37,7 +37,7 @@ trait TransactionsPreventCommitTestTrait
         } catch (\Throwable $exception) {
             $lastCommitError = true;
         }
-        $this->assertSame(true, $lastCommitError);
+        $this->assertTrue($lastCommitError);
         $this->assertSame(1, $dbal->getTransactionLevel());
         $dbal->transPreventCommit(false);
         $dbal->transCommit();

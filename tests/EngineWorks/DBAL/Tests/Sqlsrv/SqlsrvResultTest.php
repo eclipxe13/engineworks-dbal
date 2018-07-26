@@ -66,7 +66,7 @@ class SqlsrvResultTest extends TestCaseWithSqlsrvDatabase
     public function testMoveOffSet()
     {
         $current = $this->getForEach();
-        $this->assertSame(false, $this->result->fetchRow(), 'After for each fetch must return FALSE');
+        $this->assertFalse($this->result->fetchRow(), 'After for each fetch must return FALSE');
         $this->result->moveFirst();
         $this->assertSame($current[0], $this->result->fetchRow(), 'After move first fetch must return the first row');
         $this->assertTrue($this->result->moveTo(0));
@@ -82,8 +82,8 @@ class SqlsrvResultTest extends TestCaseWithSqlsrvDatabase
         $this->assertInternalType('array', $this->result->fetchRow());
         $this->assertInternalType('array', $this->result->fetchRow());
         $this->assertInternalType('array', $this->result->fetchRow());
-        $this->assertSame(false, $this->result->fetchRow());
-        $this->assertSame(false, $this->result->fetchRow());
+        $this->assertFalse($this->result->fetchRow());
+        $this->assertFalse($this->result->fetchRow());
     }
 
     public function testGetFields()

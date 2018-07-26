@@ -83,7 +83,7 @@ class SqliteDisconnectedTest extends TestCase
     {
         $expected = '(1, 2, 3, 4, 5)';
         $this->assertSame($expected, $this->dbal->sqlQuoteIn(range(1, 5), DBAL::TINT));
-        $this->assertSame(false, $this->dbal->sqlQuoteIn([], DBAL::TINT));
+        $this->assertFalse($this->dbal->sqlQuoteIn([], DBAL::TINT));
     }
 
     public function testSqlString()

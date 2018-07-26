@@ -61,9 +61,9 @@ class SettingsMapTest extends TestCase
     public function testGetValue()
     {
         $settings = new SettingsMapExtension();
-        $this->assertSame(true, $settings->get('bar'));
+        $this->assertTrue($settings->get('bar'));
 
-        $this->assertSame(null, $settings->get('baz'));
+        $this->assertNull($settings->get('baz'));
         $this->assertSame(1, $settings->get('baz', 1));
         $settings->set('foo', 2);
         $this->assertSame(2, $settings->get('foo', 1));
