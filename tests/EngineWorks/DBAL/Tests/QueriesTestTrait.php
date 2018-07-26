@@ -32,6 +32,14 @@ trait QueriesTestTrait
         $this->assertSame($logger->messages('info', true), $logger->allMessages(), 'All messages should be level info');
     }
 
+    public function testQuoteAndQueryMultibyte()
+    {
+        $text = 'á é í ó ú ñ ü € ¢ “” ½';
+        $sql = 'SELECT ' . $this->getDbal()->sqlQuote($text, CommonTypes::TTEXT);
+        $this->assertSame("SELECT '$text'", $sql);
+        $this->assertSame($text, $this->getDbal()->queryOne($sql));
+    }
+
     public function testQueryOneWithValues()
     {
         $expected = 45;
@@ -79,12 +87,13 @@ trait QueriesTestTrait
         $this->getDbal()->execute('BAD STATEMENT;', $expectedMessage);
     }
 
+    // override if needed
     public function queryResultTestOverrideTypes(): array
     {
-        // it is known that sqlite does not have date, datetime, time or boolean
         return [];
     }
 
+    // override if needed
     public function queryResultTestExpectedTableName(): string
     {
         return '';
