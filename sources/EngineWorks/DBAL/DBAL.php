@@ -531,11 +531,12 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Get the first row of a query, the values are in common types
      * Returns false if error or empty row
      * @param string $query
+     * @param array $overrideTypes
      * @return array|false
      */
-    final public function queryValues($query)
+    final public function queryValues($query, $overrideTypes = [])
     {
-        $recordset = $this->queryRecordset($query);
+        $recordset = $this->queryRecordset($query, '', [], $overrideTypes);
         if (false === $recordset) {
             return false;
         }
@@ -569,11 +570,12 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Get an array of rows of a query, the values are in common types
      * Returns false if error
      * @param string $query
+     * @param array $overrideTypes
      * @return array|false
      */
-    final public function queryArrayValues($query)
+    final public function queryArrayValues($query, $overrideTypes = [])
     {
-        $recordset = $this->queryRecordset($query);
+        $recordset = $this->queryRecordset($query, '', [], $overrideTypes);
         if (false === $recordset) {
             return false;
         }
