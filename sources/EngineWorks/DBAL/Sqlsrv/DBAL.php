@@ -222,19 +222,19 @@ class DBAL extends AbstractDBAL
     protected function commandTransactionBegin()
     {
         $this->logger->debug('-- BEGIN TRANSACTION');
-        $this->pdo->beginTransaction();
+        $this->pdo()->beginTransaction();
     }
 
     protected function commandTransactionCommit()
     {
         $this->logger->debug('-- COMMIT TRANSACTION');
-        $this->pdo->commit();
+        $this->pdo()->commit();
     }
 
     protected function commandTransactionRollback()
     {
         $this->logger->debug('-- ROLLBACK TRANSACTION');
-        $this->pdo->rollBack();
+        $this->pdo()->rollBack();
     }
 
     protected function commandSavepoint($name)
