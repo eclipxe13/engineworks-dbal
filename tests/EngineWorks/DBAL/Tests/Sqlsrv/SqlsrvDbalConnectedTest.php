@@ -2,7 +2,6 @@
 namespace EngineWorks\DBAL\Tests\Sqlsrv;
 
 use EngineWorks\DBAL\CommonTypes;
-use EngineWorks\DBAL\Result;
 use EngineWorks\DBAL\Tests\QueriesTestTrait;
 use EngineWorks\DBAL\Tests\RecordsetTester;
 use EngineWorks\DBAL\Tests\SqlQuoteTester;
@@ -46,32 +45,6 @@ class SqlsrvDbalConnectedTest extends TestCaseWithSqlsrvDatabase
         $sql = 'SELECT ' . $this->dbal->sqlQuote($text, CommonTypes::TTEXT);
         $this->assertSame("SELECT '$text'", $sql);
         $this->assertSame($text, $this->dbal->queryOne($sql));
-    }
-
-    public function testQueryResult()
-    {
-        $sql = 'SELECT * FROM albums WHERE (albumid = 5);';
-        $result = $this->dbal->queryResult($sql);
-        $this->assertInstanceOf(Result::class, $result);
-        $this->assertEquals(1, $result->resultCount());
-        // get first
-        $fetchedFirst = $result->fetchRow();
-        $this->assertInternalType('array', $fetchedFirst);
-        // move and get first again
-        $this->assertTrue($result->moveFirst());
-        $fetchedSecond = $result->fetchRow();
-        // test they are the same
-        $this->assertEquals($fetchedFirst, $fetchedSecond);
-
-        $expectedFields = [
-            ['name' => 'albumid', 'commontype' => CommonTypes::TINT, 'table' => ''],
-            ['name' => 'title', 'commontype' => CommonTypes::TTEXT, 'table' => ''],
-            ['name' => 'votes', 'commontype' => CommonTypes::TINT, 'table' => ''],
-            ['name' => 'lastview', 'commontype' => CommonTypes::TDATETIME, 'table' => ''],
-            ['name' => 'isfree', 'commontype' => CommonTypes::TBOOL, 'table' => ''],
-            ['name' => 'collect', 'commontype' => CommonTypes::TNUMBER, 'table' => ''],
-        ];
-        $this->assertEquals($expectedFields, $result->getFields());
     }
 
     public function testRecordsetUsingTester()

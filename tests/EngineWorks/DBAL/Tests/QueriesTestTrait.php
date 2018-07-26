@@ -1,7 +1,9 @@
 <?php
 namespace EngineWorks\DBAL\Tests;
 
+use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\DBAL;
+use EngineWorks\DBAL\Result;
 
 /* @var $this \EngineWorks\DBAL\Tests\TestCaseWithDatabase */
 
@@ -55,5 +57,45 @@ trait QueriesTestTrait
         $this->expectExceptionMessage($expectedMessage);
 
         $this->getDbal()->execute('BAD STATEMENT;', $expectedMessage);
+    }
+
+    public function queryResultTestOverrideTypes(): array
+    {
+        // it is known that sqlite does not have date, datetime, time or boolean
+        return [];
+    }
+
+    public function queryResultTestExpectedTableName(): string
+    {
+        return '';
+    }
+
+    public function testQueryResult()
+    {
+        $expectedTablename = $this->queryResultTestExpectedTableName();
+        $sql = 'SELECT * FROM albums WHERE (albumid = 5);';
+        /* @var \EngineWorks\DBAL\Result $result */
+        $result = $this->getDbal()->queryResult($sql, $this->queryResultTestOverrideTypes());
+        $this->assertInstanceOf(Result::class, $result);
+        $this->assertEquals(1, $result->resultCount());
+        // get first
+        $fetchedFirst = $result->fetchRow();
+        $this->assertInternalType('array', $fetchedFirst);
+        // move and get first again
+        $this->assertTrue($result->moveFirst());
+        $fetchedSecond = $result->fetchRow();
+        // test they are the same
+        $this->assertEquals($fetchedFirst, $fetchedSecond);
+
+        $expectedFields = [
+            ['name' => 'albumid', 'commontype' => CommonTypes::TINT, 'table' => $expectedTablename],
+            ['name' => 'title', 'commontype' => CommonTypes::TTEXT, 'table' => $expectedTablename],
+            ['name' => 'votes', 'commontype' => CommonTypes::TINT, 'table' => $expectedTablename],
+            ['name' => 'lastview', 'commontype' => CommonTypes::TDATETIME, 'table' => $expectedTablename],
+            ['name' => 'isfree', 'commontype' => CommonTypes::TBOOL, 'table' => $expectedTablename],
+            ['name' => 'collect', 'commontype' => CommonTypes::TNUMBER, 'table' => $expectedTablename],
+        ];
+
+        $this->assertArraySubset($expectedFields, $result->getFields());
     }
 }

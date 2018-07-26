@@ -2,7 +2,6 @@
 namespace EngineWorks\DBAL\Tests\Mysqli;
 
 use EngineWorks\DBAL\CommonTypes;
-use EngineWorks\DBAL\Result;
 use EngineWorks\DBAL\Tests\QueriesTestTrait;
 use EngineWorks\DBAL\Tests\RecordsetTester;
 use EngineWorks\DBAL\Tests\SqlQuoteTester;
@@ -49,41 +48,6 @@ class MysqliDbalConnectedTest extends TestCaseWithMysqliDatabase
         $this->assertSame($text, $this->dbal->queryOne($sql));
     }
 
-    public function testQueryResult()
-    {
-        $sql = 'SELECT * FROM albums WHERE (albumid = 5);';
-        $result = $this->dbal->queryResult($sql);
-        $this->assertInstanceOf(Result::class, $result);
-        $this->assertEquals(1, $result->resultCount());
-        // get first
-        $fetchedFirst = $result->fetchRow();
-        $this->assertInternalType('array', $fetchedFirst);
-        // move and get first again
-        $this->assertTrue($result->moveFirst());
-        $fetchedSecond = $result->fetchRow();
-        // test they are the same
-        $this->assertEquals($fetchedFirst, $fetchedSecond);
-
-        $expectedFields = [
-            ['name' => 'albumid', 'commontype' => CommonTypes::TINT, 'table' => 'albums'],
-            ['name' => 'title', 'commontype' => CommonTypes::TTEXT, 'table' => 'albums'],
-            ['name' => 'votes', 'commontype' => CommonTypes::TINT, 'table' => 'albums'],
-            ['name' => 'lastview', 'commontype' => CommonTypes::TDATETIME, 'table' => 'albums'],
-            ['name' => 'isfree', 'commontype' => CommonTypes::TBOOL, 'table' => 'albums'],
-            ['name' => 'collect', 'commontype' => CommonTypes::TNUMBER, 'table' => 'albums'],
-        ];
-        $actualFields = [];
-        $retrievedFields = $result->getFields();
-        foreach ($retrievedFields as $retrievedField) {
-            $actualFields[] = [
-                'name' => $retrievedField['name'],
-                'commontype' => $retrievedField['commontype'],
-                'table' => $retrievedField['table'],
-            ];
-        }
-        $this->assertEquals($expectedFields, $actualFields);
-    }
-
     public function testRecordsetUsingTester()
     {
         $tester = new RecordsetTester($this, $this->dbal);
@@ -100,5 +64,16 @@ class MysqliDbalConnectedTest extends TestCaseWithMysqliDatabase
     {
         $tester = new SqlQuoteTester($this, $this->dbal, "'\\''", "'\\\"'");
         $tester->execute();
+    }
+
+    /**
+     * Override default expected behavior on trait, Mysqli knows the table names
+     *
+     * @see QueriesTestTrait::queryResultTestExpectedTableName()
+     * @return string
+     */
+    public function queryResultTestExpectedTableName(): string
+    {
+        return 'albums';
     }
 }
