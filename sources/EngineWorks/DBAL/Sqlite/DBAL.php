@@ -39,9 +39,7 @@ class DBAL extends AbstractDBAL
         }
         // OK, we are connected
         $this->logger->info('-- Connection success');
-        if ($this->settings->get('enable-exceptions', false)) {
-            $this->sqlite()->enableExceptions(true);
-        }
+        $this->sqlite()->enableExceptions((bool) $this->settings->get('enable-exceptions', false));
         return true;
     }
 

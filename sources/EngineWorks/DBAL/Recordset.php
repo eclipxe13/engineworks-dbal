@@ -82,7 +82,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * @param string[] $overrideKeys
      * @param string[] $overrideTypes
      *
-     * @return bool
+     * @return true
      */
     final public function query($sql, $overrideEntity = '', array $overrideKeys = [], array $overrideTypes = [])
     {
@@ -214,10 +214,13 @@ class Recordset implements \IteratorAggregate, \Countable
      */
     final public function getOriginalValue($fieldName, $defaultValue = '')
     {
-        if (! $this->eof() && array_key_exists($fieldName, $this->originalValues)) {
-            return $this->originalValues[$fieldName];
+        if ($this->eof()
+            || ! is_array($this->originalValues)
+            || ! array_key_exists($fieldName, $this->originalValues)
+        ) {
+            return $defaultValue;
         }
-        return $defaultValue;
+        return $this->originalValues[$fieldName];
     }
 
     /**
@@ -295,7 +298,7 @@ class Recordset implements \IteratorAggregate, \Countable
         if ($originalIsNull || $currentIsNull) {
             return true;
         }
-        // do not continue using the object
+        // do not continue using the object, convert to string
         if (is_object($current)) {
             $current = strval($current);
         }
@@ -596,15 +599,14 @@ class Recordset implements \IteratorAggregate, \Countable
     private function fetchLoadValues()
     {
         $row = $this->result()->fetchRow();
-        if (false !== $row) {
-            $trow = $this->setValuesFromDatafields($row);
-            $this->originalValues = $trow;
-            $this->values = $trow;
-            return true;
+        if (false === $row) {
+            $this->originalValues = null;
+            $this->values = [];
+            return false;
         }
-        $this->values = [];
-        $this->originalValues = null;
-        return false;
+        $this->originalValues = $this->setValuesFromDatafields($row);
+        $this->values = $this->originalValues;
+        return true;
     }
 
     /**

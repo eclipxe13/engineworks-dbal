@@ -448,7 +448,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     abstract protected function queryAffectedRows($query);
 
     /**
-     * Return the last error message, always should return a message
+     * Return the last error message from the driver
      * @return string
      */
     abstract protected function getLastErrorMessage();
@@ -628,8 +628,8 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      */
     final public function queryPairs($query, $keyField, $valueField, $keyPrefix = '', $default = false)
     {
-        $return = [];
         $array = $this->queryArray($query) ?: [];
+        $return = [];
         foreach ($array as $row) {
             $return[$keyPrefix . ($row[$keyField] ?? '')] = $row[$valueField] ?? $default;
         }
@@ -731,7 +731,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     }
 
     /**
-     * Get the last error message, false if none
+     * Get the last error message, empty string if it is not connected
      * @return string
      */
     final public function getLastMessage()
