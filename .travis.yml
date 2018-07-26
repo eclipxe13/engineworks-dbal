@@ -21,7 +21,7 @@ before_script:
 script:
   - cp tests/.env.travis tests/.env
   - mkdir -p build/tests/
-  - vendor/bin/parallel-lint sources/ tests/
+  - vendor/bin/phplint
   - vendor/bin/phpcs -sp sources/ tests/
   - vendor/bin/php-cs-fixer fix --using-cache=no --dry-run --verbose
   - vendor/bin/phpunit --coverage-text --coverage-clover=build/tests/coverage.xml
