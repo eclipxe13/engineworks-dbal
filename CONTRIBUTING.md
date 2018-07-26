@@ -62,9 +62,9 @@ This project include a `phpcs.xml` file that extends the PSR-2 rules.
 
 ```bash
 # find issues
-vendor/bin/phpcs -sp --colors sources/ tests/
+vendor/bin/phpcs -sp --colors src/ tests/
 # fix sources and tests
-vendor/bin/phpcbf sources/ tests/
+vendor/bin/phpcbf src/ tests/
 ```
 
 ## Running Tests
@@ -74,7 +74,7 @@ it will result in a complete build failure. Before you can run these, be sure to
 
 ```
 ./vendor/bin/phplint
-./vendor/bin/phpcs sources tests --encoding=utf-8 --standard=psr2 -sp
+./vendor/bin/phpcs src tests --encoding=utf-8 --standard=psr2 -sp
 ./vendor/bin/phpunit --coverage-text
 ```
 

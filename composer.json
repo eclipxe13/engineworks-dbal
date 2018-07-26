@@ -30,12 +30,12 @@
     },
     "autoload": {
         "psr-4": {
-            "EngineWorks\\DBAL\\": "sources/EngineWorks/DBAL/"
+            "EngineWorks\\DBAL\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "EngineWorks\\DBAL\\Tests\\": "tests/EngineWorks/DBAL/Tests/"
+            "EngineWorks\\DBAL\\Tests\\": "tests/Tests"
         }
     }
 }
