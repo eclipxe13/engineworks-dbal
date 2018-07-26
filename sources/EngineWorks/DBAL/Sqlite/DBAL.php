@@ -96,10 +96,7 @@ class DBAL extends AbstractDBAL
 
     protected function getLastErrorMessage()
     {
-        if ($this->isConnected()) {
-            return '[' . $this->sqlite()->lastErrorCode() . '] ' . $this->sqlite()->lastErrorMsg();
-        }
-        return 'Cannot get the error because there are no active connection';
+        return '[' . $this->sqlite()->lastErrorCode() . '] ' . $this->sqlite()->lastErrorMsg();
     }
 
     public function sqlTableEscape($tableName, $asTable = '')

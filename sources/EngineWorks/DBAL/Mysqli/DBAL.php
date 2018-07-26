@@ -139,10 +139,7 @@ class DBAL extends AbstractDBAL
 
     protected function getLastErrorMessage()
     {
-        if ($this->isConnected()) {
-            return '[' . $this->mysqli()->errno . '] ' . $this->mysqli()->error;
-        }
-        return 'Cannot get the error because there are no active connection';
+        return '[' . $this->mysqli()->errno . '] ' . $this->mysqli()->error;
     }
 
     public function sqlTableEscape($tableName, $asTable = '')

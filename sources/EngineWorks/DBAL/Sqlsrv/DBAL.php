@@ -141,11 +141,8 @@ class DBAL extends AbstractDBAL
 
     protected function getLastErrorMessage()
     {
-        if ($this->isConnected()) {
-            $info = $this->pdo()->errorInfo();
-            return '[' . $info[0] . '] ' . $info[2];
-        }
-        return 'Cannot get the error because there are no active connection';
+        $info = $this->pdo()->errorInfo();
+        return '[' . $info[0] . '] ' . $info[2];
     }
 
     public function sqlTableEscape($tableName, $asTable = '')
