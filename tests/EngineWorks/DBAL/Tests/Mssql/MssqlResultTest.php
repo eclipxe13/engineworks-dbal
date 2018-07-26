@@ -124,6 +124,13 @@ class MssqlResultTest extends TestCaseWithMssqlDatabase
         $this->assertEquals($expected, $this->result->getFields());
     }
 
+    public function testGetFieldsWithNoContents()
+    {
+        $result = $this->dbal->queryResult('SELECT albumid FROM albums WHERE (albumid = -1);');
+        $fields = $result->getFields();
+        $this->assertEquals(CommonTypes::TINT, $fields[0]['commontype']);
+    }
+
     public function testGetIdFields()
     {
         $this->assertEquals(false, $this->result->getIdFields(), 'Cannot get (yet) the Id Fields from a query');

@@ -133,6 +133,13 @@ class MysqliResultTest extends TestCaseWithMysqliDatabase
         $this->assertEquals($expected, $actualFields);
     }
 
+    public function testGetFieldsWithNoContents()
+    {
+        $result = $this->dbal->queryResult('SELECT albumid FROM albums WHERE (albumid = -1);');
+        $fields = $result->getFields();
+        $this->assertEquals(CommonTypes::TINT, $fields[0]['commontype']);
+    }
+
     public function testGetIdFields()
     {
         $this->assertEquals(['albumid'], $this->result->getIdFields(), 'Cannot get (yet) the Id Fields from a query');
