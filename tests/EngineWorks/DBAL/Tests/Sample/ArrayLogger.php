@@ -21,12 +21,12 @@ class ArrayLogger extends AbstractLogger
         return (array_key_exists($level, $this->logs)) ? $this->logs[$level] : [];
     }
 
-    public function messages($level)
+    public function messages($level, $addLevelPrefix = false)
     {
         $list = $this->retrieve($level);
         $return = [];
         foreach ($list as $element) {
-            $return[] = $element['message'];
+            $return[] = ($addLevelPrefix ? $level . ': ' : '') .$element['message'];
         }
         return $return;
     }

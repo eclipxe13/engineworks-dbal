@@ -177,4 +177,9 @@ abstract class TestCaseWithDatabase extends BaseTestCase
     {
         return $this->dbal;
     }
+
+    protected function getLogger(): ArrayLogger
+    {
+        return $this->logger;
+    }
 }

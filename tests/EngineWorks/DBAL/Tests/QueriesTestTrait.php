@@ -4,6 +4,7 @@ namespace EngineWorks\DBAL\Tests;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Result;
+use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
 
 /* @var $this \EngineWorks\DBAL\Tests\TestCaseWithDatabase */
 
@@ -11,6 +12,25 @@ trait QueriesTestTrait
 {
     /** @return DBAL */
     abstract protected function getDbal();
+
+    abstract protected function getLogger(): ArrayLogger;
+
+    public function testDisconnectAndReconnect()
+    {
+        // $dbal is already connected
+        $dbal = $this->getDbal();
+
+        $this->assertTrue($dbal->isConnected());
+
+        $dbal->disconnect();
+        $this->assertFalse($dbal->isConnected());
+
+        $this->assertTrue($dbal->connect());
+        $this->assertTrue($dbal->isConnected());
+
+        $logger = $this->getLogger();
+        $this->assertSame($logger->messages('info', true), $logger->allMessages(), 'All messages should be level info');
+    }
 
     public function testQueryOneWithValues()
     {

@@ -17,29 +17,6 @@ class MysqliDbalConnectedTest extends TestCaseWithMysqliDatabase
     use TransactionsWithExceptionsTestTrait;
     use QueriesTestTrait;
 
-    public function testConnectAndDisconnect()
-    {
-        $this->dbal->disconnect();
-
-        // connect, this is actually reconnect since TestCaseWithDatabase class fail if cannot connect
-        $this->logger->clear();
-        $this->assertTrue($this->dbal->connect());
-        $expectedLogs = [
-            'info: -- Connect and database select OK',
-            'info: -- Setting encoding to UTF8;',
-        ];
-        $this->assertEquals($expectedLogs, $this->logger->allMessages());
-
-        // disconnect
-        $this->logger->clear();
-        $this->dbal->disconnect();
-        $this->assertFalse($this->dbal->isConnected());
-        $expectedLogs = [
-            'info: -- Disconnection',
-        ];
-        $this->assertEquals($expectedLogs, $this->logger->allMessages());
-    }
-
     public function testQuoteMultibyte()
     {
         $text = 'á é í ó ú';
