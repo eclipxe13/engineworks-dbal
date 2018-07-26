@@ -5,6 +5,7 @@ use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Factory;
 use EngineWorks\DBAL\Settings;
 use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
+use EngineWorks\DBAL\Tests\SqlQuoteTester;
 use PHPUnit\Framework\TestCase;
 
 class SqliteDisconnectedTest extends TestCase
@@ -76,88 +77,6 @@ class SqliteDisconnectedTest extends TestCase
         $this->assertSame($expectedName, $dbal->sqlTable('bar', 'x'));
         $expectedNoSuffix = '"bar" AS "x"';
         $this->assertSame($expectedNoSuffix, $dbal->sqlTableEscape('bar', 'x'));
-    }
-
-    public function providerSqlQuote()
-    {
-        $timestamp = mktime(23, 31, 59, 12, 31, 2016);
-        $date = '2016-12-31';
-        $time = '23:31:59';
-        $datetime = "$date $time";
-        $xmlValue = (new \SimpleXMLElement('<' . 'd v="55.1"/>'))['v'];
-        return [
-            // texts
-            'text normal' => ["'foo'", 'foo', DBAL::TTEXT, false],
-            'text normal include null' => ["'foo'", 'foo', DBAL::TTEXT, true],
-            'text zero' => ["'0'", 0, DBAL::TTEXT, false],
-            'text integer' => ["'9'", 9, DBAL::TTEXT, false],
-            'text float' => ["'1.2'", 1.2, DBAL::TTEXT, false],
-            // integer
-            'integer normal' => ['9', 9, DBAL::TINT, false],
-            'integer float' => ['1', 1.2, DBAL::TINT, false],
-            'integer text not numeric' => ['0', 'foo bar', DBAL::TINT, false],
-            'integer text numeric simple' => ['987', '987', DBAL::TINT, false],
-            'integer text numeric complex' => ['-1234', '- $ 1,234.56', DBAL::TINT, false],
-            'integer empty' => ['0', '', DBAL::TINT, false],
-            'integer whitespace' => ['0', ' ', DBAL::TINT, false],
-            'integer bool false' => ['0', false, DBAL::TINT, false],
-            'integer bool true' => ['1', true, DBAL::TINT, false],
-            // float
-            'float normal' => ['9.1', 9.1, DBAL::TNUMBER, false],
-            'float int' => ['8', 8, DBAL::TNUMBER, false],
-            'float text not numeric' => ['0', 'foo bar', DBAL::TNUMBER, false],
-            'float text numeric simple' => ['987.654', '987.654', DBAL::TNUMBER, false],
-            'float text numeric complex' => ['-1234.56789', '- $ 1,234.567,89', DBAL::TNUMBER, false],
-            'float empty' => ['0', '', DBAL::TNUMBER, false],
-            'float whitespace' => ['0', ' ', DBAL::TNUMBER, false],
-            // bool
-            'bool normal false' => ['0', false, DBAL::TBOOL, false],
-            'bool equal false' => ['0', '0', DBAL::TBOOL, false],
-            'bool normal true' => ['1', true, DBAL::TBOOL, false],
-            'bool equal true' => ['1', 'foo', DBAL::TBOOL, false],
-            // date time datetime
-            'date normal' => ["'$date'", $timestamp, DBAL::TDATE, false],
-            'time normal' => ["'$time'", $timestamp, DBAL::TTIME, false],
-            'datetime normal' => ["'$datetime'", $timestamp, DBAL::TDATETIME, false],
-            //
-            // nulls
-            //
-            'null text' => ['NULL', null, DBAL::TTEXT, true],
-            'null int' => ['NULL', null, DBAL::TINT, true],
-            'null float' => ['NULL', null, DBAL::TNUMBER, true],
-            'null bool' => ['NULL', null, DBAL::TBOOL, true],
-            'null date' => ['NULL', null, DBAL::TDATE, true],
-            'null time' => ['NULL', null, DBAL::TTIME, true],
-            'null datetime' => ['NULL', null, DBAL::TDATETIME, true],
-            'null text notnull' => ["''", null, DBAL::TTEXT, false],
-            'null int notnull' => ['0', null, DBAL::TINT, false],
-            'null float notnull' => ['0', null, DBAL::TNUMBER, false],
-            'null bool notnull' => ['0', null, DBAL::TBOOL, false],
-            'null date notnull' => ["'1970-01-01'", null, DBAL::TDATE, false],
-            'null time notnull' => ["'00:00:00'", null, DBAL::TTIME, false],
-            'null datetime notnull' => ["'1970-01-01 00:00:00'", null, DBAL::TDATETIME, false],
-            //
-            // object
-            //
-            'object to string' => ["'55.1'", $xmlValue, DBAL::TTEXT, true],
-            'object to string not null' => ["'55.1'", $xmlValue, DBAL::TTEXT, false],
-            'object to int' => ['55', $xmlValue, DBAL::TINT, true],
-            'object to int not null' => ['55', $xmlValue, DBAL::TINT, false],
-            'object to number' => ['55.1', $xmlValue, DBAL::TNUMBER, true],
-            'object to number not null' => ['55.1', $xmlValue, DBAL::TNUMBER, false],
-        ];
-    }
-
-    /**
-     * @param $expected
-     * @param $value
-     * @param $type
-     * @param $includeNull
-     * @dataProvider providerSqlQuote
-     */
-    public function testSqlQuote($expected, $value, $type, $includeNull)
-    {
-        $this->assertSame($expected, $this->dbal->sqlQuote($value, $type, $includeNull));
     }
 
     public function testSqlQuoteIn()
@@ -236,5 +155,11 @@ class SqliteDisconnectedTest extends TestCase
         $this->assertSame('9 || 8 || 7', $this->dbal->sqlConcatenate(...['9', '8', '7']));
         $this->assertSame('a || b || c', $this->dbal->sqlConcatenate('a', 'b', 'c'));
         $this->assertSame("''", $this->dbal->sqlConcatenate());
+    }
+
+    public function testSqlQuoteUsingTester()
+    {
+        $tester = new SqlQuoteTester($this, $this->dbal);
+        $tester->execute();
     }
 }

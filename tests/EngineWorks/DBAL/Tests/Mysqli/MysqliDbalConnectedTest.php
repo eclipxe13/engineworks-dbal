@@ -4,6 +4,7 @@ namespace EngineWorks\DBAL\Tests\Mysqli;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result;
 use EngineWorks\DBAL\Tests\RecordsetTester;
+use EngineWorks\DBAL\Tests\SqlQuoteTester;
 use EngineWorks\DBAL\Tests\TestCaseWithMysqliDatabase;
 use EngineWorks\DBAL\Tests\TransactionsPreventCommitTestTrait;
 use EngineWorks\DBAL\Tests\TransactionsTester;
@@ -137,6 +138,12 @@ class MysqliDbalConnectedTest extends TestCaseWithMysqliDatabase
     public function testTransactionsUsingTester()
     {
         $tester = new TransactionsTester($this, $this->dbal);
+        $tester->execute();
+    }
+
+    public function testSqlQuoteUsingTester()
+    {
+        $tester = new SqlQuoteTester($this, $this->dbal, "'\\''", "'\\\"'");
         $tester->execute();
     }
 }

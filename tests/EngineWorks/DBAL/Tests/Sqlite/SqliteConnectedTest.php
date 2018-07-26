@@ -4,6 +4,7 @@ namespace EngineWorks\DBAL\Tests\Sqlite;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result;
 use EngineWorks\DBAL\Tests\RecordsetTester;
+use EngineWorks\DBAL\Tests\SqlQuoteTester;
 use EngineWorks\DBAL\Tests\TestCaseWithSqliteDatabase;
 use EngineWorks\DBAL\Tests\TransactionsPreventCommitTestTrait;
 use EngineWorks\DBAL\Tests\TransactionsTester;
@@ -132,6 +133,15 @@ class SqliteConnectedTest extends TestCaseWithSqliteDatabase
     public function testTransactionsUsingTester()
     {
         $tester = new TransactionsTester($this, $this->dbal);
+        $tester->execute();
+    }
+
+    /**
+     * @see \EngineWorks\DBAL\Sqlite\DBAL::sqlQuote()
+     */
+    public function testSqlQuoteUsingTester()
+    {
+        $tester = new SqlQuoteTester($this, $this->dbal);
         $tester->execute();
     }
 }

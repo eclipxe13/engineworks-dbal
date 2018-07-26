@@ -4,6 +4,7 @@ namespace EngineWorks\DBAL\Tests\Mssql;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result;
 use EngineWorks\DBAL\Tests\RecordsetTester;
+use EngineWorks\DBAL\Tests\SqlQuoteTester;
 use EngineWorks\DBAL\Tests\TestCaseWithMssqlDatabase;
 use EngineWorks\DBAL\Tests\TransactionsPreventCommitTestTrait;
 use EngineWorks\DBAL\Tests\TransactionsTester;
@@ -127,6 +128,12 @@ class MssqlDbalConnectedTest extends TestCaseWithMssqlDatabase
     public function testTransactionsUsingTester()
     {
         $tester = new TransactionsTester($this, $this->dbal);
+        $tester->execute();
+    }
+
+    public function testSqlQuoteUsingTester()
+    {
+        $tester = new SqlQuoteTester($this, $this->dbal);
         $tester->execute();
     }
 }
