@@ -55,15 +55,13 @@ class Result implements ResultInterface
     /**
      * Result based on Sqlite3
      * @param SQLite3Result $result
-     * @param int $numRows If negative number then the number of rows will be obtained
-     * from fetching all the rows and reset the result
      * @param array $overrideTypes
      */
-    public function __construct(SQLite3Result $result, $numRows, array $overrideTypes = [])
+    public function __construct(SQLite3Result $result, array $overrideTypes = [])
     {
         $this->query = $result;
         $this->overrideTypes = $overrideTypes;
-        $this->numRows = ($numRows < 0) ? $this->obtainNumRows() : $numRows;
+        $this->numRows = $this->obtainNumRows();
     }
 
     /**
