@@ -651,12 +651,20 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         }
 
         $return = [];
+        $verifiedFieldName = false;
         while (false !== $row = $result->fetchRow()) {
             if ('' === $field) {
                 $keys = array_keys($row);
                 $field = $keys[0];
+                $verifiedFieldName = true;
             }
-            $return[] = $row[$field];
+            if (! $verifiedFieldName) {
+                if (! array_key_exists($field, $row)) {
+                    return false;
+                }
+                $verifiedFieldName = true;
+            }
+            $return[] = $row[$field] ?? null;
         }
         return $return;
     }
