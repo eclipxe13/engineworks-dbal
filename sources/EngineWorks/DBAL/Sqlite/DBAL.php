@@ -72,7 +72,7 @@ class DBAL extends AbstractDBAL
 
     public function queryResult($query, array $overrideTypes = [])
     {
-        if (false !== $rslt = $this->sqlite()->query($query)) {
+        if (false !== $rslt = @$this->sqlite()->query($query)) {
             return new Result($rslt, -1, $overrideTypes);
         }
         return false;
