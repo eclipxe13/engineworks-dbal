@@ -155,35 +155,25 @@ class Result implements ResultInterface
     {
         $values = $this->stmt->fetch(PDO::FETCH_ASSOC);
         if (false === $values) {
-            return $values;
+            return false;
         }
-
-        return $this->convertStringsToExpectedValues($values);
+        return $this->convertToExpectedValues($values);
     }
 
-    private function convertStringsToExpectedValues(array $values): array
+    private function convertToExpectedValues(array $values): array
     {
         $fields = $this->getFields();
         foreach ($fields as $field) {
             $fieldname = $field['name'];
-            $values[$fieldname] = $this->convertStringsToExpectedValue($values[$fieldname], $field['commontype']);
+            $values[$fieldname] = $this->convertToExpectedValue($values[$fieldname], $field['commontype']);
         }
         return $values;
     }
 
-    private function convertStringsToExpectedValue($value, $type)
+    private function convertToExpectedValue($value, $type)
     {
         if (null === $value) {
             return null;
-        }
-        if (CommonTypes::TINT === $type) {
-            return (int) $value;
-        }
-        if (CommonTypes::TNUMBER === $type) {
-            return (float) $value;
-        }
-        if (CommonTypes::TBOOL === $type) {
-            return (bool) $value;
         }
         if (CommonTypes::TDATETIME === $type) {
             return substr($value, 0, 19);
