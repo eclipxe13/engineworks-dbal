@@ -132,7 +132,8 @@ class DBAL extends AbstractDBAL
 
     protected function queryAffectedRows($query)
     {
-        if (false !== $stmt = $this->queryDriver($query)) {
+        $stmt = $this->queryDriver($query);
+        if (false !== $stmt) {
             return $stmt->rowCount();
         }
         return false;

@@ -466,11 +466,15 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      */
     final public function execute($query, $exceptionMessage = '')
     {
-        if (false !== $return = $this->queryAffectedRows($query)) {
-            $this->logger->info("-- AffectedRows: $return");
-        } elseif ('' !== $exceptionMessage) {
-            throw new \RuntimeException($exceptionMessage, 0, new \RuntimeException($this->getLastErrorMessage()));
+        $return = $this->queryAffectedRows($query);
+        if (false === $return) {
+            if ('' !== $exceptionMessage) {
+                throw new \RuntimeException($exceptionMessage, 0, new \RuntimeException($this->getLastErrorMessage()));
+            }
+            return false;
         }
+
+        $this->logger->info("-- AffectedRows: $return");
         return $return;
     }
 
@@ -498,14 +502,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      */
     final public function queryOne($query, $default = false)
     {
-        $return = $default;
-        if (false !== $result = $this->queryResult($query)) {
-            if (false !== $row = $result->fetchRow()) {
-                $keys = array_keys($row);
-                $return = $row[$keys[0]];
-            }
-        }
-        return $return;
+        return current($this->queryRow($query) ?: [$default]);
     }
 
     /**
@@ -516,13 +513,17 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      */
     final public function queryRow($query)
     {
-        $return = false;
-        if (false !== $result = $this->queryResult($query)) {
-            if (false !== $row = $result->fetchRow()) {
-                $return = $row;
-            }
+        $result = $this->queryResult($query);
+        if (false === $result) {
+            return false;
         }
-        return $return;
+
+        $row = $result->fetchRow();
+        if (false === $row) {
+            return false;
+        }
+
+        return $row;
     }
 
     /**
@@ -533,13 +534,14 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      */
     final public function queryValues($query)
     {
-        $return = false;
-        if (false !== $recordset = $this->queryRecordset($query)) {
-            if (! $recordset->eof()) {
-                $return = $recordset->values;
-            }
+        $recordset = $this->queryRecordset($query);
+        if (false === $recordset) {
+            return false;
         }
-        return $return;
+        if ($recordset->eof()) {
+            return false;
+        }
+        return $recordset->values;
     }
 
     /**
@@ -550,12 +552,14 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      */
     final public function queryArray($query)
     {
-        $return = false;
-        if (false !== $result = $this->queryResult($query)) {
-            $return = [];
-            while (false !== $row = $result->fetchRow()) {
-                $return[] = $row;
-            }
+        $result = $this->queryResult($query);
+        if (false === $result) {
+            return false;
+        }
+
+        $return = [];
+        while (false !== $row = $result->fetchRow()) {
+            $return[] = $row;
         }
         return $return;
     }
@@ -568,13 +572,15 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      */
     final public function queryArrayValues($query)
     {
-        $return = false;
-        if (false !== $recordset = $this->queryRecordset($query)) {
-            $return = [];
-            while (! $recordset->eof()) {
-                $return[] = $recordset->values;
-                $recordset->moveNext();
-            }
+        $recordset = $this->queryRecordset($query);
+        if (false === $recordset) {
+            return false;
+        }
+
+        $return = [];
+        while (! $recordset->eof()) {
+            $return[] = $recordset->values;
+            $recordset->moveNext();
         }
         return $return;
     }
@@ -590,16 +596,17 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      */
     final public function queryArrayKey($query, $keyField, $keyPrefix = '')
     {
-        $return = false;
-        if (false !== $result = $this->queryResult($query)) {
-            $retarray = [];
-            while (false !== $row = $result->fetchRow()) {
-                if (! array_key_exists($keyField, $row)) {
-                    return false;
-                }
-                $retarray[strval($keyPrefix . $row[$keyField])] = $row;
+        $result = $this->queryResult($query);
+        if (false === $result) {
+            return false;
+        }
+
+        $return = [];
+        while (false !== $row = $result->fetchRow()) {
+            if (! array_key_exists($keyField, $row)) {
+                return false;
             }
-            $return = $retarray;
+            $return[strval($keyPrefix . $row[$keyField])] = $row;
         }
         return $return;
     }
@@ -619,12 +626,9 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     final public function queryPairs($query, $keyField, $valueField, $keyPrefix = '', $default = false)
     {
         $return = [];
-        $arr = $this->queryArray($query);
-        $arrCount = (is_array($arr)) ? count($arr) : 0;
-        for ($i = 0; $i < $arrCount; $i++) {
-            $iName = $keyPrefix . (array_key_exists($keyField, $arr[$i]) ? strval($arr[$i][$keyField]) : '');
-            $iValue = (array_key_exists($valueField, $arr[$i])) ? $arr[$i][$valueField] : $default;
-            $return[$iName] = $iValue;
+        $array = $this->queryArray($query) ?: [];
+        foreach ($array as $row) {
+            $return[$keyPrefix . ($row[$keyField] ?? '')] = $row[$valueField] ?? $default;
         }
         return $return;
     }
@@ -638,16 +642,18 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      */
     final public function queryArrayOne($query, $field = '')
     {
-        $return = false;
-        if (false !== $result = $this->queryResult($query)) {
-            $return = [];
-            while (false !== $row = $result->fetchRow()) {
-                if ('' === $field) {
-                    $keys = array_keys($row);
-                    $field = $keys[0];
-                }
-                $return[] = $row[$field];
+        $result = $this->queryResult($query);
+        if (false === $result) {
+            return false;
+        }
+
+        $return = [];
+        while (false !== $row = $result->fetchRow()) {
+            if ('' === $field) {
+                $keys = array_keys($row);
+                $field = $keys[0];
             }
+            $return[] = $row[$field];
         }
         return $return;
     }
@@ -661,12 +667,11 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      */
     final public function queryOnString($query, $default = '', $separator = ', ')
     {
-        $return = $default;
-        $arr = $this->queryArrayOne($query);
-        if (is_array($arr)) {
-            $return = implode($separator, $arr);
+        $array = $this->queryArrayOne($query);
+        if (false === $array) {
+            return $default;
         }
-        return $return;
+        return implode($separator, $array);
     }
 
     /**
