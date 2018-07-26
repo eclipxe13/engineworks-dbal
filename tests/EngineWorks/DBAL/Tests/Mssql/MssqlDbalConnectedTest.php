@@ -48,28 +48,6 @@ class MssqlDbalConnectedTest extends TestCaseWithMssqlDatabase
         $this->assertSame($text, $this->dbal->queryOne($sql));
     }
 
-    public function testQueryRow()
-    {
-        $sql = 'SELECT * FROM albums WHERE (albumid = 5);';
-        $result = $this->dbal->queryRow($sql);
-        $this->assertInternalType('array', $result);
-
-        $expectedRows = $this->convertArrayFixedValuesToStrings($this->getFixedValuesWithLabels(5, 5));
-        $this->assertEquals($expectedRows, [$result]);
-    }
-
-    public function testQueryArray()
-    {
-        $sql = 'SELECT * FROM albums WHERE (albumid BETWEEN 1 AND 5);';
-        $result = $this->dbal->queryArray($sql);
-        $this->assertInternalType('array', $result);
-        $this->assertCount(5, $result);
-
-        $expectedRows = $this->getFixedValuesWithLabels(1, 5);
-        $result = $this->convertArrayStringsToFixedValues($result);
-        $this->assertEquals($expectedRows, $result);
-    }
-
     public function testQueryResult()
     {
         $sql = 'SELECT * FROM albums WHERE (albumid = 5);';
