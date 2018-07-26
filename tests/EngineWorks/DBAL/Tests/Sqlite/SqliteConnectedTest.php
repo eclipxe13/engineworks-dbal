@@ -3,6 +3,7 @@ namespace EngineWorks\DBAL\Tests\Sqlite;
 
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result;
+use EngineWorks\DBAL\Tests\DbalQueriesTester;
 use EngineWorks\DBAL\Tests\RecordsetTester;
 use EngineWorks\DBAL\Tests\SqlQuoteTester;
 use EngineWorks\DBAL\Tests\TestCaseWithSqliteDatabase;
@@ -44,14 +45,6 @@ class SqliteConnectedTest extends TestCaseWithSqliteDatabase
         $sql = 'SELECT ' . $this->dbal->sqlQuote($text, CommonTypes::TTEXT);
         $this->assertSame("SELECT '$text'", $sql);
         $this->assertSame($text, $this->dbal->queryOne($sql));
-    }
-
-    public function testQueryOneWithValues()
-    {
-        $expected = 45;
-        $value = $this->dbal->queryOne('SELECT COUNT(*) FROM albums;');
-
-        $this->assertSame($expected, $value);
     }
 
     public function testQueryOneWithError()
@@ -136,12 +129,15 @@ class SqliteConnectedTest extends TestCaseWithSqliteDatabase
         $tester->execute();
     }
 
-    /**
-     * @see \EngineWorks\DBAL\Sqlite\DBAL::sqlQuote()
-     */
     public function testSqlQuoteUsingTester()
     {
         $tester = new SqlQuoteTester($this, $this->dbal);
+        $tester->execute();
+    }
+
+    public function testQueriesUsingTester()
+    {
+        $tester = new DbalQueriesTester($this->dbal);
         $tester->execute();
     }
 }
