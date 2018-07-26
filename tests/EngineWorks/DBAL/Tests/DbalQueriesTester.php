@@ -2,7 +2,7 @@
 namespace EngineWorks\DBAL\Tests;
 
 use EngineWorks\DBAL\DBAL;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Assert;
 
 class DbalQueriesTester
 {
@@ -17,6 +17,7 @@ class DbalQueriesTester
     public function execute()
     {
         $this->testQueryOneWithValues();
+        $this->testQueryOneWithDefault();
     }
 
     private function testQueryOneWithValues()
@@ -24,6 +25,14 @@ class DbalQueriesTester
         $expected = 45;
         $value = $this->dbal->queryOne('SELECT COUNT(*) FROM albums;');
 
-        TestCase::assertSame($expected, $value);
+        Assert::assertEquals($expected, $value);
+    }
+
+    private function testQueryOneWithDefault()
+    {
+        $expected = -10;
+        $value = $this->dbal->queryOne('SELECT 1 FROM albums WHERE (albumid = -1);', $expected);
+
+        Assert::assertSame($expected, $value);
     }
 }

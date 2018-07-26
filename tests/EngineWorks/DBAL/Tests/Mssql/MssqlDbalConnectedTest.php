@@ -47,14 +47,6 @@ class MssqlDbalConnectedTest extends TestCaseWithMssqlDatabase
         $this->assertSame($text, $this->dbal->queryOne($sql));
     }
 
-    public function testQueryOneWithError()
-    {
-        $expected = -10;
-        $value = $this->dbal->queryOne('SELECT albumid FROM albums WHERE (albumid = -1);', $expected);
-
-        $this->assertSame($expected, $value);
-    }
-
     public function testQueryRow()
     {
         $sql = 'SELECT * FROM albums WHERE (albumid = 5);';
