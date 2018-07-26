@@ -10,6 +10,7 @@ class RecordsetTester
 {
     /** @var TestCase */
     private $test;
+
     /** @var DBAL */
     private $dbal;
 

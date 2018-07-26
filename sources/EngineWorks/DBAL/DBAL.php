@@ -469,7 +469,8 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         $return = $this->queryAffectedRows($query);
         if (false === $return) {
             if ('' !== $exceptionMessage) {
-                throw new \RuntimeException($exceptionMessage, 0, new \RuntimeException($this->getLastErrorMessage()));
+                $previous = $this->getLastErrorMessage() ? new \RuntimeException($this->getLastErrorMessage()) : null;
+                throw new \RuntimeException($exceptionMessage, 0, $previous);
             }
             return false;
         }
