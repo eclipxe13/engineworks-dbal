@@ -55,7 +55,7 @@ class RecordsetTester
     {
         $sql = 'SELECT * FROM albums ORDER BY albumid;';
         $recordset = $this->dbal->queryRecordset($sql, 'albums', ['albumid']);
-        $this->assertSame($sql, $recordset->getSource());
+        $this->test->assertSame($sql, $recordset->getSource());
         $this->test->assertSame(45, $recordset->getRecordCount());
         for ($i = 1; $i <= 45; $i++) {
             $this->test->assertFalse($recordset->eof());

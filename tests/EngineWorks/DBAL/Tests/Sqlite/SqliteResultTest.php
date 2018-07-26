@@ -130,7 +130,7 @@ class SqliteResultTest extends TestCaseWithSqliteDatabase
 
     public function testGetIdFields()
     {
-        $this->assertEquals(false, $this->result->getIdFields(), 'Cannot get (yet) the Id Fields from a query');
+        $this->assertFalse($this->result->getIdFields(), 'Cannot get (yet) the Id Fields from a query');
     }
 
     public function testGetIterator()

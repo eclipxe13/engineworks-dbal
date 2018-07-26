@@ -26,7 +26,7 @@ class ArrayLogger extends AbstractLogger
         $list = $this->retrieve($level);
         $return = [];
         foreach ($list as $element) {
-            $return[] = ($addLevelPrefix ? $level . ': ' : '') .$element['message'];
+            $return[] = ($addLevelPrefix ? $level . ': ' : '') . $element['message'];
         }
         return $return;
     }

@@ -1,7 +1,6 @@
 <?php
 namespace EngineWorks\DBAL\Tests\Mssql;
 
-use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Tests\QueriesTestTrait;
 use EngineWorks\DBAL\Tests\RecordsetTester;
 use EngineWorks\DBAL\Tests\SqlQuoteTester;
