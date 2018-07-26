@@ -38,10 +38,10 @@ class MysqliDbalConnectedTest extends TestCaseWithMysqliDatabase
     /**
      * Override default expected behavior on trait, Mysqli knows the table names
      *
-     * @see QueriesTestTrait::queryResultTestExpectedTableName()
+     * @see QueriesTestTrait::overrideEntity()
      * @return string
      */
-    public function queryResultTestExpectedTableName(): string
+    public function overrideEntity(): string
     {
         return 'albums';
     }

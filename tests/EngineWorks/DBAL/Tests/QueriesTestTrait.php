@@ -88,23 +88,23 @@ trait QueriesTestTrait
     }
 
     // override if needed
-    public function queryResultTestOverrideTypes(): array
+    public function overrideTypes(): array
     {
         return [];
     }
 
     // override if needed
-    public function queryResultTestExpectedTableName(): string
+    public function overrideEntity(): string
     {
         return '';
     }
 
     public function testQueryResult()
     {
-        $expectedTablename = $this->queryResultTestExpectedTableName();
+        $expectedTablename = $this->overrideEntity();
         $sql = 'SELECT * FROM albums WHERE (albumid = 5);';
         /* @var \EngineWorks\DBAL\Result $result */
-        $result = $this->getDbal()->queryResult($sql, $this->queryResultTestOverrideTypes());
+        $result = $this->getDbal()->queryResult($sql, $this->overrideTypes());
         $this->assertInstanceOf(Result::class, $result);
         $this->assertEquals(1, $result->resultCount());
         // get first

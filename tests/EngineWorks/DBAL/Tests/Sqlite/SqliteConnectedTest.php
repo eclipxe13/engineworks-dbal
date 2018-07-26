@@ -39,10 +39,10 @@ class SqliteConnectedTest extends TestCaseWithSqliteDatabase
      * Override default expected behavior on trait
      * it is known that sqlite does not have date, datetime, time or boolean
      *
-     * @see QueriesTestTrait::queryResultTestOverrideTypes()
+     * @see QueriesTestTrait::overrideTypes()
      * @return array
      */
-    public function queryResultTestOverrideTypes(): array
+    public function overrideTypes(): array
     {
         return [
             'lastview' => CommonTypes::TDATETIME,
