@@ -34,4 +34,15 @@ class SqlsrvDbalConnectedTest extends TestCaseWithSqlsrvDatabase
         $tester = new SqlQuoteTester($this, $this->dbal);
         $tester->execute();
     }
+
+    /**
+     * Override default expected behavior on trait, Sqlsrv with PDO::CURSOR_SCROLL knows the table names
+     *
+     * @see QueriesTestTrait::overrideEntity()
+     * @return string
+     */
+    public function overrideEntity(): string
+    {
+        return 'albums';
+    }
 }

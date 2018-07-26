@@ -53,7 +53,6 @@ class DBAL extends AbstractDBAL
                 $this->settings->get('user'),
                 $this->settings->get('password'),
                 [
-                    // PDO::ATTR_AUTOCOMMIT => false,
                     PDO::SQLSRV_ATTR_QUERY_TIMEOUT => max(0, (int) $this->settings->get('timeout')),
                     PDO::ATTR_FETCH_TABLE_NAMES => true,
                 ]
@@ -110,8 +109,15 @@ class DBAL extends AbstractDBAL
     {
         $this->logger->debug($query);
         try {
-            if (false === $stmt = $this->pdo()->query($query)) {
+            $stmt = $this->pdo()->prepare($query, [
+                PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL,
+                PDO::SQLSRV_ATTR_DIRECT_QUERY => true,
+            ]);
+            if (false === $stmt) {
                 throw new \RuntimeException("Unable to prepare statement $query");
+            }
+            if (false === $stmt->execute()) {
+                throw new \RuntimeException("Unable to execute statement $query");
             }
             return $stmt;
         } catch (\Exception $ex) {
@@ -125,7 +131,7 @@ class DBAL extends AbstractDBAL
     {
         $stmt = $this->queryDriver($query);
         if (false !== $stmt) {
-            return new Result($stmt, -1, $overrideTypes);
+            return new Result($stmt, $overrideTypes);
         }
         return false;
     }

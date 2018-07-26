@@ -41,16 +41,45 @@ class Result implements ResultInterface
      * Result based on PDOStatement
      *
      * @param PDOStatement $result
-     * @param int $numRows If negative number then the number of rows will be obtained
-     * from fetching all the rows and move first
      * @param array $overrideTypes
      */
-    public function __construct(PDOStatement $result, $numRows, array $overrideTypes = [])
+    public function __construct(PDOStatement $result, array $overrideTypes = [])
     {
+        $numRows = $result->rowCount();
+        if (-1 === $numRows) {
+            throw new \RuntimeException('Must use cursor PDO::CURSOR_SCROLL');
+        }
+
         $this->stmt = $result;
         $this->overrideTypes = $overrideTypes;
-        $this->numRows = ($numRows < 0) ? $this->obtainNumRows() : $numRows;
+        $this->numRows = $numRows;
     }
+
+    private static $types = [
+        // integers
+        'int' => CommonTypes::TINT,
+        'tinyint' => CommonTypes::TINT,
+        'smallint' => CommonTypes::TINT,
+        'bigint' => CommonTypes::TINT,
+        // floats
+        'float' => CommonTypes::TNUMBER,
+        'real' => CommonTypes::TNUMBER,
+        'decimal' => CommonTypes::TNUMBER,
+        'numeric' => CommonTypes::TNUMBER,
+        'money' => CommonTypes::TNUMBER,
+        'smallmoney' => CommonTypes::TNUMBER,
+        // dates
+        'date' => CommonTypes::TDATE,
+        'time' => CommonTypes::TTIME,
+        'datetime' => CommonTypes::TDATETIME,
+        'smalldatetime' => CommonTypes::TDATETIME,
+        // bool
+        'bit' => CommonTypes::TBOOL,
+        // text
+        'char' => CommonTypes::TTEXT,
+        'varchar' => CommonTypes::TTEXT,
+        'text' => CommonTypes::TTEXT,
+    ];
 
     /**
      * Close the query and remove property association
@@ -58,21 +87,6 @@ class Result implements ResultInterface
     public function __destruct()
     {
         $this->stmt->closeCursor();
-    }
-
-    /**
-     * Internal method to retrieve the number of rows if not supplied from constructor
-     *
-     * @return int
-     */
-    private function obtainNumRows()
-    {
-        $count = 0;
-        while (false !== $this->stmt->fetchColumn(0)) {
-            $count = $count + 1;
-        }
-        $this->stmt->execute();
-        return $count;
     }
 
     public function getFields(): array
@@ -105,38 +119,13 @@ class Result implements ResultInterface
      */
     private function getCommonType($fieldName, $nativeType)
     {
-        static $types = [
-            // integers
-            'int' => CommonTypes::TINT,
-            'tinyint' => CommonTypes::TINT,
-            'smallint' => CommonTypes::TINT,
-            'bigint' => CommonTypes::TINT,
-            // floats
-            'float' => CommonTypes::TNUMBER,
-            'real' => CommonTypes::TNUMBER,
-            'decimal' => CommonTypes::TNUMBER,
-            'numeric' => CommonTypes::TNUMBER,
-            'money' => CommonTypes::TNUMBER,
-            'smallmoney' => CommonTypes::TNUMBER,
-            // dates
-            'date' => CommonTypes::TDATE,
-            'time' => CommonTypes::TTIME,
-            'datetime' => CommonTypes::TDATETIME,
-            'smalldatetime' => CommonTypes::TDATETIME,
-            // bool
-            'bit' => CommonTypes::TBOOL,
-            // text
-            'char' => CommonTypes::TTEXT,
-            'varchar' => CommonTypes::TTEXT,
-            'text' => CommonTypes::TTEXT,
-        ];
         if (isset($this->overrideTypes[$fieldName])) {
             return $this->overrideTypes[$fieldName];
         }
         $nativeType = strtolower($nativeType);
         $type = CommonTypes::TTEXT;
-        if (array_key_exists($nativeType, $types)) {
-            $type = $types[$nativeType];
+        if (array_key_exists($nativeType, static::$types)) {
+            $type = static::$types[$nativeType];
         }
         return $type;
     }

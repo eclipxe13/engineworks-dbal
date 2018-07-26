@@ -93,35 +93,42 @@ class SqlsrvResultTest extends TestCaseWithSqlsrvDatabase
             [
                 'name' => 'albumid',
                 'commontype' => CommonTypes::TINT,
-                'table' => '',
+                'table' => 'albums',
             ],
             [
                 'name' => 'title',
                 'commontype' => CommonTypes::TTEXT,
-                'table' => '',
+                'table' => 'albums',
             ],
             [
                 'name' => 'votes',
                 'commontype' => CommonTypes::TINT,
-                'table' => '',
+                'table' => 'albums',
             ],
             [
                 'name' => 'lastview',
                 'commontype' => CommonTypes::TDATETIME,
-                'table' => '',
+                'table' => 'albums',
             ],
             [
                 'name' => 'isfree',
                 'commontype' => CommonTypes::TBOOL,
-                'table' => '',
+                'table' => 'albums',
             ],
             [
                 'name' => 'collect',
                 'commontype' => CommonTypes::TNUMBER,
-                'table' => '',
+                'table' => 'albums',
             ],
         ];
         $this->assertEquals($expected, $this->result->getFields());
+    }
+
+    public function testGetFieldsWithNoContents()
+    {
+        $result = $this->dbal->queryResult('SELECT albumid FROM albums WHERE (albumid = -1);');
+        $fields = $result->getFields();
+        $this->assertEquals(CommonTypes::TINT, $fields[0]['commontype']);
     }
 
     public function testGetIdFields()
