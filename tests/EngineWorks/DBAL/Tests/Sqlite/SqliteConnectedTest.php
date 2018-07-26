@@ -3,7 +3,7 @@ namespace EngineWorks\DBAL\Tests\Sqlite;
 
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result;
-use EngineWorks\DBAL\Tests\DbalQueriesTester;
+use EngineWorks\DBAL\Tests\QueriesTestTrait;
 use EngineWorks\DBAL\Tests\RecordsetTester;
 use EngineWorks\DBAL\Tests\SqlQuoteTester;
 use EngineWorks\DBAL\Tests\TestCaseWithSqliteDatabase;
@@ -16,6 +16,7 @@ class SqliteConnectedTest extends TestCaseWithSqliteDatabase
     // composite with transactions trait
     use TransactionsPreventCommitTestTrait;
     use TransactionsWithExceptionsTestTrait;
+    use QueriesTestTrait;
 
     public function testConnectAndDisconnect()
     {
@@ -124,12 +125,6 @@ class SqliteConnectedTest extends TestCaseWithSqliteDatabase
     public function testSqlQuoteUsingTester()
     {
         $tester = new SqlQuoteTester($this, $this->dbal);
-        $tester->execute();
-    }
-
-    public function testQueriesUsingTester()
-    {
-        $tester = new DbalQueriesTester($this->dbal);
         $tester->execute();
     }
 }
