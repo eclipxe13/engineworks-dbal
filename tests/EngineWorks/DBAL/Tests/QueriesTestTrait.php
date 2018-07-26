@@ -47,4 +47,13 @@ trait QueriesTestTrait
         $result = $this->convertArrayStringsToFixedValues($result);
         $this->assertEquals($expectedRows, $result);
     }
+
+    public function testExecuteWithError()
+    {
+        $expectedMessage = 'Invalid SQL Statement';
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage($expectedMessage);
+
+        $this->getDbal()->execute('BAD STATEMENT;', $expectedMessage);
+    }
 }

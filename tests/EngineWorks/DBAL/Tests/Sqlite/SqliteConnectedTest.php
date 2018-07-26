@@ -80,15 +80,6 @@ class SqliteConnectedTest extends TestCaseWithSqliteDatabase
         $this->assertEquals($expectedFields, $result->getFields());
     }
 
-    public function testExecuteWithError()
-    {
-        $expectedMessage = 'Invalid SQL Statement';
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage($expectedMessage);
-
-        $this->dbal->execute('BAD STATEMENT;', $expectedMessage);
-    }
-
     public function testRecordsetUsingTester()
     {
         $tester = new RecordsetTester($this, $this->dbal);
