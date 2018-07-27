@@ -64,9 +64,6 @@ class PagerTest extends TestCaseWithSqliteDatabase
 
         $pager->setPageSize(-100);
         $this->assertSame(1, $pager->getPageSize());
-
-        $this->expectException(\InvalidArgumentException::class);
-        $pager->setPageSize(null);
     }
 
     public function checkPagerStatus(Pager $pager)

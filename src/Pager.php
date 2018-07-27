@@ -67,7 +67,7 @@ class Pager
      * @param string $queryCount The sql sentence to retrieve the count of the data
      * @param int $pageSize The page size
      */
-    public function __construct(DBAL $dbal, $queryData, $queryCount = '', $pageSize = 20)
+    public function __construct(DBAL $dbal, string $queryData, string $queryCount = '', int $pageSize = 20)
     {
         $this->dbal = $dbal;
         $this->queryData = $queryData;
@@ -75,6 +75,8 @@ class Pager
             // this method also calls $this->setCountMethod
             $this->setQueryCount($queryCount);
         } else {
+            // set a non-null value, otherwise setCountMethod will fail
+            $this->countMethod = -1;
             $this->setCountMethod(self::COUNT_METHOD_SELECT);
         }
         $this->setPageSize($pageSize);
@@ -85,17 +87,17 @@ class Pager
      * @param int $requestedPage
      * @return bool
      */
-    public function queryPage($requestedPage)
+    public function queryPage(int $requestedPage): bool
     {
         // clear
         $this->page = 0;
         $this->totalRecords = null;
         $this->recordset = null;
         // request
-        $page = (int) min($this->getTotalPages(), max(1, intval($requestedPage)));
+        $page = min($this->getTotalPages(), max(1, $requestedPage));
         $query = $this->dbal->sqlLimit($this->getQueryData(), $page, $this->getPageSize());
         $recordset = $this->dbal->queryRecordset($query);
-        if (! $recordset instanceof Recordset) {
+        if (false === $recordset) {
             return false;
         }
         $this->page = $page;
@@ -107,7 +109,7 @@ class Pager
      * perform the query to get all the records (without paging)
      * @return bool
      */
-    public function queryAll()
+    public function queryAll(): bool
     {
         $this->setPageSize($this->getTotalCount());
         return $this->queryPage(1);
@@ -117,17 +119,20 @@ class Pager
      * The current page number
      * @return int
      */
-    public function getPage()
+    public function getPage(): int
     {
         return $this->page;
     }
 
     /**
      * The current recordset object
-     * @return Recordset|null
+     * @return Recordset
      */
-    public function getRecordset()
+    public function getRecordset(): Recordset
     {
+        if (! $this->recordset instanceof Recordset) {
+            throw new \RuntimeException('The pager does not have a current page');
+        }
         return $this->recordset;
     }
 
@@ -135,7 +140,7 @@ class Pager
      * The SQL to query the data
      * @return string
      */
-    public function getQueryData()
+    public function getQueryData(): string
     {
         return $this->queryData;
     }
@@ -144,7 +149,7 @@ class Pager
      * The SQL to query the count of records
      * @return string
      */
-    public function getQueryCount()
+    public function getQueryCount(): string
     {
         return $this->queryCount;
     }
@@ -153,10 +158,11 @@ class Pager
      * Set the SQL to query the count of records
      * This set the countMethod to COUNT_METHOD_QUERY
      * @param string $query
+     * @return void
      */
-    protected function setQueryCount($query)
+    protected function setQueryCount(string $query)
     {
-        if (! is_string($query) || empty($query)) {
+        if ('' === $query) {
             throw new \InvalidArgumentException('setQueryCount require a valid string argument');
         }
         $this->queryCount = $query;
@@ -167,7 +173,7 @@ class Pager
      * Get the page size
      * @return int
      */
-    public function getPageSize()
+    public function getPageSize(): int
     {
         return $this->pageSize;
     }
@@ -176,7 +182,7 @@ class Pager
      * Get the total count based on the count method
      * @return int
      */
-    public function getTotalCount()
+    public function getTotalCount(): int
     {
         if (null === $this->totalRecords) {
             if ($this->getCountMethod() === self::COUNT_METHOD_QUERY) {
@@ -196,7 +202,7 @@ class Pager
      * The count method, ne of COUNT_METHOD_QUERY, COUNT_METHOD_SELECT, COUNT_METHOD_RECORDCOUNT
      * @return int
      */
-    public function getCountMethod()
+    public function getCountMethod(): int
     {
         return $this->countMethod;
     }
@@ -208,7 +214,7 @@ class Pager
      * @param int $method
      * @return int
      */
-    public function setCountMethod($method)
+    public function setCountMethod(int $method): int
     {
         if (! in_array($method, [self::COUNT_METHOD_SELECT, self::COUNT_METHOD_RECORDCOUNT])) {
             throw new \InvalidArgumentException('Invalid count method');
@@ -218,10 +224,7 @@ class Pager
         return $previous;
     }
 
-    /**
-     * @return int
-     */
-    protected function getTotalRecordsByRecordCount()
+    protected function getTotalRecordsByRecordCount(): int
     {
         $query = $this->getQueryData();
         $result = $this->dbal->queryResult($query);
@@ -231,40 +234,34 @@ class Pager
         return $result->resultCount();
     }
 
-    /**
-     * @return int
-     */
-    protected function getTotalRecordsBySelectCount()
+    protected function getTotalRecordsBySelectCount(): int
     {
         $query = 'SELECT COUNT(*)'
             . ' FROM (' . rtrim($this->queryData, "; \t\n\r\0\x0B") . ')'
             . ' AS ' . $this->dbal->sqlTable('subquerycount')
             . ';';
-        $value = $this->dbal->queryOne($query, false);
-        if (false === $value) {
+        $value = (int) $this->dbal->queryOne($query, -1);
+        if (-1 === $value) {
             throw new \RuntimeException("Unable to query the record count using a subquery: $query");
         }
-        return (int) $value;
+        return $value;
     }
 
-    /**
-     * @return int
-     */
-    protected function getTotalRecordsByQueryCount()
+    protected function getTotalRecordsByQueryCount(): int
     {
         $query = $this->getQueryCount();
-        $value = $this->dbal->queryOne($query, false);
-        if (false === $value) {
+        $value = (int) $this->dbal->queryOne($query, -1);
+        if (-1 === $value) {
             throw new \RuntimeException("Unable to query the record count using a query: $query");
         }
-        return (int) $value;
+        return $value;
     }
 
     /**
      * Number of total pages (min: 1, max: total count / page size)
      * @return int
      */
-    public function getTotalPages()
+    public function getTotalPages(): int
     {
         return max(1, ceil($this->getTotalCount() / $this->getPageSize()));
     }
@@ -272,12 +269,10 @@ class Pager
     /**
      * Set the page size, this is fixes to a minimum value of 1
      * @param int $pageSize
+     * @return void
      */
-    public function setPageSize($pageSize)
+    public function setPageSize(int $pageSize)
     {
-        if (! is_numeric($pageSize)) {
-            throw new \InvalidArgumentException('The page size property is not a number');
-        }
-        $this->pageSize = max(1, intval($pageSize));
+        $this->pageSize = max(1, $pageSize);
     }
 }
