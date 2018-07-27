@@ -3,7 +3,6 @@ namespace EngineWorks\DBAL\Mysqli;
 
 use EngineWorks\DBAL\DBAL as AbstractDBAL;
 use EngineWorks\DBAL\Traits\MethodSqlConcatenate;
-use EngineWorks\DBAL\Traits\MethodSqlIsNull;
 use EngineWorks\DBAL\Traits\MethodSqlLike;
 use EngineWorks\DBAL\Traits\MethodSqlLimit;
 use EngineWorks\DBAL\Traits\MethodSqlQuote;
@@ -18,7 +17,6 @@ class DBAL extends AbstractDBAL
 {
     use MethodSqlQuote;
     use MethodSqlLike;
-    use MethodSqlIsNull;
     use MethodSqlLimit;
     use MethodSqlConcatenate;
 

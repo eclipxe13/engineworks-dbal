@@ -4,7 +4,6 @@ namespace EngineWorks\DBAL\Sqlsrv;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\DBAL as AbstractDBAL;
 use EngineWorks\DBAL\Traits\MethodSqlConcatenate;
-use EngineWorks\DBAL\Traits\MethodSqlIsNull;
 use EngineWorks\DBAL\Traits\MethodSqlQuote;
 use PDO;
 
@@ -17,7 +16,6 @@ use PDO;
 class DBAL extends AbstractDBAL
 {
     use MethodSqlQuote;
-    use MethodSqlIsNull;
     use MethodSqlConcatenate;
 
     /** @var PDO|null */

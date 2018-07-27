@@ -344,12 +344,16 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     abstract public function sqlRandomFunc();
 
     /**
-     * Comparison is null
+     * Return a comparison condition against null
+     *
      * @param string $field
-     * @param bool $positive If set tu FALSE perform a IS NOT NULL comparison
+     * @param bool $positive Set to FALSE to perform a IS NOT NULL comparison
      * @return string
      */
-    abstract public function sqlIsNull($field, $positive = true);
+    final public function sqlIsNull(string $field, bool $positive = true): string
+    {
+        return $field . ' IS' . ((! $positive) ? ' NOT' : '') . ' NULL';
+    }
 
     /**
      * If function
