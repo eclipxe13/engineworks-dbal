@@ -1,7 +1,7 @@
 <?php
 namespace EngineWorks\DBAL\Tests\Mysqli;
 
-use EngineWorks\DBAL\Tests\QueriesTestTrait;
+use EngineWorks\DBAL\Tests\DbalQueriesTrait;
 use EngineWorks\DBAL\Tests\RecordsetTester;
 use EngineWorks\DBAL\Tests\SqlQuoteTester;
 use EngineWorks\DBAL\Tests\TestCaseWithMysqliDatabase;
@@ -14,7 +14,7 @@ class MysqliDbalConnectedTest extends TestCaseWithMysqliDatabase
     // composite with transactions trait
     use TransactionsPreventCommitTestTrait;
     use TransactionsWithExceptionsTestTrait;
-    use QueriesTestTrait;
+    use DbalQueriesTrait;
 
     public function testRecordsetUsingTester()
     {
@@ -37,7 +37,7 @@ class MysqliDbalConnectedTest extends TestCaseWithMysqliDatabase
     /**
      * Override default expected behavior on trait, Mysqli knows the table names
      *
-     * @see QueriesTestTrait::overrideEntity()
+     * @see DbalQueriesTrait::overrideEntity()
      * @return string
      */
     public function overrideEntity(): string

@@ -1,7 +1,7 @@
 <?php
 namespace EngineWorks\DBAL\Tests\Sqlsrv;
 
-use EngineWorks\DBAL\Tests\QueriesTestTrait;
+use EngineWorks\DBAL\Tests\DbalQueriesTrait;
 use EngineWorks\DBAL\Tests\RecordsetTester;
 use EngineWorks\DBAL\Tests\SqlQuoteTester;
 use EngineWorks\DBAL\Tests\TestCaseWithSqlsrvDatabase;
@@ -14,7 +14,7 @@ class SqlsrvDbalConnectedTest extends TestCaseWithSqlsrvDatabase
     // composite with transactions trait
     use TransactionsPreventCommitTestTrait;
     use TransactionsWithExceptionsTestTrait;
-    use QueriesTestTrait;
+    use DbalQueriesTrait;
 
     public function testRecordsetUsingTester()
     {
@@ -37,7 +37,7 @@ class SqlsrvDbalConnectedTest extends TestCaseWithSqlsrvDatabase
     /**
      * Override default expected behavior on trait, Sqlsrv with PDO::CURSOR_SCROLL knows the table names
      *
-     * @see QueriesTestTrait::overrideEntity()
+     * @see DbalQueriesTrait::overrideEntity()
      * @return string
      */
     public function overrideEntity(): string

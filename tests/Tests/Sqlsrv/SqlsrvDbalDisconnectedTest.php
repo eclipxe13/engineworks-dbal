@@ -4,16 +4,14 @@ namespace EngineWorks\DBAL\Tests\Sqlsrv;
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Factory;
 use EngineWorks\DBAL\Settings;
+use EngineWorks\DBAL\Tests\DbalCommonSqlTrait;
 use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
 use EngineWorks\DBAL\Tests\SqlQuoteTester;
 use PHPUnit\Framework\TestCase;
 
 class SqlsrvDbalDisconnectedTest extends TestCase
 {
-    protected function getDbal()
-    {
-        return $this->dbal;
-    }
+    use DbalCommonSqlTrait;
 
     /** @var Factory */
     private $factory;
@@ -23,6 +21,11 @@ class SqlsrvDbalDisconnectedTest extends TestCase
 
     /** @var Settings */
     private $settings;
+
+    protected function getDbal()
+    {
+        return $this->dbal;
+    }
 
     protected function setUp()
     {
@@ -81,13 +84,6 @@ class SqlsrvDbalDisconnectedTest extends TestCase
         $this->assertSame($expectedNoSuffix, $dbal->sqlTableEscape('bar', 'x'));
     }
 
-    public function testSqlQuoteIn()
-    {
-        $expected = '(1, 2, 3, 4, 5)';
-        $this->assertSame($expected, $this->dbal->sqlQuoteIn(range(1, 5), DBAL::TINT));
-        $this->assertFalse($this->dbal->sqlQuoteIn([], DBAL::TINT));
-    }
-
     public function testSqlString()
     {
         $this->assertSame("  foo\tbar  \n", $this->dbal->sqlString("  foo\tbar  \n"));
@@ -126,30 +122,6 @@ class SqlsrvDbalDisconnectedTest extends TestCase
         $expected = 'SELECT a OFFSET 80 ROWS FETCH NEXT 20 ROWS ONLY;';
         $this->assertSame($expected, $this->dbal->sqlLimit('SELECT a ', 5, 20));
         $this->assertSame($expected, $this->dbal->sqlLimit('SELECT a;', 5, 20));
-    }
-
-    public function testSqlLike()
-    {
-        $this->assertSame("field LIKE '%search%'", $this->dbal->sqlLike('field', 'search'));
-        $this->assertSame("field LIKE 'search%'", $this->dbal->sqlLike('field', 'search', false));
-        $this->assertSame("field LIKE 'search'", $this->dbal->sqlLike('field', 'search', false, false));
-        $this->assertSame("field LIKE '%search'", $this->dbal->sqlLike('field', 'search', true, false));
-    }
-
-    public function testSqlLikeSearch()
-    {
-        // regular
-        $expected = "(foo LIKE '%bar%') OR (foo LIKE '%baz%')";
-        $this->assertSame($expected, $this->dbal->sqlLikeSearch('foo', 'bar  baz'));
-        // all words
-        $expected = "(foo LIKE '%bar%') AND (foo LIKE '%baz%')";
-        $this->assertSame($expected, $this->dbal->sqlLikeSearch('foo', 'bar  baz', false));
-        // change separator
-        $expected = "(foo LIKE '%bar%') OR (foo LIKE '%baz%')";
-        $this->assertSame($expected, $this->dbal->sqlLikeSearch('foo', 'bar;;baz', true, ';'));
-        // empty or invalid strings
-        $this->assertSame('', $this->dbal->sqlLikeSearch('foo', ''));
-        $this->assertSame('', $this->dbal->sqlLikeSearch('foo', new \stdClass()));
     }
 
     public function testSqlConcatenate()

@@ -8,7 +8,7 @@ use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
 
 /* @var $this \EngineWorks\DBAL\Tests\TestCaseWithDatabase */
 
-trait QueriesTestTrait
+trait DbalQueriesTrait
 {
     /** @return DBAL */
     abstract protected function getDbal();

@@ -1,7 +1,7 @@
 <?php
 namespace EngineWorks\DBAL\Tests\Mssql;
 
-use EngineWorks\DBAL\Tests\QueriesTestTrait;
+use EngineWorks\DBAL\Tests\DbalQueriesTrait;
 use EngineWorks\DBAL\Tests\RecordsetTester;
 use EngineWorks\DBAL\Tests\SqlQuoteTester;
 use EngineWorks\DBAL\Tests\TestCaseWithMssqlDatabase;
@@ -14,7 +14,7 @@ class MssqlDbalConnectedTest extends TestCaseWithMssqlDatabase
     // composite with transactions trait
     use TransactionsPreventCommitTestTrait;
     use TransactionsWithExceptionsTestTrait;
-    use QueriesTestTrait;
+    use DbalQueriesTrait;
 
     public function testRecordsetUsingTester()
     {

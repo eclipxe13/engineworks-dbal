@@ -2,7 +2,7 @@
 namespace EngineWorks\DBAL\Tests\Sqlite;
 
 use EngineWorks\DBAL\CommonTypes;
-use EngineWorks\DBAL\Tests\QueriesTestTrait;
+use EngineWorks\DBAL\Tests\DbalQueriesTrait;
 use EngineWorks\DBAL\Tests\RecordsetTester;
 use EngineWorks\DBAL\Tests\SqlQuoteTester;
 use EngineWorks\DBAL\Tests\TestCaseWithSqliteDatabase;
@@ -15,7 +15,7 @@ class SqliteConnectedTest extends TestCaseWithSqliteDatabase
     // composite with transactions trait
     use TransactionsPreventCommitTestTrait;
     use TransactionsWithExceptionsTestTrait;
-    use QueriesTestTrait;
+    use DbalQueriesTrait;
 
     public function testRecordsetUsingTester()
     {
@@ -39,7 +39,7 @@ class SqliteConnectedTest extends TestCaseWithSqliteDatabase
      * Override default expected behavior on trait
      * it is known that sqlite does not have date, datetime, time or boolean
      *
-     * @see QueriesTestTrait::overrideTypes()
+     * @see DbalQueriesTrait::overrideTypes()
      * @return array
      */
     public function overrideTypes(): array
