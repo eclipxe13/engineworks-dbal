@@ -78,12 +78,11 @@ It support Mysqli, Mssql and Sqlite3 drivers, you are free to create your own an
 ## Compatibility
 
 This class will be compatible according to [PHP Supported versions](http://php.net/supported-versions.php),
-Security Support. This means that it will offer compatibility with PHP 5.6+ until 2018-12-31.
+Security Support.
 
-The support for version 5.5+ is not included since this PHP version end 2016-06-10
-and that is lower than the release of first version of this library.
+- PHP 5.6, version **1.x**, until 2018-12-31
+- PHP 7.0, version **2.x**, until 2018-12-03
 
-Not taking particular efforts to make this library compatible with hhvm.
 
 ## Contributing
 
