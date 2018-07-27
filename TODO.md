@@ -1,7 +1,13 @@
 # eclipxe13/engineworks-dbal To Do List
 
-- Move Sqlite3 to PDO
+## Urgent!
+
 - Since now is using PHP 7.0 use type declarations in all project
+- Move Sqlite3 to PDO
+- Deprecate (or remove in branch 2) Mssql driver (pdo_dblib)
+
+## To do
+
 - DBAL::sqlQuote could be a final public method
 - Include prepared (or simulated prepared) statements
 - ~~Include Generic PDO Driver (is not a good idea)~~

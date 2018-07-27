@@ -1,16 +1,14 @@
-# version 2.0.0 2018-07-26
+# NOT RELEASED YET - version 2.0.0 2018-07-26
 - Set minimal php version to PHP 7.0
-- Add support for MS Sql Server driver (sqlsrv) on `EngineWorks\DBAL\Tests\Sqlsrv`
+- Add support for Microsoft Sql Server driver (sqlsrv) on `EngineWorks\DBAL\Tests\Sqlsrv`
 - Add `$overrideTypes` argument to `DBAL::queryValues` and `DBAL::queryArrayValues`
 - `DBAL::queryArrayOne` returns `false` if the specified field name does not exists
 - sqlite: `DBAL::queryRecordset` return `false` if query fails (as other drivers)
-- 
 - Refactor methods for better reading
 - Testing improvements:
     - Improve code coverage
     - Use `assertTrue`, `assertFalse` & `assertNull` instead of `assertSame`
     - Use `QueryTrait` for better and unified testing on `DBAL` implementations
-    - 
 - Replace parallel-lint with phplint
 - readme: fix badges and coverage link
 
