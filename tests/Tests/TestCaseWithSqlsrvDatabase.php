@@ -11,7 +11,7 @@ class TestCaseWithSqlsrvDatabase extends TestCaseWithDatabase
         if (! function_exists('pdo_drivers')) {
             $this->markTestSkipped('Environment does not have the extension pdo');
         }
-        if (! in_array('dblib', pdo_drivers())) {
+        if (! in_array('sqlsrv', pdo_drivers())) {
             $this->markTestSkipped('Environment does not have the extension pdo-dblib');
         }
     }
