@@ -1,14 +1,21 @@
-# NOT RELEASED YET - version 2.0.0 2018-07-26
+# NOT RELEASED YET - version 2.0.0 2018-07-27
 - Set minimal php version to PHP 7.0
+- Add type declarations to arguments and returns
+- Add `DBAL::sqlIn` to better queries using `IN` and empty arrays
+- `DBAL::sqlQuoteIn` now throws an `\RuntimeException` if empty array is received
 - Add support for Microsoft Sql Server driver (sqlsrv) on `EngineWorks\DBAL\Tests\Sqlsrv`
 - Add `$overrideTypes` argument to `DBAL::queryValues` and `DBAL::queryArrayValues`
 - `DBAL::queryArrayOne` returns `false` if the specified field name does not exists
 - sqlite: `DBAL::queryRecordset` return `false` if query fails (as other drivers)
+- include phpstan as dependence
+- clear all phpstan issues
+- Add to composer commands: build, coverage, style & test
 - Refactor methods for better reading
 - Testing improvements:
     - Improve code coverage
     - Use `assertTrue`, `assertFalse` & `assertNull` instead of `assertSame`
-    - Use `QueryTrait` for better and unified testing on `DBAL` implementations
+    - Use `DbalQueriesTrait` and `DbalCommonSqlTrait` for unified testing on `DBAL` implementations
+    - Organize files: Tests TestCases, TesterCases, TesterTraits, etc...
 - Replace parallel-lint with phplint
 - readme: fix badges and coverage link
 

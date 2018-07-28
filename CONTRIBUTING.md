@@ -79,16 +79,10 @@ it will result in a complete build failure. Before you can run these, be sure to
 ./vendor/bin/phpstan analyse --level max src/ tests/
 ```
 
-### Testing PHP 5.6
-
-Notice that `composer.json` allows versions `^5.7` or `^6.5`.
-Composer already knows that `^6.5` is not compatible with PHP 5.6 so it will try to install `^5.7`.
-Some tests are skipped of PHPUnit is lower than version `6.0`.
-
-### Testing Mssql
+### Testing MS Sql Server
 
 Ensure that you have a file with the configuration on `tests/.env`, you can use `tests/.env.example` as start point.
-In the configuration file setup your Mssql instance.
+In the configuration file setup your MS Sql Server instance.
 
 If you don't have one you can use Docker with the image `microsoft/mssql-server-linux` of Microsoft SQL Server vNext.
 

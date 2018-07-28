@@ -51,19 +51,17 @@ all the records but only the requested ones
 
 ## About drivers
 
-It support Mysqli, Mssql and Sqlite3 drivers, you are free to create your own and (please) share it with me.
+It support Mysqli, Mssql, Sqlsrv and Sqlite3 drivers, you are free to create your own and (please) share it with me.
 
 ### Mysqli
 
 - This is the most tested driver on production.
 
-### Mssql
+### Sqlsrv
 
-- This driver is based on PDO dblib, you will need FreeTDS.
+- This driver is based on Microsoft PHP Driver for SQL Server.
 - Result does not know the entity or primary keys of the query.
   Use overrideEntity and overrideKeys when create a Recordset for update or delete.
-- The function to quote (PDO::quote) fail with multibyte strings, we are
-  using simple replacements of `'` to `''`
 
 ### Sqlite3
 
@@ -74,6 +72,15 @@ It support Mysqli, Mssql and Sqlite3 drivers, you are free to create your own an
 - The method SQLite3Result::fetchArray put the cursor in the first position
   when called after end of list. This behavior is corrected on Result and fetch
   returns always false.
+
+### Mssql
+
+- This driver is based on PDO dblib, you will need FreeTDS.
+- Result does not know the entity or primary keys of the query.
+  Use overrideEntity and overrideKeys when create a Recordset for update or delete.
+- The function to quote (PDO::quote) fail with multibyte strings, we are
+  using simple replacements of `'` to `''`
+- This driver is not really compatible with PHP 7, use Sqlsrv instead
 
 ## Compatibility
 
