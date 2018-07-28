@@ -31,11 +31,12 @@ class RecordsetIterator implements \Iterator
         $this->keySeparator = $keySeparator;
     }
 
-    public function current()
+    public function current(): array
     {
         return $this->recordset->values;
     }
 
+    /** @return void */
     public function next()
     {
         $this->recordset->moveNext();
@@ -54,11 +55,12 @@ class RecordsetIterator implements \Iterator
         return implode($this->keySeparator, $key);
     }
 
-    public function valid()
+    public function valid(): bool
     {
         return ! $this->recordset->eof();
     }
 
+    /** @return void */
     public function rewind()
     {
         if ($this->index !== 0) {

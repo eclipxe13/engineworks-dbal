@@ -9,15 +9,17 @@ interface Settings
 {
     /**
      * Settings constructor.
+     *
      * @param array $settings Subset of settings to initialize in the object
      */
     public function __construct(array $settings = []);
 
     /**
      * Get a setting
+     *
      * @param string $name
      * @param mixed $default
      * @return mixed
      */
-    public function get($name, $default = null);
+    public function get(string $name, $default = null);
 }

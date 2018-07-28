@@ -16,7 +16,7 @@ class NumericParser
      * @param bool $asInteger
      * @return int|float
      */
-    public function parse($value, $asInteger)
+    public function parse($value, bool $asInteger)
     {
         // return simple numeric data
         if (is_bool($value) || is_int($value) || is_float($value)) {
@@ -25,22 +25,22 @@ class NumericParser
 
         // is object, convert to string
         if (is_object($value)) {
-            $value = strval($value);
+            $value = (string) $value;
         }
         // is not string, early exit with 0
-        if (is_string($value)) {
-            $value = $this->parseToEnglish(trim($value));
-            return ($asInteger) ? intval($value) : floatval($value);
+        if (! is_string($value)) {
+            return 0;
         }
-        return 0;
+        $value = $this->parseToEnglish(trim($value));
+        return ($asInteger) ? intval($value) : floatval($value);
     }
 
-    public function parseAsEnglish($value, $asInteger)
+    public function parseAsEnglish($value, bool $asInteger): string
     {
-        return $this->numberToEnglish(strval($this->parse($value, $asInteger)));
+        return $this->numberToEnglish((string) $this->parse($value, $asInteger));
     }
 
-    protected function getLocaleInfo()
+    protected function getLocaleInfo(): array
     {
         if (! is_array($this->localeConv)) {
             $this->localeConv = $this->obtainLocaleInfo();
@@ -48,7 +48,7 @@ class NumericParser
         return $this->localeConv;
     }
 
-    protected function obtainLocaleInfo()
+    protected function obtainLocaleInfo(): array
     {
         if ('C' === setlocale(LC_NUMERIC, '0')) {
             // override to us_EN
@@ -66,7 +66,7 @@ class NumericParser
      * @param string $value
      * @return string
      */
-    protected function parseToEnglish($value)
+    protected function parseToEnglish(string $value): string
     {
         if (ctype_digit($value)) {
             return $value;
@@ -82,13 +82,16 @@ class NumericParser
      * @param string $value
      * @return string
      */
-    protected function numberToEnglish($value)
+    protected function numberToEnglish(string $value): string
     {
-        return ('.' === $this->getDecimalPoint()) ? $value : str_replace($this->getDecimalPoint(), '.', $value);
+        if ('.' !== $this->getDecimalPoint()) {
+            return str_replace($this->getDecimalPoint(), '.', $value);
+        }
+        return $value;
     }
 
-    protected function getDecimalPoint()
+    protected function getDecimalPoint(): string
     {
-        return $this->getLocaleInfo()['decimal_point'];
+        return $this->getLocaleInfo()['decimal_point'] ?? '';
     }
 }

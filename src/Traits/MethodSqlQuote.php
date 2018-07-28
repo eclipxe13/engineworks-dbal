@@ -4,9 +4,10 @@ namespace EngineWorks\DBAL\Traits;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Internal\NumericParser;
 
+/** @var \EngineWorks\DBAL\DBAL $this */
 trait MethodSqlQuote
 {
-    public function sqlQuote($variable, $commonType = CommonTypes::TTEXT, $includeNull = false)
+    public function sqlQuote($variable, string $commonType = CommonTypes::TTEXT, bool $includeNull = false): string
     {
         if ($includeNull && null === $variable) {
             return 'NULL';

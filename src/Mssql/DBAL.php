@@ -40,7 +40,7 @@ class DBAL extends AbstractDBAL
         return $return;
     }
 
-    public function connect()
+    public function connect(): bool
     {
         // disconnect
         $this->disconnect();
@@ -77,17 +77,17 @@ class DBAL extends AbstractDBAL
         $this->pdo = null;
     }
 
-    public function isConnected()
+    public function isConnected(): bool
     {
         return ($this->pdo instanceof PDO);
     }
 
-    public function lastInsertedID()
+    public function lastInsertedID(): int
     {
-        return floatval($this->pdo()->lastInsertId());
+        return (int) $this->pdo()->lastInsertId();
     }
 
-    public function sqlString($variable)
+    public function sqlString($variable): string
     {
         // there are no function to escape without a link
         if ('' === 'THIS IS NOT WORKING WITH MULTIBYTE STRINGS' && $this->isConnected()) {
@@ -119,7 +119,7 @@ class DBAL extends AbstractDBAL
         }
     }
 
-    public function queryResult($query, array $overrideTypes = [])
+    public function queryResult(string $query, array $overrideTypes = [])
     {
         $stmt = $this->queryDriver($query);
         if (false !== $stmt) {
@@ -128,7 +128,7 @@ class DBAL extends AbstractDBAL
         return false;
     }
 
-    protected function queryAffectedRows($query)
+    protected function queryAffectedRows(string $query)
     {
         $stmt = $this->queryDriver($query);
         if (false !== $stmt) {
@@ -137,23 +137,23 @@ class DBAL extends AbstractDBAL
         return false;
     }
 
-    protected function getLastErrorMessage()
+    protected function getLastErrorMessage(): string
     {
         $info = $this->pdo()->errorInfo();
         return '[' . $info[0] . '] ' . $info[2];
     }
 
-    public function sqlTableEscape($tableName, $asTable = '')
+    public function sqlTableEscape(string $tableName, string $asTable = ''): string
     {
         return '[' . $tableName . ']' . (('' !== $asTable) ? ' AS [' . $asTable . ']' : '');
     }
 
-    public function sqlFieldEscape($fieldName, $asFieldName = '')
+    public function sqlFieldEscape(string $tableName, string $asTable = ''): string
     {
-        return '[' . $fieldName . ']' . (('' !== $asFieldName) ? ' AS [' . $asFieldName . ']' : '');
+        return '[' . $tableName . ']' . (('' !== $asTable) ? ' AS [' . $asTable . ']' : '');
     }
 
-    public function sqlDatePart($part, $expression)
+    public function sqlDatePart(string $part, string $expression): string
     {
         switch (strtoupper($part)) {
             case 'YEAR':
@@ -180,20 +180,20 @@ class DBAL extends AbstractDBAL
         throw new \InvalidArgumentException("Date part $part is not valid");
     }
 
-    public function sqlIf($condition, $truePart, $falsePart)
+    public function sqlIf(string $condition, string $truePart, string $falsePart): string
     {
         return 'CASE WHEN (' . $condition . ') THEN ' . $truePart . ' ELSE ' . $falsePart . ' END';
     }
 
-    public function sqlRandomFunc()
+    public function sqlRandomFunc(): string
     {
         return 'RAND()';
     }
 
-    public function sqlLimit($query, $requestedPage, $recordsPerPage = 20)
+    public function sqlLimit(string $query, int $requestedPage, int $recordsPerPage = 20): string
     {
-        $requestedPage = max(1, (int) $requestedPage) - 1; // zero indexed
-        $recordsPerPage = max(1, (int) $recordsPerPage);
+        $requestedPage = max(1, $requestedPage) - 1; // zero indexed
+        $recordsPerPage = max(1, $recordsPerPage);
         $query = rtrim($query, "; \t\n\r\0\x0B")
             . ' OFFSET ' . $this->sqlQuote($recordsPerPage * $requestedPage, CommonTypes::TINT) . ' ROWS'
             . ' FETCH NEXT ' . $this->sqlQuote($recordsPerPage, CommonTypes::TINT) . ' ROWS ONLY'
@@ -201,8 +201,12 @@ class DBAL extends AbstractDBAL
         return $query;
     }
 
-    public function sqlLike($fieldName, $searchString, $wildcardBegin = true, $wildcardEnd = true)
-    {
+    public function sqlLike(
+        string $fieldName,
+        string $searchString,
+        bool $wildcardBegin = true,
+        bool $wildcardEnd = true
+    ): string {
         $searchString = str_replace(
             ['[', '_', '%'],
             ['[[]' . '[_]', '[%]'],
@@ -212,7 +216,7 @@ class DBAL extends AbstractDBAL
             . (($wildcardBegin) ? '%' : '') . $this->sqlString($searchString) . (($wildcardEnd) ? '%' : '') . "'";
     }
 
-    protected function commandSavepoint($name)
+    protected function commandSavepoint(string $name)
     {
         $this->execute(
             'SAVE TRANSACTION ' . $this->sqlFieldEscape($name) . ';',
@@ -220,13 +224,13 @@ class DBAL extends AbstractDBAL
         );
     }
 
-    protected function commandReleaseSavepoint($name)
+    protected function commandReleaseSavepoint(string $name)
     {
         // do not execute, the command commit transaction does not works with save transaction
         $this->logger->debug("-- COMMIT TRANSACTION $name");
     }
 
-    protected function commandRollbackToSavepoint($name)
+    protected function commandRollbackToSavepoint(string $name)
     {
         $this->execute(
             'ROLLBACK TRANSACTION ' . $this->sqlFieldEscape($name) . ';',

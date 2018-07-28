@@ -23,27 +23,30 @@ class ResultIterator implements \Iterator
         $this->result = $result;
     }
 
+    /** @return array|false */
     public function current()
     {
         return $this->currentValues;
     }
 
-    public function key()
+    public function key(): int
     {
         return $this->index;
     }
 
-    public function valid()
+    public function valid(): bool
     {
         return is_array($this->currentValues);
     }
 
+    /** @return void */
     public function next()
     {
         $this->currentValues = $this->result->fetchRow();
         $this->index = $this->index + 1;
     }
 
+    /** @return void */
     public function rewind()
     {
         $this->result->moveFirst();

@@ -50,7 +50,7 @@ class Result implements ResultInterface
         $this->query->free();
     }
 
-    public function getFields()
+    public function getFields(): array
     {
         if (null !== $this->cachedGetFields) {
             return $this->cachedGetFields;
@@ -149,7 +149,7 @@ class Result implements ResultInterface
         return $return;
     }
 
-    public function resultCount()
+    public function resultCount(): int
     {
         return $this->query->num_rows;
     }
@@ -160,12 +160,12 @@ class Result implements ResultInterface
         return (! is_array($return)) ? false : $return;
     }
 
-    public function moveTo($offset)
+    public function moveTo(int $offset): bool
     {
         return $this->query->data_seek($offset);
     }
 
-    public function moveFirst()
+    public function moveFirst(): bool
     {
         if ($this->resultCount() <= 0) {
             return false;

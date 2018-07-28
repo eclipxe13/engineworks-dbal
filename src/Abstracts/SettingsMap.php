@@ -27,7 +27,7 @@ class SettingsMap implements SettingsInterface
      * Get all the settings
      * @return array
      */
-    public function all()
+    public function all(): array
     {
         return $this->map;
     }
@@ -37,30 +37,38 @@ class SettingsMap implements SettingsInterface
      *
      * @param string $name
      * @param mixed $value
-     * @throws \InvalidArgumentException
+     * @throws \InvalidArgumentException if setting does not exists
      */
-    public function set($name, $value)
+    public function set(string $name, $value)
     {
-        if (! $this->exists($name)) {
+        if (! array_key_exists($name, $this->map)) {
             throw new \InvalidArgumentException("Setting $name does not exists");
         }
         $this->map[$name] = $value;
     }
 
     /**
-     * Set an array of settings
+     * Set an array of settings, ignores non existent or non-string-key elements
+     *
      * @param array $settings
      */
     public function setAll(array $settings)
     {
         foreach ($settings as $name => $value) {
-            if ($this->exists($name)) { // avoid the logic exception
+            if (is_string($name) && $this->exists($name)) { // avoid the logic exception
                 $this->set($name, $value);
             }
         }
     }
 
-    public function get($name, $default = null)
+    /**
+     * Obtain a setting
+     *
+     * @param string $name
+     * @param mixed|null $default
+     * @return mixed|null
+     */
+    public function get(string $name, $default = null)
     {
         return ($this->exists($name)) ? $this->map[$name] : $default;
     }
@@ -69,8 +77,8 @@ class SettingsMap implements SettingsInterface
      * @param string $name
      * @return bool
      */
-    public function exists($name)
+    public function exists(string $name): bool
     {
-        return (array_key_exists($name, $this->map));
+        return array_key_exists($name, $this->map);
     }
 }

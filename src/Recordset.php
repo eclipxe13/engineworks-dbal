@@ -43,6 +43,8 @@ class Recordset implements \IteratorAggregate, \Countable
      * @var string
      */
     private $source;
+
+    /** @var int */
     private $mode;
 
     /**
@@ -71,7 +73,7 @@ class Recordset implements \IteratorAggregate, \Countable
     public function __construct(DBAL $dbal, LoggerInterface $logger = null)
     {
         $this->dbal = $dbal;
-        $this->logger = ($logger instanceof LoggerInterface) ? $logger : $dbal->getLogger();
+        $this->logger = $logger ?: $dbal->getLogger();
         $this->initialize();
     }
 
@@ -84,8 +86,12 @@ class Recordset implements \IteratorAggregate, \Countable
      *
      * @return true
      */
-    final public function query($sql, $overrideEntity = '', array $overrideKeys = [], array $overrideTypes = [])
-    {
+    final public function query(
+        string $sql,
+        string $overrideEntity = '',
+        array $overrideKeys = [],
+        array $overrideTypes = []
+    ) {
         $this->initialize();
         if (! $this->hasDBAL()) {
             throw new \LogicException('Recordset: object does not have a connected DBAL');
@@ -113,11 +119,14 @@ class Recordset implements \IteratorAggregate, \Countable
         if ('' !== $overrideEntity) {
             $this->entity = $overrideEntity;
         }
-        // set the id fields
+        // set the id fields if did not override
         if (! count($overrideKeys)) {
-            $temporaryIdFields = $this->result()->getIdFields();
-            $this->idFields = $temporaryIdFields ? $temporaryIdFields : [];
+            $this->idFields = $this->result()->getIdFields() ?: [];
         } else {
+            // validate overrideKeys
+            if ($overrideKeys !== array_unique($overrideKeys)) {
+                throw new \InvalidArgumentException('Keys contains repeated values');
+            }
             foreach ($overrideKeys as $fieldName) {
                 if (! is_string($fieldName)) {
                     throw new \InvalidArgumentException('Keys were set but at least one is not a string');
@@ -156,7 +165,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * Return if the current DBAL and Result exists and are connected
      * @return bool
      */
-    final public function isOpen()
+    final public function isOpen(): bool
     {
         return ($this->hasDBAL() && $this->result !== null);
     }
@@ -165,7 +174,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * Check if the DBAL is is connected (if not try to connect again)
      * @return bool
      */
-    final public function hasDBAL()
+    final public function hasDBAL(): bool
     {
         return ($this->dbal->isConnected() || $this->dbal->connect());
     }
@@ -174,7 +183,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * Return the source query
      * @return string
      */
-    final public function getSource()
+    final public function getSource(): string
     {
         return $this->source;
     }
@@ -183,7 +192,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * Return the recordset mode
      * @return int
      */
-    final public function getMode()
+    final public function getMode(): int
     {
         return $this->mode;
     }
@@ -192,7 +201,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * Return if the current recordset can be edited
      * @return bool
      */
-    public function canModify()
+    public function canModify(): bool
     {
         return ($this->mode !== self::RSMODE_NOTCONNECTED && '' !== $this->entity);
     }
@@ -201,7 +210,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * Return if the recordset is placed in a valid record
      * @return bool
      */
-    final public function eof()
+    final public function eof(): bool
     {
         return (! is_array($this->originalValues));
     }
@@ -212,12 +221,9 @@ class Recordset implements \IteratorAggregate, \Countable
      * @param mixed $defaultValue
      * @return mixed
      */
-    final public function getOriginalValue($fieldName, $defaultValue = '')
+    final public function getOriginalValue(string $fieldName, $defaultValue = '')
     {
-        if ($this->eof()
-            || ! is_array($this->originalValues)
-            || ! array_key_exists($fieldName, $this->originalValues)
-        ) {
+        if (! is_array($this->originalValues) || ! array_key_exists($fieldName, $this->originalValues)) {
             return $defaultValue;
         }
         return $this->originalValues[$fieldName];
@@ -229,9 +235,9 @@ class Recordset implements \IteratorAggregate, \Countable
      * @return array
      * @throws \RuntimeException There are no original values
      */
-    final public function getOriginalValues()
+    final public function getOriginalValues(): array
     {
-        if ($this->eof() || ! is_array($this->originalValues)) {
+        if (! is_array($this->originalValues)) {
             throw new \RuntimeException('There are no original values');
         }
         return $this->originalValues;
@@ -240,6 +246,7 @@ class Recordset implements \IteratorAggregate, \Countable
     /**
      * Prepares the recordset to make an insertion
      * All the values are set to null
+     * @return void
      */
     final public function addNew()
     {
@@ -252,9 +259,9 @@ class Recordset implements \IteratorAggregate, \Countable
      * Get the last inserted id by asking to the DBAL object.
      * This means that if an insertion happends between Update and LastInsertedID then the result
      * will not be related to the Update
-     * @return int|float
+     * @return int
      */
-    final public function lastInsertedID()
+    final public function lastInsertedID(): int
     {
         return $this->dbal->lastInsertedID();
     }
@@ -265,7 +272,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * @return bool
      * @throws \RuntimeException if no original values exists
      */
-    final public function valuesHadChanged()
+    final public function valuesHadChanged(): bool
     {
         if (! is_array($this->originalValues)) {
             throw new \RuntimeException('The recordset does not contain any original values');
@@ -285,11 +292,11 @@ class Recordset implements \IteratorAggregate, \Countable
      * @param mixed $current
      * @return bool
      */
-    final protected static function valueIsDifferent($original, $current)
+    final protected static function valueIsDifferent($original, $current): bool
     {
         // check if some value is null
-        $originalIsNull = is_null($original);
-        $currentIsNull = is_null($current);
+        $originalIsNull = (null === $original);
+        $currentIsNull = (null === $current);
         // both are null, there are no difference
         if ($originalIsNull && $currentIsNull) {
             return false;
@@ -300,7 +307,7 @@ class Recordset implements \IteratorAggregate, \Countable
         }
         // do not continue using the object, convert to string
         if (is_object($current)) {
-            $current = strval($current);
+            $current = (string) $current;
         }
         // simple comparison
         return ($original != $current);
@@ -309,7 +316,7 @@ class Recordset implements \IteratorAggregate, \Countable
     /**
      * @return string[]
      */
-    public function getIdFields()
+    public function getIdFields(): array
     {
         return $this->idFields;
     }
@@ -320,7 +327,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * @param string $extraWhereClause
      * @return array
      */
-    protected function sqlWhereConditions($extraWhereClause)
+    protected function sqlWhereConditions(string $extraWhereClause): array
     {
         // get the conditions
         $conditions = [];
@@ -328,7 +335,7 @@ class Recordset implements \IteratorAggregate, \Countable
             $conditions[] = "($extraWhereClause)";
         }
         $ids = $this->getIdFields();
-        if (! is_array($ids)) {
+        if (! count($ids)) {
             $this->logger->warning('Recordset: cannot get the ids to locate the current the record,'
                 . ' will use all the fields to create the where clause'
                 . "\n"
@@ -359,7 +366,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * Create the sql statement for INSERT INTO
      * @return string
      */
-    protected function sqlInsert()
+    protected function sqlInsert(): string
     {
         $inserts = [];
         foreach ($this->datafields as $fieldname => $field) {
@@ -382,7 +389,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * @param string $extraWhereClause
      * @return string
      */
-    protected function sqlUpdate($extraWhereClause)
+    protected function sqlUpdate(string $extraWhereClause): string
     {
         // get the conditions to alter the current record
         $conditions = $this->sqlWhereConditions($extraWhereClause);
@@ -417,9 +424,8 @@ class Recordset implements \IteratorAggregate, \Countable
      * Create the sql statement for DELETE
      * @param string $extraWhereClause
      * @return string
-     * @throws \LogicException
      */
-    protected function sqlDelete($extraWhereClause)
+    protected function sqlDelete(string $extraWhereClause): string
     {
         // get the conditions to alter the current record
         $conditions = $this->sqlWhereConditions($extraWhereClause);
@@ -438,7 +444,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * Return how many rows where altered, if an update does not change any value then it return zero
      * Return false in case of error execution
      * @param string $extraWhereClause where clause to be append into sql on UPDATE (not insert)
-     * @return bool|int
+     * @return int|false
      */
     final public function update($extraWhereClause = '')
     {
@@ -488,7 +494,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * Build and execute the SQL DELETE sentence
      * Return how many rows where altered
      * @param string $extraWhereClause
-     * @return bool|int
+     * @return int|false
      */
     final public function delete($extraWhereClause = '')
     {
@@ -517,7 +523,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * Move to the next row and read the values
      * @return bool
      */
-    final public function moveNext()
+    final public function moveNext(): bool
     {
         return ($this->isOpen() && $this->fetchLoadValues());
     }
@@ -526,7 +532,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * Move to the first row and read the values
      * @return bool
      */
-    final public function moveFirst()
+    final public function moveFirst(): bool
     {
         return ($this->isOpen() && $this->result()->moveFirst() && $this->fetchLoadValues());
     }
@@ -535,7 +541,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * Internal function that returns an array with the content from fields and row
      * @return array
      */
-    private function emptyValuesFromDataFields()
+    private function emptyValuesFromDataFields(): array
     {
         return array_fill_keys(array_keys($this->datafields), null);
     }
@@ -547,7 +553,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * @param array $source
      * @return array
      */
-    private function setValuesFromDatafields(array $source)
+    private function setValuesFromDatafields(array $source): array
     {
         $values = [];
         foreach ($this->datafields as $fieldname => $field) {
@@ -566,7 +572,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * @param string $commonType
      * @return mixed
      */
-    protected function castValueWithCommonType($value, $commonType)
+    protected function castValueWithCommonType($value, string $commonType)
     {
         // these are sorted by the most common data types to avoid extra comparisons
         if (null === $value) {
@@ -596,7 +602,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * Return false if no row was fetched, also put values to an empty array
      * @return bool
      */
-    private function fetchLoadValues()
+    private function fetchLoadValues(): bool
     {
         $row = $this->result()->fetchRow();
         if (false === $row) {
@@ -613,7 +619,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * Return the number of records in the query
      * @return int
      */
-    final public function getRecordCount()
+    final public function getRecordCount(): int
     {
         return $this->result()->resultCount();
     }
@@ -621,23 +627,23 @@ class Recordset implements \IteratorAggregate, \Countable
     /**
      * Return an associative array of fields, the key is the field name
      * and the content is an array containing name, common type and table
-     * @return array|false
+     * @return array
      */
     final public function getFields()
     {
-        return (count($this->datafields)) ? $this->datafields : false;
+        return $this->datafields;
     }
 
     /**
      * Return the entity name of the query
      * @return string
      */
-    final public function getEntityName()
+    final public function getEntityName(): string
     {
         return $this->entity;
     }
 
-    final public function count()
+    final public function count(): int
     {
         return $this->getRecordCount();
     }
@@ -650,7 +656,7 @@ class Recordset implements \IteratorAggregate, \Countable
     /**
      * @return Result
      */
-    private function result()
+    private function result(): Result
     {
         if (null === $this->result) {
             throw new \RuntimeException('The current state of the result is NULL');

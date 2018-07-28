@@ -11,11 +11,10 @@ use EngineWorks\DBAL\Abstracts\SettingsMap;
  * - user: server username
  * - password: server password
  * - database: server catalog
- * - encoding: server encoding (UTF8)
+ * - encoding: server encoding (UTF8) (NOT IMPLEMENTED YET)
  * - connect-timeout: timeout for server connection (5)
- * - socket: socket connection (null)
+ * - timeout: timeout for running queries (5)
  * - prefix: tables prefix
- * - flags: null
  * - dump: '' => nothing, 'info' => '-- info messages',  'debug' => SELECT... + info
  *
  * @package EngineWorks\DBAL\Mysqli
@@ -28,12 +27,10 @@ class Settings extends SettingsMap
         'user' => '',
         'password' => '',
         'database' => '',
-        'encoding' => 'UTF-8',
+        // 'encoding' => 'UTF-8', // todo: enable encoding
         'prefix' => '',
         'connect-timeout' => 5,
-        'freetds-version' => '7.0',
-        'socket' => null,
-        'flags' => null,
+        'timeout' => 0,
         'dump' => '',
     ];
 }

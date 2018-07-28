@@ -26,7 +26,7 @@ class DBAL extends AbstractDBAL
      */
     protected $mysqli = null;
 
-    public function connect()
+    public function connect(): bool
     {
         // disconnect
         $this->disconnect();
@@ -74,17 +74,17 @@ class DBAL extends AbstractDBAL
         $this->mysqli = null;
     }
 
-    public function isConnected()
+    public function isConnected(): bool
     {
         return ($this->mysqli instanceof mysqli);
     }
 
-    public function lastInsertedID()
+    public function lastInsertedID(): int
     {
-        return floatval($this->mysqli()->insert_id);
+        return (int) $this->mysqli()->insert_id;
     }
 
-    public function sqlString($variable)
+    public function sqlString($variable): string
     {
         if ($this->isConnected()) {
             return $this->mysqli()->escape_string($variable);
@@ -115,7 +115,7 @@ class DBAL extends AbstractDBAL
         return $result;
     }
 
-    public function queryResult($query, array $overrideTypes = [])
+    public function queryResult(string $query, array $overrideTypes = [])
     {
         $result = $this->queryDriver($query);
         if ($result instanceof mysqli_result) {
@@ -127,7 +127,7 @@ class DBAL extends AbstractDBAL
         return false;
     }
 
-    protected function queryAffectedRows($query)
+    protected function queryAffectedRows(string $query)
     {
         if (false !== $this->queryDriver($query)) {
             return $this->mysqli()->affected_rows;
@@ -135,22 +135,22 @@ class DBAL extends AbstractDBAL
         return false;
     }
 
-    protected function getLastErrorMessage()
+    protected function getLastErrorMessage(): string
     {
         return '[' . $this->mysqli()->errno . '] ' . $this->mysqli()->error;
     }
 
-    public function sqlTableEscape($tableName, $asTable = '')
+    public function sqlTableEscape(string $tableName, string $asTable = ''): string
     {
         return '`' . $tableName . '`' . (('' !== $asTable) ? ' AS `' . $asTable . '`' : '');
     }
 
-    public function sqlFieldEscape($fieldName, $asFieldName = '')
+    public function sqlFieldEscape(string $tableName, string $asTable = ''): string
     {
-        return '`' . $fieldName . '`' . (('' !== $asFieldName) ? ' AS `' . $asFieldName . '`' : '');
+        return '`' . $tableName . '`' . (('' !== $asTable) ? ' AS `' . $asTable . '`' : '');
     }
 
-    public function sqlDatePart($part, $expression)
+    public function sqlDatePart(string $part, string $expression): string
     {
         switch (strtoupper($part)) {
             case 'YEAR':
@@ -186,12 +186,12 @@ class DBAL extends AbstractDBAL
         return 'DATE_FORMAT(' . $expression . ", '" . $format . "')";
     }
 
-    public function sqlIf($condition, $truePart, $falsePart)
+    public function sqlIf(string $condition, string $truePart, string $falsePart): string
     {
         return 'IF(' . $condition . ', ' . $truePart . ', ' . $falsePart . ')';
     }
 
-    public function sqlRandomFunc()
+    public function sqlRandomFunc(): string
     {
         return 'RAND()';
     }

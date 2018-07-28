@@ -75,7 +75,7 @@ class Result implements ResultInterface
         return $count;
     }
 
-    public function getFields()
+    public function getFields(): array
     {
         if (null !== $this->cachedGetFields) {
             return $this->cachedGetFields;
@@ -146,7 +146,7 @@ class Result implements ResultInterface
         return false;
     }
 
-    public function resultCount()
+    public function resultCount(): int
     {
         return $this->numRows;
     }
@@ -157,7 +157,7 @@ class Result implements ResultInterface
         return (! is_array($return)) ? false : $return;
     }
 
-    public function moveTo($offset)
+    public function moveTo(int $offset): bool
     {
         // there are no records
         if ($this->resultCount() <= 0) {
@@ -180,7 +180,7 @@ class Result implements ResultInterface
         return true;
     }
 
-    public function moveFirst()
+    public function moveFirst(): bool
     {
         if ($this->resultCount() <= 0) {
             return false;

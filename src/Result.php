@@ -19,10 +19,11 @@ interface Result extends \IteratorAggregate, \Countable
      * Each row must contain the keys: [name, commontype, table]
      * @return array
      */
-    public function getFields();
+    public function getFields(): array;
 
     /**
      * Get an array with the names of the ids elements
+     * @todo do not return false, return an empty array
      * @return array|false array of primary keys, false if not found
      */
     public function getIdFields();
@@ -31,20 +32,20 @@ interface Result extends \IteratorAggregate, \Countable
      * Retrieve the count of the resource
      * @return int
      */
-    public function resultCount();
+    public function resultCount(): int;
 
     /**
      * Move to the first row in the result (if any result)
      * @return bool
      */
-    public function moveFirst();
+    public function moveFirst(): bool;
 
     /**
      * Try to move to a specified row in the resource, the first row is always zero
      * @param int $offset
      * @return bool
      */
-    public function moveTo($offset);
+    public function moveTo(int $offset): bool;
 
     /**
      * Retrieve an iterator
@@ -56,5 +57,5 @@ interface Result extends \IteratorAggregate, \Countable
      * Return the total recprds of the resultset
      * @return int
      */
-    public function count();
+    public function count(): int;
 }

@@ -19,7 +19,7 @@ class Factory
      * @param string $dbalName
      * @param string $settingsName
      */
-    public function __construct($namespace, $dbalName = 'DBAL', $settingsName = 'Settings')
+    public function __construct(string $namespace, string $dbalName = 'DBAL', string $settingsName = 'Settings')
     {
         $this->namespace = $namespace;
         $this->dbalName = $dbalName;

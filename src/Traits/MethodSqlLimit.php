@@ -3,12 +3,13 @@ namespace EngineWorks\DBAL\Traits;
 
 use EngineWorks\DBAL\CommonTypes;
 
+/** @var \EngineWorks\DBAL\DBAL $this */
 trait MethodSqlLimit
 {
-    public function sqlLimit($query, $requestedPage, $recordsPerPage = 20)
+    public function sqlLimit(string $query, int $requestedPage, int $recordsPerPage = 20): string
     {
-        $requestedPage = max(1, (int) $requestedPage) - 1; // zero indexed
-        $recordsPerPage = max(1, (int) $recordsPerPage);
+        $requestedPage = max(1, $requestedPage) - 1; // zero indexed
+        $recordsPerPage = max(1, $recordsPerPage);
         $query = rtrim($query, "; \t\n\r\0\x0B")
             . ' LIMIT ' . $this->sqlQuote($recordsPerPage, CommonTypes::TINT)
             . ' OFFSET ' . $this->sqlQuote($recordsPerPage * $requestedPage, CommonTypes::TINT)
