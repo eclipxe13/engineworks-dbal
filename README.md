@@ -51,19 +51,17 @@ all the records but only the requested ones
 
 ## About drivers
 
-It support Mysqli, Mssql and Sqlite3 drivers, you are free to create your own and (please) share it with me.
+It support Mysqli, Mssql, Sqlsrv and Sqlite3 drivers, you are free to create your own and (please) share it with me.
 
 ### Mysqli
 
 - This is the most tested driver on production.
 
-### Mssql
+### Sqlsrv
 
-- This driver is based on PDO dblib, you will need FreeTDS.
+- This driver is based on Microsoft PHP Driver for SQL Server.
 - Result does not know the entity or primary keys of the query.
   Use overrideEntity and overrideKeys when create a Recordset for update or delete.
-- The function to quote (PDO::quote) fail with multibyte strings, we are
-  using simple replacements of `'` to `''`
 
 ### Sqlite3
 
@@ -75,15 +73,23 @@ It support Mysqli, Mssql and Sqlite3 drivers, you are free to create your own an
   when called after end of list. This behavior is corrected on Result and fetch
   returns always false.
 
+### Mssql
+
+- This driver is based on PDO dblib, you will need FreeTDS.
+- Result does not know the entity or primary keys of the query.
+  Use overrideEntity and overrideKeys when create a Recordset for update or delete.
+- The function to quote (PDO::quote) fail with multibyte strings, we are
+  using simple replacements of `'` to `''`
+- This driver is not really compatible with PHP 7, use Sqlsrv instead
+
 ## Compatibility
 
 This class will be compatible according to [PHP Supported versions](http://php.net/supported-versions.php),
-Security Support. This means that it will offer compatibility with PHP 5.6+ until 2018-12-31.
+Security Support.
 
-The support for version 5.5+ is not included since this PHP version end 2016-06-10
-and that is lower than the release of first version of this library.
+- PHP 5.6, version **1.x**, until 2018-12-31
+- PHP 7.0, version **2.x**, until 2018-12-03
 
-Not taking particular efforts to make this library compatible with hhvm.
 
 ## Contributing
 
@@ -105,10 +111,10 @@ and licensed for use under the MIT License (MIT). Please see [LICENSE][] for mor
 [build]: https://travis-ci.org/eclipxe13/engineworks-dbal?branch=master
 [quality]: https://scrutinizer-ci.com/g/eclipxe13/engineworks-dbal/
 [sensiolabs]: https://insight.sensiolabs.com/projects/26f47360-dc06-4387-b258-b619ff1bca50
-[coverage]: https://scrutinizer-ci.com/g/eclipxe13/engineworks-dbal/code-structure/master
+[coverage]: https://scrutinizer-ci.com/g/eclipxe13/engineworks-dbal/code-structure/master/code-coverage
 [downloads]: https://packagist.org/packages/eclipxe/engineworks-dbal
 
-[badge-source]: http://img.shields.io/badge/source-eclipxe13/engineworks--templates-blue.svg?style=flat-square
+[badge-source]: http://img.shields.io/badge/source-eclipxe13/engineworks--dbal-blue.svg?style=flat-square
 [badge-release]: https://img.shields.io/github/release/eclipxe13/engineworks-dbal.svg?style=flat-square
 [badge-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
 [badge-build]: https://img.shields.io/travis/eclipxe13/engineworks-dbal/master.svg?style=flat-square

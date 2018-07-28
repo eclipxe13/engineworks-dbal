@@ -1,3 +1,34 @@
+# version 2.0.0 2018-07-27
+- Set minimal php version to PHP 7.0
+- Add type declarations to arguments and returns
+- Add `DBAL::sqlIn` to better queries using `IN` and empty arrays
+- `DBAL::sqlQuoteIn` now throws an `\RuntimeException` if empty array is received
+- Add support for **Microsoft Sql Server driver (sqlsrv)** on `EngineWorks\DBAL\Tests\Sqlsrv`
+- Add `$overrideTypes` argument to `DBAL::queryValues` and `DBAL::queryArrayValues`
+- `DBAL::queryArrayOne` returns `false` if the specified field name does not exists
+- sqlite: `DBAL::queryRecordset` return `false` if query fails (as other drivers)
+- include phpstan as dependence
+- clear all phpstan issues
+- Add to composer commands: build, coverage, style & test
+- Refactor methods for better reading
+- Testing improvements:
+    - Improve code coverage
+    - Use `assertTrue`, `assertFalse` & `assertNull` instead of `assertSame`
+    - Use `DbalQueriesTrait` and `DbalCommonSqlTrait` for unified testing on `DBAL` implementations
+    - Organize files: Tests TestCases, TesterCases, TesterTraits, etc...
+- Replace parallel-lint with phplint
+- readme: fix badges and coverage link
+
+# version 1.7.1 2018-04-20
+- Remove duplicated verification for creating the PDO object in `\EngineWorks\DBAL\Mssql\DBAL::connect()`
+- Initialize `$vars` array in `\EngineWorks\DBAL\Mssql\DBAL::getPDOConnectionString`
+- Move logic to parse a number `DBAL::sqlQuote` to `EngineWorks\DBAL\Internal\NumericParser`
+    - Now it removes tabulator also
+    - It does not remove anymore currency name (like USD), it never work very well.
+- Test sqlQuote to number using different locales: `C, en_US, en_US.utf-8, pt_BR`
+- Test populate database inside a transaction (run faster)
+- Fix some simple phpstan issues
+
 # version 1.7.0 2018-01-23
 - Add feature to prevent final (higher) commit by `DBAL::transPreventCommit()`.
 - Add new setting for mssql `freetds-version` that defaults to `7.0` it was hardcoded before.

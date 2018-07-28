@@ -1,8 +1,16 @@
 # eclipxe13/engineworks-dbal To Do List
 
+## Urgent!
+
+- Since now is using PHP 7.0 use type declarations in all project
+- Move Sqlite3 to PDO
+- Deprecate (or remove in branch 2) Mssql driver (pdo_dblib)
+
+## To do
+
 - DBAL::sqlQuote could be a final public method
 - Include prepared (or simulated prepared) statements
-- Include PDO Driver
+- ~~Include Generic PDO Driver (is not a good idea)~~
 - Evolve Recordset to allow PDO or DBAL
 - Create ReadOnlyRecordSet as a light object
 - Evolve Pager to stop using Recordset and depends on Result or another light object
@@ -17,6 +25,6 @@ It would be great if we can figure it out how to get this information.
 In the mean time use recordset override keys parameter.
 
 Method `EngineWorks\DBAL\Mssql\Result::getIdFields` always return false since there is no way
-to get the ID Fields from the `PDOStatement` object.
+to get the ID Fields from the `PDOStatement` object. This affects `Mssql` and `Sqlsrv`
 It would be great if we can figure it out how to get this information.  
 In the mean time use recordset override keys parameter.

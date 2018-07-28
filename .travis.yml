@@ -2,34 +2,60 @@ language: php
 
 # php compatibility
 php:
-  - 5.6
   - 7.0
   - 7.1
   - 7.2
 
 services:
   - mysql
+  - docker
 
-# This triggers builds to run on the new TravisCI infrastructure.
-# See: http://docs.travis-ci.com/user/workers/container-based-infrastructure/
-sudo: false
+env:
+  - COVERAGE_PHP_VERSION: 7.2
+
+# Needed for docker support
+sudo: required
 
 before_script:
-  - travis_retry composer self-update
+  # ms sql server, run first to allow server run while install other things
+  - docker pull microsoft/mssql-server-linux
+  - docker run --name dbal-mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Password-123456' -p 1433:1433 -d microsoft/mssql-server-linux
+  - docker ps -a
+  # ms sql server php driver, run before install msodbcsql17
+  - pecl search sqlsrv
+  - pecl install sqlsrv pdo_sqlsrv
+  - 'php -i | grep -i sqlsrv'
+  # install msodbcsql17
+  - curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+  - curl https://packages.microsoft.com/config/ubuntu/14.04/prod.list | sudo tee -a /etc/apt/sources.list.d/msodbcsql17.list
+  - sudo apt-get update -q -q
+  - apt-cache policy sodbcsql17 mssql-tools unixodbc libssl1.0.0 libsybdb5
+  - sudo ACCEPT_EULA=Y apt-get install -q -y msodbcsql17 mssql-tools unixodbc libssl1.0.0 libsybdb5
+  # test connections
+  - docker exec dbal-mssql /opt/mssql-tools/bin/sqlcmd -U sa -P 'Password-123456' -Q "SELECT @@VERSION"
+  - php tests/sqlsrv-direct-connection.php localhost sa 'Password-123456'
+  # project
+  - phpenv config-rm xdebug.ini
   - travis_retry composer install --no-interaction --prefer-dist
 
 script:
   - cp tests/.env.travis tests/.env
   - mkdir -p build/tests/
-  - vendor/bin/parallel-lint sources/ tests/
-  - vendor/bin/phpcs -sp sources/ tests/
+  - vendor/bin/phplint
+  - vendor/bin/phpcs -sp src/ tests/
   - vendor/bin/php-cs-fixer fix --using-cache=no --dry-run --verbose
-  - vendor/bin/phpunit --coverage-text --coverage-clover=build/tests/coverage.xml
+  - |
+    if [[ $TRAVIS_PHP_VERSION == $COVERAGE_PHP_VERSION ]]; then
+      php -dzend_extension=xdebug.so vendor/bin/phpunit --coverage-text --coverage-clover=build/tests/coverage.xml
+    else
+      php vendor/bin/phpunit
+    fi
+  - ./vendor/bin/phpstan analyse --no-interaction --no-progress --level max src/ tests/
 
 after_script:
   # upload to scrutinizer
   - |
-    if [[ $TRAVIS_PHP_VERSION == '7.1' ]]; then
+    if [[ $TRAVIS_PHP_VERSION == $COVERAGE_PHP_VERSION ]]; then
       wget https://scrutinizer-ci.com/ocular.phar
       php ocular.phar code-coverage:upload --format=php-clover build/tests/coverage.xml
     fi
