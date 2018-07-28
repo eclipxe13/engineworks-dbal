@@ -1,9 +1,9 @@
-# NOT RELEASED YET - version 2.0.0 2018-07-27
+# version 2.0.0 2018-07-27
 - Set minimal php version to PHP 7.0
 - Add type declarations to arguments and returns
 - Add `DBAL::sqlIn` to better queries using `IN` and empty arrays
 - `DBAL::sqlQuoteIn` now throws an `\RuntimeException` if empty array is received
-- Add support for Microsoft Sql Server driver (sqlsrv) on `EngineWorks\DBAL\Tests\Sqlsrv`
+- Add support for **Microsoft Sql Server driver (sqlsrv)** on `EngineWorks\DBAL\Tests\Sqlsrv`
 - Add `$overrideTypes` argument to `DBAL::queryValues` and `DBAL::queryArrayValues`
 - `DBAL::queryArrayOne` returns `false` if the specified field name does not exists
 - sqlite: `DBAL::queryRecordset` return `false` if query fails (as other drivers)
