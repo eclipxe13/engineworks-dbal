@@ -76,6 +76,7 @@ it will result in a complete build failure. Before you can run these, be sure to
 ./vendor/bin/phplint
 ./vendor/bin/phpcs src tests --encoding=utf-8 --standard=psr2 -sp
 ./vendor/bin/phpunit --coverage-text
+./vendor/bin/phpstan analyse --level max src/ tests/
 ```
 
 ### Testing PHP 5.6

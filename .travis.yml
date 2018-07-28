@@ -50,6 +50,7 @@ script:
     else
       php vendor/bin/phpunit
     fi
+  - ./vendor/bin/phpstan analyse --no-interaction --no-progress --level max src/ tests/
 
 after_script:
   # upload to scrutinizer
