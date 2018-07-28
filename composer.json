@@ -1,7 +1,17 @@
 {
     "name": "eclipxe/engineworks-dbal",
     "description": "PHP Database Abstraction Layer",
-    "keywords": ["dbal", "mysqli", "mssql", "sqlite", "sql", "recordset", "reader", "database abstraction layer"],
+    "keywords": [
+        "dbal",
+        "mysqli",
+        "mssql",
+        "sqlsrv",
+        "sqlite3",
+        "sql",
+        "recordset",
+        "reader",
+        "database abstraction layer"
+    ],
     "homepage": "https://github.com/eclipxe13/engineworks-dbal",
     "license": "MIT",
     "authors": [
@@ -12,11 +22,14 @@
     ],
     "require": {
         "php": ">=7.0",
-        "psr/log": "^1.0"
+        "psr/log": "^1.0",
+        "ext-pdo": "*",
+        "ext-ctype": "*"
     },
     "require-dev": {
-        "ext-pdo": "*",
         "ext-sqlite3": "*",
+        "ext-mysqli": "*",
+        "ext-sqlsrv": "*",
         "vlucas/phpdotenv": "^2.4",
         "fzaninotto/faker": "^1.7",
         "phpunit/phpunit": "^5.7|^6.5",
@@ -26,8 +39,11 @@
         "phpstan/phpstan-shim": "^0.9.1"
     },
     "suggest": {
-        "ext-mysql": "*",
-        "ext-mssql": "*"
+        "ext-sqlite3": "*",
+        "ext-mysqli": "*",
+        "ext-mssql": "*",
+        "ext-sqlsrv": "*",
+        "ext-dblib": "*"
     },
     "autoload": {
         "psr-4": {
@@ -38,5 +54,21 @@
         "psr-4": {
             "EngineWorks\\DBAL\\Tests\\": "tests/Tests"
         }
+    },
+    "scripts": {
+        "build": ["@style", "@test"],
+        "style": [
+            "vendor/bin/php-cs-fixer fix --verbose",
+            "vendor/bin/phpcbf --colors -sp src/ tests/",
+            "vendor/bin/phpcs --colors -sp src/ tests/"
+        ],
+        "test": [
+            "vendor/bin/phplint",
+            "vendor/bin/phpunit",
+            "vendor/bin/phpstan.phar analyse --no-progress --level max src/ tests/"
+        ],
+        "coverage": [
+            "@php -dzend_extension=xdebug.so vendor/bin/phpunit --coverage-text --coverage-html build/coverage/html/"
+        ]
     }
 }
