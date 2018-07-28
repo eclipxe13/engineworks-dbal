@@ -18,24 +18,32 @@ trait MethodSqlQuote
 
     public function sqlQuote($variable, $commonType = CommonTypes::TTEXT, $includeNull = false)
     {
-        if ($includeNull && is_null($variable)) {
+        if ($includeNull && null === $variable) {
             return 'NULL';
         }
-        switch (strtoupper($commonType)) {
-            case CommonTypes::TINT:
-                return $this->sqlQuoteParseNumber($variable, true);
-            case CommonTypes::TNUMBER:
-                return $this->sqlQuoteParseNumber($variable, false);
-            case CommonTypes::TBOOL:
-                return ($variable) ? '1' : '0';
-            case CommonTypes::TDATE:
-                return "'" . date('Y-m-d', intval($variable, 10)) . "'";
-            case CommonTypes::TTIME:
-                return "'" . date('H:i:s', intval($variable, 10)) . "'";
-            case CommonTypes::TDATETIME:
-                return "'" . date('Y-m-d H:i:s', intval($variable, 10)) . "'";
-            default:
-                return "'" . $this->sqlString($variable) . "'";
+        // CommonTypes::TTEXT is here because is the most common used type
+        if ($commonType === CommonTypes::TTEXT) {
+            return "'" . $this->sqlString($variable) . "'";
         }
+        if ($commonType === CommonTypes::TINT) {
+            return $this->sqlQuoteParseNumber($variable, true);
+        }
+        if ($commonType === CommonTypes::TNUMBER) {
+            return $this->sqlQuoteParseNumber($variable, false);
+        }
+        if ($commonType === CommonTypes::TBOOL) {
+            return ($variable) ? '1' : '0';
+        }
+        if ($commonType === CommonTypes::TDATE) {
+            return "'" . date('Y-m-d', (int) $variable) . "'";
+        }
+        if ($commonType === CommonTypes::TTIME) {
+            return "'" . date('H:i:s', intval($variable, 10)) . "'";
+        }
+        if ($commonType === CommonTypes::TDATETIME) {
+            return "'" . date('Y-m-d H:i:s', intval($variable, 10)) . "'";
+        }
+        return "'" . $this->sqlString($variable) . "'";
+    }
     }
 }
