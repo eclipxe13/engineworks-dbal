@@ -315,11 +315,12 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param string $commonType
      * @param bool $includeNull
      * @return string|false example "(1, 3, 5)", false if the array is empty
+     * @throws \RuntimeException if the array of values is empty
      */
     final public function sqlQuoteIn(array $array, $commonType = CommonTypes::TTEXT, $includeNull = false)
     {
-        if (count($array) == 0) {
-            return false;
+        if (0 === count($values)) {
+            throw new \RuntimeException('The array of values passed to DBAL::sqlQuoteIn is empty');
         }
         $values = array_unique($array);
         foreach ($values as $index => $value) {
