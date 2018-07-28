@@ -154,11 +154,6 @@ class DBAL extends AbstractDBAL
         return 'CASE WHEN (' . $condition . ') THEN ' . $truePart . ' ELSE ' . $falsePart;
     }
 
-    public function sqlIfNull($fieldName, $nullValue)
-    {
-        return 'IFNULL(' . $fieldName . ', ' . $nullValue . ')';
-    }
-
     public function sqlRandomFunc()
     {
         return 'random()';

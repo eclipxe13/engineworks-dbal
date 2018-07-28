@@ -394,11 +394,15 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * If null function
+     *
      * @param string $fieldName
      * @param string $nullValue
      * @return string
      */
-    abstract public function sqlIfNull($fieldName, $nullValue);
+    final public function sqlIfNull(string $fieldName, string $nullValue): string
+    {
+        return 'IFNULL(' . $fieldName . ', ' . $nullValue . ')';
+    }
 
     /**
      * Transform a SELECT query to be paged
