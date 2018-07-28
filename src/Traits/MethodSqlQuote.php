@@ -6,16 +6,6 @@ use EngineWorks\DBAL\Internal\NumericParser;
 
 trait MethodSqlQuote
 {
-    /**
-     * @param mixed $value
-     * @param bool $asInteger
-     * @return string
-     */
-    private function sqlQuoteParseNumber($value, $asInteger = true)
-    {
-        return (new NumericParser())->parseAsEnglish($value, $asInteger);
-    }
-
     public function sqlQuote($variable, $commonType = CommonTypes::TTEXT, $includeNull = false)
     {
         if ($includeNull && null === $variable) {
@@ -45,5 +35,14 @@ trait MethodSqlQuote
         }
         return "'" . $this->sqlString($variable) . "'";
     }
+
+    /**
+     * @param mixed $value
+     * @param bool $asInteger
+     * @return string
+     */
+    private function sqlQuoteParseNumber($value, bool $asInteger = true): string
+    {
+        return (new NumericParser())->parseAsEnglish($value, $asInteger);
     }
 }
