@@ -1,42 +1,28 @@
 <?php
 namespace EngineWorks\DBAL\Tests\Mysqli;
 
-use EngineWorks\DBAL\DBAL;
-use EngineWorks\DBAL\Factory;
-use EngineWorks\DBAL\Settings;
 use EngineWorks\DBAL\Tests\DbalCommonSqlTrait;
 use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
 use EngineWorks\DBAL\Tests\SqlQuoteTester;
-use PHPUnit\Framework\TestCase;
+use EngineWorks\DBAL\Tests\TestCaseWithDbal;
 
-class MysqliDisconnectedTest extends TestCase
+class MysqliDisconnectedTest extends TestCaseWithDbal
 {
     use DbalCommonSqlTrait;
 
-    /** @var Factory */
-    private $factory;
-
-    /** @var DBAL */
-    private $dbal;
-
-    /** @var Settings */
-    private $settings;
-
-    protected function getDbal(): DBAL
+    protected function getFactoryNamespace()
     {
-        return $this->dbal;
+        return 'EngineWorks\DBAL\Mysqli';
     }
 
     protected function setUp()
     {
         parent::setUp();
-        if ($this->dbal === null) {
-            $this->factory = new Factory('EngineWorks\DBAL\Mysqli');
-            $this->settings = $this->factory->settings([
+        $this->dbal = $this->factory->dbal(
+            $this->factory->settings([
                 'user' => 'non-existent',
-            ]);
-            $this->dbal = $this->factory->dbal($this->settings);
-        }
+            ])
+        );
     }
 
     public function testConnectReturnFalseWhenCannotConnect()
@@ -82,35 +68,6 @@ class MysqliDisconnectedTest extends TestCase
         $this->assertSame($expectedName, $dbal->sqlTable('bar', 'x'));
         $expectedNoSuffix = '`bar` AS `x`';
         $this->assertSame($expectedNoSuffix, $dbal->sqlTableEscape('bar', 'x'));
-    }
-
-    /**
-     * @param $locale
-     * @param $expected
-     * @param $value
-     * @testWith ["C", "-1234.56789", "- $\t1,234.567,89 "]
-     *           ["en_US", "-1234.56789", "- $\t1,234.567,89 "]
-     *           ["en_US.utf-8", "-1234.56789", "- $\t1,234.567,89 "]
-     *           ["pt_BR", "-1234.56789", "- R$\t1.234,567.89 ", "NUMBER"]
-     */
-    public function testSqlQuoteWithLocale($locale, $expected, $value)
-    {
-        $currentNumeric = setlocale(LC_NUMERIC, '0');
-        $currentMonetary = setlocale(LC_MONETARY, '0');
-
-        // mark skipped if not found
-        if (false === setlocale(LC_NUMERIC, $locale) || false === setlocale(LC_MONETARY, $locale)) {
-            setlocale(LC_NUMERIC, $currentNumeric);
-            setlocale(LC_MONETARY, $currentMonetary);
-            $this->markTestSkipped("Cannot setup locale '$locale'");
-        }
-
-        // the test
-        $this->assertSame($expected, $this->dbal->sqlQuote($value, DBAL::TNUMBER, false));
-
-        // anyhow restore the previous locale
-        setlocale(LC_NUMERIC, $currentNumeric);
-        setlocale(LC_MONETARY, $currentMonetary);
     }
 
     public function testSqlString()
@@ -162,7 +119,7 @@ class MysqliDisconnectedTest extends TestCase
 
     public function testSqlQuoteUsingTester()
     {
-        $tester = new SqlQuoteTester($this, $this->dbal, "'\\''", "'\\\"'");
+        $tester = new SqlQuoteTester($this, "'\\''", "'\\\"'");
         $tester->execute();
     }
 }

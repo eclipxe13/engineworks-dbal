@@ -3,12 +3,9 @@ namespace EngineWorks\DBAL\Tests;
 
 use EngineWorks\DBAL\DBAL;
 
-/* @var $this \EngineWorks\DBAL\Tests\TestCaseWithDatabase */
-
 trait DbalCommonSqlTrait
 {
-    /** @return DBAL */
-    abstract protected function getDbal();
+    abstract public function getDbal(): DBAL;
 
     public function testSqlLike()
     {

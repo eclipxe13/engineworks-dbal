@@ -4,12 +4,9 @@ namespace EngineWorks\DBAL\Tests;
 use EngineWorks\DBAL\DBAL;
 use PHPUnit\Framework\Error\Notice;
 
-/* @var $this \EngineWorks\DBAL\Tests\TestCaseWithDatabase */
-
 trait TransactionsWithExceptionsTestTrait
 {
-    /** @return DBAL */
-    abstract protected function getDbal();
+    abstract protected function getDbal(): DBAL;
 
     public function testCommitThrowsWarningWithOutBegin()
     {

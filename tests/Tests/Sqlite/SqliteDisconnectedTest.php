@@ -1,43 +1,29 @@
 <?php
 namespace EngineWorks\DBAL\Tests\Sqlite;
 
-use EngineWorks\DBAL\DBAL;
-use EngineWorks\DBAL\Factory;
-use EngineWorks\DBAL\Settings;
 use EngineWorks\DBAL\Tests\DbalCommonSqlTrait;
 use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
 use EngineWorks\DBAL\Tests\SqlQuoteTester;
-use PHPUnit\Framework\TestCase;
+use EngineWorks\DBAL\Tests\TestCaseWithDbal;
 
-class SqliteDisconnectedTest extends TestCase
+class SqliteDisconnectedTest extends TestCaseWithDbal
 {
     use DbalCommonSqlTrait;
 
-    /** @var Factory */
-    private $factory;
-
-    /** @var DBAL */
-    private $dbal;
-
-    /** @var Settings */
-    private $settings;
-
-    protected function getDbal(): DBAL
+    protected function getFactoryNamespace()
     {
-        return $this->dbal;
+        return 'EngineWorks\DBAL\Sqlite';
     }
 
     protected function setUp()
     {
         parent::setUp();
-        if ($this->dbal === null) {
-            $this->factory = new Factory('EngineWorks\DBAL\Sqlite');
-            $this->settings = $this->factory->settings([
+        $this->dbal = $this->factory->dbal(
+            $this->factory->settings([
                 'filename' => 'non-existent',
                 'flags' => 0, // prevent to create
-            ]);
-            $this->dbal = $this->factory->dbal($this->settings);
-        }
+            ])
+        );
     }
 
     public function testConnectReturnFalseWhenCannotConnect()
@@ -136,7 +122,7 @@ class SqliteDisconnectedTest extends TestCase
 
     public function testSqlQuoteUsingTester()
     {
-        $tester = new SqlQuoteTester($this, $this->dbal);
+        $tester = new SqlQuoteTester($this);
         $tester->execute();
     }
 }

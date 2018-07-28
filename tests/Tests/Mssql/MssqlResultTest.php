@@ -14,18 +14,7 @@ class MssqlResultTest extends TestCaseWithMssqlDatabase
     protected function setUp()
     {
         parent::setUp();
-        if (! ($this->result instanceof Result)) {
-            $this->result = $this->dbal->queryResult(
-                'SELECT * FROM albums WHERE (albumid between 1 and 3);'
-            );
-        }
-    }
-
-    protected function tearDown()
-    {
-        unset($this->result);
-        $this->result = null;
-        parent::tearDown();
+        $this->result = $this->queryResult('SELECT * FROM albums WHERE (albumid between 1 and 3);');
     }
 
     public function testResultCount()
@@ -66,7 +55,7 @@ class MssqlResultTest extends TestCaseWithMssqlDatabase
     public function testMoveOffSet()
     {
         $current = $this->getForEach();
-        $this->assertFalse($this->result->fetchRow(), 'After for each fetch must return FALSE');
+        $this->assertSame(false, $this->result->fetchRow(), 'After for each fetch must return FALSE');
         $this->result->moveFirst();
         $this->assertSame($current[0], $this->result->fetchRow(), 'After move first fetch must return the first row');
         $this->assertTrue($this->result->moveTo(0));
@@ -82,8 +71,8 @@ class MssqlResultTest extends TestCaseWithMssqlDatabase
         $this->assertInternalType('array', $this->result->fetchRow());
         $this->assertInternalType('array', $this->result->fetchRow());
         $this->assertInternalType('array', $this->result->fetchRow());
-        $this->assertFalse($this->result->fetchRow());
-        $this->assertFalse($this->result->fetchRow());
+        $this->assertSame(false, $this->result->fetchRow());
+        $this->assertSame(false, $this->result->fetchRow());
     }
 
     public function testGetFields()
@@ -126,14 +115,14 @@ class MssqlResultTest extends TestCaseWithMssqlDatabase
 
     public function testGetFieldsWithNoContents()
     {
-        $result = $this->dbal->queryResult('SELECT albumid FROM albums WHERE (albumid = -1);');
+        $result = $this->queryResult('SELECT albumid FROM albums WHERE (albumid = -1);');
         $fields = $result->getFields();
         $this->assertEquals(CommonTypes::TINT, $fields[0]['commontype']);
     }
 
     public function testGetIdFields()
     {
-        $this->assertFalse($this->result->getIdFields(), 'Cannot get (yet) the Id Fields from a query');
+        $this->assertSame(false, $this->result->getIdFields(), 'Cannot get (yet) the Id Fields from a query');
     }
 
     public function testGetIterator()
@@ -145,7 +134,7 @@ class MssqlResultTest extends TestCaseWithMssqlDatabase
 
     public function testMoveFirstAndMoveReturnFalseOnEmptyResultset()
     {
-        $result = $this->dbal->queryResult('SELECT * FROM albums WHERE (albumid < 0);');
+        $result = $this->queryResult('SELECT * FROM albums WHERE (albumid < 0);');
         $this->assertFalse($result->moveFirst());
         $this->assertFalse($result->moveTo(0));
         $this->assertFalse($result->moveTo(10));
@@ -153,7 +142,7 @@ class MssqlResultTest extends TestCaseWithMssqlDatabase
 
     public function testWithNoContents()
     {
-        $result = $this->dbal->queryResult('SELECT albumid FROM albums WHERE (albumid = -1);');
+        $result = $this->queryResult('SELECT albumid FROM albums WHERE (albumid = -1);');
         $fields = $result->getFields();
         $this->assertEquals(CommonTypes::TINT, $fields[0]['commontype']);
     }

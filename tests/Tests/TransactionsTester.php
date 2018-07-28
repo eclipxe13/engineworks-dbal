@@ -8,20 +8,23 @@ use Psr\Log\LogLevel;
 
 class TransactionsTester
 {
-    /** @var BaseTestCase */
+    /** @var TestCaseWithDatabase */
     private $test;
+
     /** @var DBAL */
     private $dbal;
+
     /** @var ArrayLogger */
     private $logger;
+
     /** @var int */
     private $count;
 
-    public function __construct(BaseTestCase $test, DBAL $dbal)
+    public function __construct(TestCaseWithDatabase $test)
     {
         $this->test = $test;
-        $this->dbal = $dbal;
-        $this->logger = $dbal->getLogger();
+        $this->dbal = $test->getDbal();
+        $this->logger = $test->getLogger();
         $this->count = $this->getRecordCount();
     }
 
@@ -182,7 +185,7 @@ class TransactionsTester
     private function insertRecord($albumid)
     {
         $sql = 'SELECT * FROM albums WHERE (albumid IS NULL);';
-        $recordset = $this->dbal->queryRecordset($sql, 'albums', ['albumid']);
+        $recordset = $this->test->queryRecordset($sql, 'albums', ['albumid']);
         $recordset->addNew();
         $recordset->values = [
             'albumid' => $albumid,
@@ -192,7 +195,7 @@ class TransactionsTester
             'isfree' => false,
             'collect' => 0,
         ];
-        $recordset->Update();
+        $recordset->update();
     }
 
     private function deleteRecord($albumid)

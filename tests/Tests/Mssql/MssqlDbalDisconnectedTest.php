@@ -1,40 +1,24 @@
 <?php
 namespace EngineWorks\DBAL\Tests\Mssql;
 
-use EngineWorks\DBAL\DBAL;
-use EngineWorks\DBAL\Factory;
-use EngineWorks\DBAL\Settings;
 use EngineWorks\DBAL\Tests\DbalCommonSqlTrait;
 use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
 use EngineWorks\DBAL\Tests\SqlQuoteTester;
-use PHPUnit\Framework\TestCase;
+use EngineWorks\DBAL\Tests\TestCaseWithDbal;
 
-class MssqlDbalDisconnectedTest extends TestCase
+class MssqlDbalDisconnectedTest extends TestCaseWithDbal
 {
     use DbalCommonSqlTrait;
 
-    /** @var Factory */
-    private $factory;
-
-    /** @var DBAL */
-    private $dbal;
-
-    /** @var Settings */
-    private $settings;
-
-    protected function getDbal(): DBAL
+    protected function getFactoryNamespace()
     {
-        return $this->dbal;
+        return 'EngineWorks\DBAL\Mssql';
     }
 
     protected function setUp()
     {
         parent::setUp();
-        if ($this->dbal === null) {
-            $this->factory = new Factory('EngineWorks\DBAL\Mssql');
-            $this->settings = $this->factory->settings();
-            $this->dbal = $this->factory->dbal($this->settings);
-        }
+        $this->dbal = $this->factory->dbal($this->factory->settings());
     }
 
     public function testConnectReturnFalseWhenCannotConnect()
@@ -61,16 +45,14 @@ class MssqlDbalDisconnectedTest extends TestCase
 
     public function testSqlField()
     {
-        $dbal = $this->factory->dbal($this->factory->settings([]));
         $expectedName = 'some-field AS [some - label]';
-        $this->assertSame($expectedName, $dbal->sqlField('some-field', 'some - label'));
+        $this->assertSame($expectedName, $this->dbal->sqlField('some-field', 'some - label'));
     }
 
     public function testSqlFieldEscape()
     {
-        $dbal = $this->factory->dbal($this->factory->settings([]));
         $expectedName = '[some-field] AS [some - label]';
-        $this->assertSame($expectedName, $dbal->sqlFieldEscape('some-field', 'some - label'));
+        $this->assertSame($expectedName, $this->dbal->sqlFieldEscape('some-field', 'some - label'));
     }
 
     public function testSqlTable()
@@ -133,7 +115,7 @@ class MssqlDbalDisconnectedTest extends TestCase
 
     public function testSqlQuoteUsingTester()
     {
-        $tester = new SqlQuoteTester($this, $this->dbal);
+        $tester = new SqlQuoteTester($this);
         $tester->execute();
     }
 }

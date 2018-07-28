@@ -1,40 +1,23 @@
 <?php
 namespace EngineWorks\DBAL\Tests\Sqlsrv;
 
-use EngineWorks\DBAL\DBAL;
-use EngineWorks\DBAL\Factory;
-use EngineWorks\DBAL\Settings;
 use EngineWorks\DBAL\Tests\DbalCommonSqlTrait;
 use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
 use EngineWorks\DBAL\Tests\SqlQuoteTester;
-use PHPUnit\Framework\TestCase;
+use EngineWorks\DBAL\Tests\TestCaseWithDbal;
 
-class SqlsrvDbalDisconnectedTest extends TestCase
+class SqlsrvDbalDisconnectedTest extends TestCaseWithDbal
 {
     use DbalCommonSqlTrait;
 
-    /** @var Factory */
-    private $factory;
-
-    /** @var DBAL */
-    private $dbal;
-
-    /** @var Settings */
-    private $settings;
-
-    protected function getDbal()
+    protected function getFactoryNamespace()
     {
-        return $this->dbal;
+        return 'EngineWorks\DBAL\Sqlsrv';
     }
-
     protected function setUp()
     {
         parent::setUp();
-        if ($this->dbal === null) {
-            $this->factory = new Factory('EngineWorks\DBAL\Sqlsrv');
-            $this->settings = $this->factory->settings();
-            $this->dbal = $this->factory->dbal($this->settings);
-        }
+        $this->dbal = $this->factory->dbal($this->factory->settings());
     }
 
     public function testConnectReturnFalseWhenCannotConnect()
@@ -133,7 +116,7 @@ class SqlsrvDbalDisconnectedTest extends TestCase
 
     public function testSqlQuoteUsingTester()
     {
-        $tester = new SqlQuoteTester($this, $this->dbal);
+        $tester = new SqlQuoteTester($this);
         $tester->execute();
     }
 }

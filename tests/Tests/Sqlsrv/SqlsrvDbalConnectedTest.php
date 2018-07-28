@@ -18,19 +18,19 @@ class SqlsrvDbalConnectedTest extends TestCaseWithSqlsrvDatabase
 
     public function testRecordsetUsingTester()
     {
-        $tester = new RecordsetTester($this, $this->dbal);
+        $tester = new RecordsetTester($this);
         $tester->execute();
     }
 
     public function testTransactionsUsingTester()
     {
-        $tester = new TransactionsTester($this, $this->dbal);
+        $tester = new TransactionsTester($this);
         $tester->execute();
     }
 
     public function testSqlQuoteUsingTester()
     {
-        $tester = new SqlQuoteTester($this, $this->dbal);
+        $tester = new SqlQuoteTester($this);
         $tester->execute();
     }
 

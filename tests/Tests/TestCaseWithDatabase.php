@@ -3,25 +3,19 @@ namespace EngineWorks\DBAL\Tests;
 
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Factory;
+use EngineWorks\DBAL\Recordset;
+use EngineWorks\DBAL\Result;
 use EngineWorks\DBAL\Settings;
 use EngineWorks\DBAL\Tests\Sample\ArrayLogger;
 use Psr\Log\LogLevel;
 
-abstract class TestCaseWithDatabase extends BaseTestCase
+abstract class TestCaseWithDatabase extends TestCaseWithDbal
 {
-    /** @var Factory */
-    protected $factory;
-
-    /** @var DBAL */
-    protected $dbal;
-
     /** @var Settings */
     protected $settings;
 
     /** @var ArrayLogger */
     protected $logger;
-
-    abstract protected function getFactoryNamespace();
 
     abstract protected function getSettingsArray();
 
@@ -33,7 +27,11 @@ abstract class TestCaseWithDatabase extends BaseTestCase
     {
         parent::setUp();
         $this->checkIsAvailable();
-        if (null === $this->dbal) {
+        if (! $this->dbal instanceof DBAL) {
+            $this->logger = new ArrayLogger();
+            $this->factory = new Factory($this->getFactoryNamespace());
+            $this->settings = $this->factory->settings($this->getSettingsArray());
+            $this->dbal = $this->factory->dbal($this->settings, $this->logger);
             $this->createDatabase();
         }
     }
@@ -41,32 +39,38 @@ abstract class TestCaseWithDatabase extends BaseTestCase
     protected function tearDown()
     {
         parent::tearDown();
-        if (null !== $this->dbal) {
-            $this->dbal->disconnect();
-            $this->dbal = null;
-        }
+        $this->dbal->disconnect();
     }
 
-    private function createDatabase()
+    public function getLogger(): ArrayLogger
     {
-        $this->logger = new ArrayLogger();
-        $this->factory = new Factory($this->getFactoryNamespace());
-        $this->settings = $this->factory->settings($this->getSettingsArray());
-        $this->dbal = $this->factory->dbal($this->settings, $this->logger);
-        if (! $this->dbal->connect()) {
-            $this->fail(
-                'Cannot connect to test ' . $this->getFactoryNamespace() . ': '
-                . print_r($this->logger->allMessages(), true)
-            );
-        }
-        $this->dbal->isConnected();
-        $this->createDatabaseStructure();
-        $this->createDatabaseData();
-
-        $this->logger->clear();
+        return $this->logger;
     }
 
-    public function getFixedValuesWithLabels($idFrom = 1, $idTo = 10)
+    public function getSettings(): Settings
+    {
+        return $this->settings;
+    }
+
+    public function queryRecordset(string $query, string $entity = '', array $keys = [], array $types = []): Recordset
+    {
+        $recordset = $this->dbal->queryRecordset($query, $entity, $keys, $types);
+        if ($recordset instanceof $recordset) {
+            return $recordset;
+        }
+        throw new \LogicException("Cannot get recordset from query: $query");
+    }
+
+    public function queryResult(string $query, array $types = []): Result
+    {
+        $result = $this->dbal->queryResult($query, $types);
+        if (! $result instanceof Result) {
+            throw new \LogicException('Unexpected result');
+        }
+        return $result;
+    }
+
+    public function getFixedValuesWithLabels($idFrom = 1, $idTo = 10): array
     {
         $array = $this->getFixedValues($idFrom, $idTo);
         $keys = ['albumid', 'title', 'votes', 'lastview', 'isfree', 'collect'];
@@ -77,7 +81,7 @@ abstract class TestCaseWithDatabase extends BaseTestCase
         return $array;
     }
 
-    protected function getFixedValues($idFrom = 1, $idTo = 10)
+    protected function getFixedValues($idFrom = 1, $idTo = 10): array
     {
         $values = [
             [1, 'Zelda Brakus III', 0, 1468513306, false, 1930.52],
@@ -94,16 +98,14 @@ abstract class TestCaseWithDatabase extends BaseTestCase
         return array_slice($values, $idFrom - 1, $idTo - $idFrom + 1);
     }
 
-    protected function convertArrayStringsToFixedValues(array $values)
+    protected function convertArrayStringsToFixedValues(array $values): array
     {
-        $count = count($values);
-        for ($i = 0; $i < $count; $i++) {
-            $values[$i] = $this->convertStringsToFixedValues($values[$i]);
-        }
-        return $values;
+        return array_map(function ($value) {
+            return $this->convertStringsToFixedValues($value);
+        }, $values);
     }
 
-    protected function convertStringsToFixedValues(array $values)
+    protected function convertStringsToFixedValues(array $values): array
     {
         return [
             'albumid' => (int) $values['albumid'],
@@ -115,20 +117,43 @@ abstract class TestCaseWithDatabase extends BaseTestCase
         ];
     }
 
-    protected function convertArrayFixedValuesToStrings(array $values)
+    protected function convertArrayFixedValuesToStrings(array $values): array
     {
-        $count = count($values);
-        for ($i = 0; $i < $count; $i++) {
-            $values[$i] = $this->convertFixedValuesToStrings($values[$i]);
-        }
-        return $values;
+        return array_map(function ($value) {
+            return $this->convertFixedValuesToStrings($value);
+        }, $values);
     }
 
-    protected function convertFixedValuesToStrings(array $values)
+    protected function convertFixedValuesToStrings(array $values): array
     {
         $values['lastview'] = date('Y-m-d H:i:s', $values['lastview']);
         $values['isfree'] = boolval($values['isfree']);
         return $values;
+    }
+
+    protected function executeStatements(array $statements)
+    {
+        foreach ($statements as $statement) {
+            $execute = $this->dbal->execute($statement);
+            if (false === $execute) {
+                print_r($this->logger->messages(LogLevel::ERROR));
+            }
+            $this->assertNotSame(false, $execute, "Fail to run $statement");
+        }
+    }
+
+    private function createDatabase()
+    {
+        if (! $this->dbal->connect()) {
+            $this->fail(
+                "Cannot connect to test {$this->getFactoryNamespace()}:\n" . implode("\n", $this->logger->allMessages())
+            );
+        }
+        $this->dbal->isConnected();
+        $this->createDatabaseStructure();
+        $this->createDatabaseData();
+
+        $this->logger->clear();
     }
 
     private function createDatabaseData()
@@ -160,26 +185,5 @@ abstract class TestCaseWithDatabase extends BaseTestCase
         $this->dbal->transBegin();
         $this->executeStatements($statements);
         $this->dbal->transCommit();
-    }
-
-    protected function executeStatements(array $statements)
-    {
-        foreach ($statements as $statement) {
-            $execute = $this->dbal->execute($statement);
-            if (false === $execute) {
-                print_r($this->logger->messages(LogLevel::ERROR));
-            }
-            $this->assertNotSame(false, $execute, "Fail to run $statement");
-        }
-    }
-
-    protected function getDbal()
-    {
-        return $this->dbal;
-    }
-
-    protected function getLogger(): ArrayLogger
-    {
-        return $this->logger;
     }
 }

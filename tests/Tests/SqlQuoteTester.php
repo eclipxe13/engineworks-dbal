@@ -16,13 +16,12 @@ class SqlQuoteTester
     private $expectedDoubleQuote = "'\"'";
 
     public function __construct(
-        TestCase $test,
-        DBAL $dbal,
+        TestCaseWithDbal $test,
         string $expectedSingleQuote = '',
         string $expectedDoubleQuote = ''
     ) {
         $this->test = $test;
-        $this->dbal = $dbal;
+        $this->dbal = $test->getDbal();
         if ('' !== $expectedSingleQuote) {
             $this->expectedSingleQuote = $expectedSingleQuote;
         }
@@ -36,6 +35,10 @@ class SqlQuoteTester
         foreach ($this->providerSqlQuote() as $label => $arguments) {
             $this->testSqlQuote(...array_merge([$label], $arguments));
         }
+        foreach ($this->providerSqlQuoteWithLocale() as $arguments) {
+            $this->testSqlQuoteWithLocale(...$arguments);
+        }
+        $this->testWithInvalidCommonType();
     }
 
     public function providerSqlQuote()
@@ -110,20 +113,46 @@ class SqlQuoteTester
         ];
     }
 
-    /**
-     * @param $label
-     * @param $expected
-     * @param $value
-     * @param $type
-     * @param $includeNull
-     * @dataProvider providerSqlQuote
-     */
-    public function testSqlQuote($label, $expected, $value, $type, $includeNull)
+    public function testSqlQuote(string $label, string $expected, $value, string $type, bool $includeNull)
     {
         $this->test->assertSame(
             $expected,
             $this->dbal->sqlQuote($value, $type, $includeNull),
             "sqlQuote fail testing $label"
         );
+    }
+
+    public function providerSqlQuoteWithLocale()
+    {
+        return [
+            ['en_US', '-1234.56789', "- $\t1,234.567,89 "],
+            ['en_US.utf-8', '-1234.56789', "- $\t1,234.567,89 "],
+            ['pt_BR', '-1234.56789', "- R$\t1.234,567.89 "],
+        ];
+    }
+
+    public function testSqlQuoteWithLocale(string $locale, string $expected, string $value)
+    {
+        $currentNumeric = setlocale(LC_NUMERIC, '0');
+        $currentMonetary = setlocale(LC_MONETARY, '0');
+
+        // mark skipped if not found
+        if (false === setlocale(LC_NUMERIC, $locale) || false === setlocale(LC_MONETARY, $locale)) {
+            setlocale(LC_NUMERIC, $currentNumeric);
+            setlocale(LC_MONETARY, $currentMonetary);
+            $this->test->markTestSkipped("Cannot setup locale '$locale'");
+        }
+
+        // the test
+        $this->test->assertSame($expected, $this->dbal->sqlQuote($value, DBAL::TNUMBER, false));
+
+        // anyhow restore the previous locale
+        setlocale(LC_NUMERIC, $currentNumeric);
+        setlocale(LC_MONETARY, $currentMonetary);
+    }
+
+    public function testWithInvalidCommonType()
+    {
+        $this->test->assertSame("'Ñu'", $this->dbal->sqlQuote('Ñu', 'NON-EXISTENT-COMMONTYPE'));
     }
 }

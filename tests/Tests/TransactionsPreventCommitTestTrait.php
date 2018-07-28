@@ -1,15 +1,9 @@
 <?php
 namespace EngineWorks\DBAL\Tests;
 
-use EngineWorks\DBAL\DBAL;
-
-/* @var $this \EngineWorks\DBAL\Tests\TestCaseWithDatabase */
-
+/** @var $this \EngineWorks\DBAL\Tests\TestCaseWithDatabase */
 trait TransactionsPreventCommitTestTrait
 {
-    /** @return DBAL */
-    abstract protected function getDbal();
-
     public function testTransactionPreventCommitChangeStatus()
     {
         $dbal = $this->getDbal();

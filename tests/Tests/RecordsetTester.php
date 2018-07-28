@@ -4,20 +4,19 @@ namespace EngineWorks\DBAL\Tests;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Recordset;
-use PHPUnit\Framework\TestCase;
 
 class RecordsetTester
 {
-    /** @var TestCase */
+    /** @var TestCaseWithDatabase */
     private $test;
 
     /** @var DBAL */
     private $dbal;
 
-    public function __construct(TestCase $test, DBAL $dbal)
+    public function __construct(TestCaseWithDatabase $test)
     {
         $this->test = $test;
-        $this->dbal = $dbal;
+        $this->dbal = $test->getDbal();
     }
 
     public function execute()
@@ -45,16 +44,16 @@ class RecordsetTester
         $this->testRecordCount();
     }
 
-    private function queryRecordset($albumid)
+    private function queryAlbumAsRecordset($albumid): Recordset
     {
         $sql = 'SELECT * FROM albums WHERE (albumid = ' . $this->dbal->sqlQuote($albumid, CommonTypes::TINT) . ');';
-        return $this->dbal->queryRecordset($sql, 'albums', ['albumid']);
+        return $this->test->queryRecordset($sql, 'albums', ['albumid']);
     }
 
     public function testRecordCount()
     {
         $sql = 'SELECT * FROM albums ORDER BY albumid;';
-        $recordset = $this->dbal->queryRecordset($sql, 'albums', ['albumid']);
+        $recordset = $this->test->queryRecordset($sql, 'albums', ['albumid']);
         $this->test->assertSame($sql, $recordset->getSource());
         $this->test->assertSame(45, $recordset->getRecordCount());
         for ($i = 1; $i <= 45; $i++) {
@@ -67,7 +66,7 @@ class RecordsetTester
 
     public function testQueryRecordsetOnNonExistent()
     {
-        $recordset = $this->queryRecordset(999);
+        $recordset = $this->queryAlbumAsRecordset(999);
         $this->test->assertInstanceOf(Recordset::class, $recordset);
         $this->test->assertTrue($recordset->eof());
         $this->test->assertSame('albums', $recordset->getEntityName());
@@ -78,7 +77,7 @@ class RecordsetTester
 
     public function testAddNew($values)
     {
-        $recordset = $this->queryRecordset($values['albumid']);
+        $recordset = $this->queryAlbumAsRecordset($values['albumid']);
         $this->test->assertTrue($recordset->eof());
         $recordset->addNew();
         $this->test->assertSame($recordset::RSMODE_CONNECTED_ADDNEW, $recordset->getMode());
@@ -89,7 +88,7 @@ class RecordsetTester
 
     public function testInsertedData($values)
     {
-        $recordset = $this->queryRecordset($values['albumid']);
+        $recordset = $this->queryAlbumAsRecordset($values['albumid']);
         $this->test->assertFalse($recordset->eof());
         foreach ($values as $key => $value) {
             $this->test->assertEquals($value, $recordset->values[$key]);
@@ -98,23 +97,23 @@ class RecordsetTester
 
     public function testUpdate($values)
     {
-        $recordset = $this->queryRecordset($values['albumid']);
+        $recordset = $this->queryAlbumAsRecordset($values['albumid']);
         $this->test->assertFalse($recordset->eof());
         $this->test->assertNull($recordset->values['votes']);
         $recordset->values['votes'] = 55;
         $this->test->assertSame(1, $recordset->update());
 
-        $recordset = $this->queryRecordset($values['albumid']);
+        $recordset = $this->queryAlbumAsRecordset($values['albumid']);
         $this->test->assertSame(55, $recordset->values['votes']);
     }
 
     public function testDelete($values)
     {
-        $recordset = $this->queryRecordset($values['albumid']);
+        $recordset = $this->queryAlbumAsRecordset($values['albumid']);
         $this->test->assertFalse($recordset->eof());
         $this->test->assertSame(1, $recordset->delete());
 
-        $recordset = $this->queryRecordset($values['albumid']);
+        $recordset = $this->queryAlbumAsRecordset($values['albumid']);
         $this->test->assertTrue($recordset->eof());
     }
 
@@ -127,7 +126,7 @@ class RecordsetTester
             'isfree' => CommonTypes::TBOOL,
         ];
         $sql = 'SELECT * FROM albums WHERE (albumid between 1 and 5);';
-        $recordset = $this->dbal->queryRecordset($sql, 'albums', ['albumid'], $overrideTypes);
+        $recordset = $this->test->queryRecordset($sql, 'albums', ['albumid'], $overrideTypes);
         $test->assertSame('albums', $recordset->getEntityName());
         $test->assertSame(['albumid'], $recordset->getIdFields());
         $test->assertInstanceOf(Recordset::class, $recordset);
