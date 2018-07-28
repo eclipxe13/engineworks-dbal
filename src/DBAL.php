@@ -331,6 +331,33 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     }
 
     /**
+     * Return a comparison condition using IN operator
+     * If the array of values is empty then create an always false condition "0 = 1"
+     *
+     * @see sqlQuoteIn
+     *
+     * @param string $field
+     * @param array $values
+     * @param string $commonType
+     * @param bool $positive Set to FALSE to perform a NOT IN comparison
+     * @param bool $includeNull
+     *
+     * @return string
+     */
+    final public function sqlIn(
+        string $field,
+        array $values,
+        string $commonType = CommonTypes::TTEXT,
+        bool $positive = true,
+        bool $includeNull = false
+    ) {
+        if (0 === count($values)) {
+            return '0 = 1';
+        }
+        return $field . ((! $positive) ? ' NOT' : '') . ' IN ' . $this->sqlQuoteIn($values, $commonType, $includeNull);
+    }
+
+    /**
      * Quote as string
      *
      * @param string $variable
