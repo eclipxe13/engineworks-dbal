@@ -20,22 +20,6 @@ class SqlsrvDbalDisconnectedTest extends WithDbalTestCase
         $this->dbal = $this->factory->dbal($this->factory->settings());
     }
 
-    public function testConnectReturnFalseWhenCannotConnect()
-    {
-        $logger = new ArrayLogger();
-        $this->dbal->setLogger($logger);
-        $this->assertFalse($this->dbal->connect());
-        $expectedLogs = [
-            'info: -- Connection fail',
-            'error: ',
-        ];
-        $expectedLogsCount = count($expectedLogs);
-        $actualLogs = $logger->allMessages();
-        for ($i = 0; $i < $expectedLogsCount; $i++) {
-            $this->assertStringStartsWith($expectedLogs[$i], $actualLogs[$i]);
-        }
-    }
-
     /*
      *
      * sql tests
