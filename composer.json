@@ -23,13 +23,12 @@
     "require": {
         "php": ">=7.0",
         "psr/log": "^1.0",
-        "ext-pdo": "*",
         "ext-ctype": "*"
     },
     "require-dev": {
+        "ext-PDO": "*",
         "ext-sqlite3": "*",
         "ext-mysqli": "*",
-        "ext-sqlsrv": "*",
         "vlucas/phpdotenv": "^2.4",
         "fzaninotto/faker": "^1.7",
         "phpunit/phpunit": "^5.7|^6.5",
@@ -39,11 +38,11 @@
         "phpstan/phpstan-shim": "^0.9.1"
     },
     "suggest": {
-        "ext-sqlite3": "*",
-        "ext-mysqli": "*",
-        "ext-mssql": "*",
-        "ext-sqlsrv": "*",
-        "ext-dblib": "*"
+        "ext-PDO": "Needed to run drivers that depends on PDO (pdo_sqlsrv & pdo_dblib)",
+        "ext-sqlite3": "Needed to run \\EngineWorks\\DBAL\\Sqlite driver",
+        "ext-mysqli": "Needed to run \\EngineWorks\\DBAL\\Mysqli driver",
+        "ext-pdo_sqlsrv": "Needed to run \\EngineWorks\\DBAL\\Sqlsrv driver",
+        "ext-pdo_dblib": "Needed to run \\EngineWorks\\DBAL\\Mssql driver"
     },
     "autoload": {
         "psr-4": {
