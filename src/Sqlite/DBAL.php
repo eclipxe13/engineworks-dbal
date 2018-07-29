@@ -27,7 +27,10 @@ class DBAL extends AbstractDBAL
         // create the sqlite3 object without error reporting
         $level = error_reporting(0);
         try {
-            $this->sqlite = new SQLite3($this->settings->get('filename'), $this->settings->get('flags'));
+            $this->sqlite = new SQLite3(
+                (string) $this->settings->get('filename', ':memory:'),
+                ($this->settings->exists('flags')) ? (int) $this->settings->get('flags') : null
+            );
         } catch (\Throwable $ex) {
             $this->logger->info('-- Connection fail');
             $this->logger->error('Cannot create SQLite3 object: ' . $ex->getMessage());

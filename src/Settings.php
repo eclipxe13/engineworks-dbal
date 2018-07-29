@@ -22,4 +22,12 @@ interface Settings
      * @return mixed
      */
     public function get(string $name, $default = null);
+
+    /**
+     * Check if a setting string exists
+     *
+     * @param string $name
+     * @return bool
+     */
+    public function exists(string $name): bool;
 }

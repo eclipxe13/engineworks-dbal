@@ -22,15 +22,18 @@ class DBAL extends AbstractDBAL
     protected function getPDOConnectionString()
     {
         $vars = [];
-        if ($this->settings->get('freetds-version')) {
+        if ($this->settings->exists('freetds-version')) {
             $vars['version'] = $this->settings->get('freetds-version');
         }
-        $vars['host'] = $this->settings->get('host')
-            . (($this->settings->get('port')) ? ':' . $this->settings->get('port') : '');
-        if ($this->settings->get('database')) {
+        $vars['host'] = $this->settings->get('host');
+        if ($this->settings->exists('port')) {
+            $vars['host'] .= ':' . $this->settings->get('port');
+        }
+
+        if ($this->settings->exists('database')) {
             $vars['dbname'] = $this->settings->get('database');
         }
-        if ($this->settings->get('encoding')) {
+        if ($this->settings->exists('encoding')) {
             $vars['charset'] = $this->settings->get('encoding');
         }
         $return = 'dblib:';
@@ -238,10 +241,7 @@ class DBAL extends AbstractDBAL
         );
     }
 
-    /**
-     * @return PDO
-     */
-    private function pdo()
+    private function pdo(): PDO
     {
         if (null === $this->pdo) {
             throw new \RuntimeException('The current state of the connection is NULL');

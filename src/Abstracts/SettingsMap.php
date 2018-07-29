@@ -73,10 +73,6 @@ class SettingsMap implements SettingsInterface
         return ($this->exists($name)) ? $this->map[$name] : $default;
     }
 
-    /**
-     * @param string $name
-     * @return bool
-     */
     public function exists(string $name): bool
     {
         return array_key_exists($name, $this->map);

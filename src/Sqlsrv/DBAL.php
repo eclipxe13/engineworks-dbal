@@ -25,10 +25,10 @@ class DBAL extends AbstractDBAL
     {
         $vars = [];
         $vars['Server'] = $this->settings->get('host');
-        if ($this->settings->get('port')) {
-            $vars['Server'] .= ',' . $this->settings->get('port');
+        if ($this->settings->exists('port')) {
+            $vars['Server'] .= ',' . ((int) $this->settings->get('port'));
         }
-        if ($this->settings->get('database')) {
+        if ($this->settings->exists('database')) {
             $vars['Database'] = $this->settings->get('database');
         }
         $return = 'sqlsrv:';
@@ -261,10 +261,7 @@ class DBAL extends AbstractDBAL
         );
     }
 
-    /**
-     * @return PDO
-     */
-    private function pdo()
+    private function pdo(): PDO
     {
         if (null === $this->pdo) {
             throw new \RuntimeException('The current state of the connection is NULL');
