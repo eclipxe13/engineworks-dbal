@@ -55,7 +55,7 @@ class DBAL extends AbstractDBAL
         // OK, we are connected
         $this->logger->info('-- Connect and database select OK');
         // set encoding if needed
-        if ('' !== $encoding = $this->settings->get('encoding')) {
+        if ('' !== $encoding = $this->settings->get('encoding', '')) {
             $this->logger->info("-- Setting encoding to $encoding;");
             if (! $this->mysqli->set_charset($encoding)) {
                 $this->logger->warning("-- Unable to set encoding to $encoding");

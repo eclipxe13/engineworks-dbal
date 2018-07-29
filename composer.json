@@ -23,13 +23,12 @@
     "require": {
         "php": ">=7.0",
         "psr/log": "^1.0",
-        "ext-pdo": "*",
         "ext-ctype": "*"
     },
     "require-dev": {
+        "ext-PDO": "*",
         "ext-sqlite3": "*",
         "ext-mysqli": "*",
-        "ext-sqlsrv": "*",
         "vlucas/phpdotenv": "^2.4",
         "fzaninotto/faker": "^1.7",
         "phpunit/phpunit": "^5.7|^6.5",
@@ -39,11 +38,11 @@
         "phpstan/phpstan-shim": "^0.9.1"
     },
     "suggest": {
-        "ext-sqlite3": "*",
-        "ext-mysqli": "*",
-        "ext-mssql": "*",
-        "ext-sqlsrv": "*",
-        "ext-dblib": "*"
+        "ext-PDO": "Needed to run drivers that depends on PDO (pdo_sqlsrv & pdo_dblib)",
+        "ext-sqlite3": "Needed to run \\EngineWorks\\DBAL\\Sqlite driver",
+        "ext-mysqli": "Needed to run \\EngineWorks\\DBAL\\Mysqli driver",
+        "ext-pdo_sqlsrv": "Needed to run \\EngineWorks\\DBAL\\Sqlsrv driver",
+        "ext-pdo_dblib": "Needed to run \\EngineWorks\\DBAL\\Mssql driver"
     },
     "autoload": {
         "psr-4": {
@@ -56,19 +55,25 @@
         }
     },
     "scripts": {
-        "build": ["@style", "@test"],
-        "style": [
+        "dev:build": ["@dev:style", "@dev:test"],
+        "dev:style": [
             "vendor/bin/php-cs-fixer fix --verbose",
             "vendor/bin/phpcbf --colors -sp src/ tests/",
             "vendor/bin/phpcs --colors -sp src/ tests/"
         ],
-        "test": [
+        "dev:test": [
             "vendor/bin/phplint",
             "vendor/bin/phpunit",
             "vendor/bin/phpstan.phar analyse --no-progress --level max src/ tests/"
         ],
-        "coverage": [
+        "dev:coverage": [
             "@php -dzend_extension=xdebug.so vendor/bin/phpunit --coverage-text --coverage-html build/coverage/html/"
         ]
+    },
+    "scripts-descriptions": {
+        "dev:build": "Build the project by fixing style and running tests",
+        "dev:style": "Fix and found style issues",
+        "dev:test": "Run tests (phpunit & phpstan)",
+        "dev:coverage": "Run test including xdebug.so extesion and create html coverage"
     }
 }

@@ -17,7 +17,7 @@ use EngineWorks\DBAL\Abstracts\SettingsMap;
 class Settings extends SettingsMap
 {
     protected $map = [
-        'filename' => '',
+        'filename' => ':memory:',
         'enable-exceptions' => false,
         'prefix' => '',
         'flags' => SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE,

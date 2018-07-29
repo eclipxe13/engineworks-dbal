@@ -1,3 +1,11 @@
+# Version 2.0.1 2018-07-29
+
+- Add `connect-timeout` option to `Sqlsrv` driver
+- Fix issue when test suit end with segfault because the pdo statement in `Sqlsrv\Result` was not really destructed
+- Add `Settings::exists(string $name): bool` method to the interface
+- Composer: fix require, require-dev & suggest sections
+- Composer: rename scripts names (prefix with "dev:" and add descriptions)
+
 # version 2.0.0 2018-07-27
 - Set minimal php version to PHP 7.0
 - Add type declarations to arguments and returns

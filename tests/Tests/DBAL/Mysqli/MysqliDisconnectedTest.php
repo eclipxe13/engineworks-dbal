@@ -18,11 +18,9 @@ class MysqliDisconnectedTest extends WithDbalTestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->dbal = $this->factory->dbal(
-            $this->factory->settings([
-                'user' => 'non-existent',
-            ])
-        );
+        $this->setupDbalWithSettings([
+            'user' => 'non-existent',
+        ]);
     }
 
     public function testConnectReturnFalseWhenCannotConnect()
@@ -61,13 +59,13 @@ class MysqliDisconnectedTest extends WithDbalTestCase
 
     public function testSqlTable()
     {
-        $dbal = $this->factory->dbal($this->factory->settings([
+        $this->setupDbalWithSettings([
             'prefix' => 'foo_',
-        ]));
+        ]);
         $expectedName = '`foo_bar` AS `x`';
-        $this->assertSame($expectedName, $dbal->sqlTable('bar', 'x'));
+        $this->assertSame($expectedName, $this->dbal->sqlTable('bar', 'x'));
         $expectedNoSuffix = '`bar` AS `x`';
-        $this->assertSame($expectedNoSuffix, $dbal->sqlTableEscape('bar', 'x'));
+        $this->assertSame($expectedNoSuffix, $this->dbal->sqlTableEscape('bar', 'x'));
     }
 
     public function testSqlString()

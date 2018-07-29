@@ -29,7 +29,7 @@ class Settings extends SettingsMap
         'database' => '',
         // 'encoding' => 'UTF-8', // todo: enable encoding
         'prefix' => '',
-        'connect-timeout' => 5,
+        'connect-timeout' => 5, // the default timeout can be more than 15 seconds
         'timeout' => 0,
         'dump' => '',
     ];
