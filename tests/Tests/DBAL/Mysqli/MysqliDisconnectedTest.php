@@ -18,7 +18,7 @@ class MysqliDisconnectedTest extends WithDbalTestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->dbal = $this->setupDbalWithSettings([
+        $this->setupDbalWithSettings([
             'user' => 'non-existent',
         ]);
     }

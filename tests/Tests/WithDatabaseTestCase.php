@@ -115,7 +115,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
             $execute = $this->dbal->execute($statement);
             if (false === $execute) {
                 print_r($this->logger->messages(LogLevel::ERROR));
-                $this->fail($execute, get_class($this) . ' statement fail: ' . $statement);
+                $this->fail(get_class($this) . ' statement fail: ' . $statement);
             }
         }
     }

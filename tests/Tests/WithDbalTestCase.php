@@ -49,6 +49,7 @@ abstract class WithDbalTestCase extends TestCase
         return $dbal;
     }
 
+    /** @return void */
     protected function setupDbalWithSettings(array $settingsArray = [])
     {
         $this->dbal = $this->createDbalWithSettings($settingsArray);
