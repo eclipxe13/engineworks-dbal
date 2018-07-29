@@ -1,16 +1,11 @@
 <?php
 namespace EngineWorks\DBAL\Tests\DBAL\Sqlsrv;
 
-use EngineWorks\DBAL\DBAL;
-use EngineWorks\DBAL\Tests\DBAL\Sample\ArrayLogger;
 use EngineWorks\DBAL\Tests\Utils\Timer;
 use EngineWorks\DBAL\Tests\WithDbalTestCase;
 
 class SqlsrvConnectFailuresTest extends WithDbalTestCase
 {
-    /** @var ArrayLogger */
-    protected $logger;
-
     protected function getFactoryNamespace()
     {
         return 'EngineWorks\DBAL\Sqlsrv';
@@ -20,22 +15,6 @@ class SqlsrvConnectFailuresTest extends WithDbalTestCase
     {
         parent::setUp();
         $this->setupDbalWithSettings(['connect-timeout' => 1]);
-    }
-
-    protected function createDbalWithSettings(array $settingsArray = []): DBAL
-    {
-        $dbal = $this->factory->dbal($this->factory->settings($settingsArray));
-        if ($dbal->isConnected()) {
-            $this->fail('The DBAL should be disconnected');
-        }
-        return $dbal;
-    }
-
-    protected function setupDbalWithSettings(array $settingsArray = [])
-    {
-        $this->dbal = $this->createDbalWithSettings($settingsArray);
-        $this->logger = new ArrayLogger();
-        $this->dbal->setLogger($this->logger);
     }
 
     protected function getDefaultDbalSettingsArray(): array

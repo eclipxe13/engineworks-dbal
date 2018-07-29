@@ -2,21 +2,12 @@
 namespace EngineWorks\DBAL\Tests;
 
 use EngineWorks\DBAL\DBAL;
-use EngineWorks\DBAL\Factory;
 use EngineWorks\DBAL\Recordset;
 use EngineWorks\DBAL\Result;
-use EngineWorks\DBAL\Settings;
-use EngineWorks\DBAL\Tests\DBAL\Sample\ArrayLogger;
 use Psr\Log\LogLevel;
 
 abstract class WithDatabaseTestCase extends WithDbalTestCase
 {
-    /** @var Settings */
-    protected $settings;
-
-    /** @var ArrayLogger */
-    protected $logger;
-
     abstract protected function getSettingsArray();
 
     abstract protected function createDatabaseStructure();
@@ -28,10 +19,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         parent::setUp();
         $this->checkIsAvailable();
         if (! $this->dbal instanceof DBAL) {
-            $this->logger = new ArrayLogger();
-            $this->factory = new Factory($this->getFactoryNamespace());
-            $this->settings = $this->factory->settings($this->getSettingsArray());
-            $this->dbal = $this->factory->dbal($this->settings, $this->logger);
+            $this->setupDbalWithSettings($this->getSettingsArray());
             $this->createDatabase();
         }
     }
@@ -40,16 +28,6 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
     {
         parent::tearDown();
         $this->dbal->disconnect();
-    }
-
-    public function getLogger(): ArrayLogger
-    {
-        return $this->logger;
-    }
-
-    public function getSettings(): Settings
-    {
-        return $this->settings;
     }
 
     public function queryRecordset(string $query, string $entity = '', array $keys = [], array $types = []): Recordset
@@ -137,8 +115,8 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
             $execute = $this->dbal->execute($statement);
             if (false === $execute) {
                 print_r($this->logger->messages(LogLevel::ERROR));
+                $this->fail($execute, get_class($this) . ' statement fail: ' . $statement);
             }
-            $this->assertNotSame(false, $execute, "Fail to run $statement");
         }
     }
 

@@ -1,7 +1,6 @@
 <?php
 namespace EngineWorks\DBAL\Tests\DBAL\Sqlsrv;
 
-use EngineWorks\DBAL\Tests\DBAL\Sample\ArrayLogger;
 use EngineWorks\DBAL\Tests\DBAL\TesterCases\SqlQuoteTester;
 use EngineWorks\DBAL\Tests\DBAL\TesterTraits\DbalCommonSqlTrait;
 use EngineWorks\DBAL\Tests\WithDbalTestCase;
@@ -14,10 +13,11 @@ class SqlsrvDbalDisconnectedTest extends WithDbalTestCase
     {
         return 'EngineWorks\DBAL\Sqlsrv';
     }
+
     protected function setUp()
     {
         parent::setUp();
-        $this->dbal = $this->factory->dbal($this->factory->settings());
+        $this->setupDbalWithSettings([]);
     }
 
     /*
@@ -28,27 +28,25 @@ class SqlsrvDbalDisconnectedTest extends WithDbalTestCase
 
     public function testSqlField()
     {
-        $dbal = $this->factory->dbal($this->factory->settings([]));
         $expectedName = 'some-field AS [some - label]';
-        $this->assertSame($expectedName, $dbal->sqlField('some-field', 'some - label'));
+        $this->assertSame($expectedName, $this->dbal->sqlField('some-field', 'some - label'));
     }
 
     public function testSqlFieldEscape()
     {
-        $dbal = $this->factory->dbal($this->factory->settings([]));
         $expectedName = '[some-field] AS [some - label]';
-        $this->assertSame($expectedName, $dbal->sqlFieldEscape('some-field', 'some - label'));
+        $this->assertSame($expectedName, $this->dbal->sqlFieldEscape('some-field', 'some - label'));
     }
 
     public function testSqlTable()
     {
-        $dbal = $this->factory->dbal($this->factory->settings([
+        $this->setupDbalWithSettings([
             'prefix' => 'foo_',
-        ]));
+        ]);
         $expectedName = '[foo_bar] AS [x]';
-        $this->assertSame($expectedName, $dbal->sqlTable('bar', 'x'));
+        $this->assertSame($expectedName, $this->dbal->sqlTable('bar', 'x'));
         $expectedNoSuffix = '[bar] AS [x]';
-        $this->assertSame($expectedNoSuffix, $dbal->sqlTableEscape('bar', 'x'));
+        $this->assertSame($expectedNoSuffix, $this->dbal->sqlTableEscape('bar', 'x'));
     }
 
     public function testSqlString()
