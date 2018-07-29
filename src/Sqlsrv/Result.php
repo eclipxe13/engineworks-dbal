@@ -87,6 +87,8 @@ class Result implements ResultInterface
     public function __destruct()
     {
         $this->stmt->closeCursor();
+        // attatch this unset, otherwise it created a segment violation
+        unset($this->stmt);
     }
 
     public function getFields(): array
