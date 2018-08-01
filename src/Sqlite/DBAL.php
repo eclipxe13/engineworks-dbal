@@ -88,7 +88,7 @@ class DBAL extends AbstractDBAL
             $this->logger->error("FAIL: $query\nLast message:" . $ex->getMessage());
         }
         if (false !== $exec) {
-            return $this->sqlite()->changes();
+            return max(0, $this->sqlite()->changes());
         }
         return false;
     }
