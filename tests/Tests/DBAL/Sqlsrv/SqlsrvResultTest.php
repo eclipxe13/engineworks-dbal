@@ -4,9 +4,9 @@ namespace EngineWorks\DBAL\Tests\DBAL\Sqlsrv;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Iterators\ResultIterator;
 use EngineWorks\DBAL\Result;
-use EngineWorks\DBAL\Tests\WithSqlsrvDatabaseTestCase;
+use EngineWorks\DBAL\Tests\SqlsrvWithDatabaseTestCase;
 
-class SqlsrvResultTest extends WithSqlsrvDatabaseTestCase
+class SqlsrvResultTest extends SqlsrvWithDatabaseTestCase
 {
     /** @var Result */
     protected $result;

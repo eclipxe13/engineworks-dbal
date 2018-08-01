@@ -6,6 +6,7 @@ use EngineWorks\DBAL\DBAL as AbstractDBAL;
 use EngineWorks\DBAL\Traits\MethodSqlConcatenate;
 use EngineWorks\DBAL\Traits\MethodSqlQuote;
 use PDO;
+use PDOStatement;
 
 /**
  * MS Sql Server implementation based on SqlSrv
@@ -104,23 +105,32 @@ class DBAL extends AbstractDBAL
      * This is the internal function to do the query according to the database functions
      * It's used by queryResult and queryAffectedRows methods
      * @param string $query
-     * @return \PDOStatement|false
+     * @param bool $returnAffectedRows
+     * @return PDOStatement|int|false
      */
-    protected function queryDriver($query)
+    protected function queryDriver($query, bool $returnAffectedRows)
     {
         $this->logger->debug($query);
         try {
-            $stmt = $this->pdo()->prepare($query, [
-                PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL,
-                PDO::SQLSRV_ATTR_DIRECT_QUERY => true,
-            ]);
-            if (false === $stmt) {
-                throw new \RuntimeException("Unable to prepare statement $query");
+            if ($returnAffectedRows) {
+                $affectedRows = $this->pdo()->exec($query);
+                if (false === $affectedRows) {
+                    throw new \RuntimeException("Unable to execute statement $query");
+                }
+                return $affectedRows;
+            } else {
+                $stmt = $this->pdo()->prepare($query, [
+                    PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL,
+                    PDO::SQLSRV_ATTR_DIRECT_QUERY => true,
+                ]);
+                if (false === $stmt) {
+                    throw new \RuntimeException("Unable to prepare statement $query");
+                }
+                if (false === $stmt->execute()) {
+                    throw new \RuntimeException("Unable to execute statement $query");
+                }
+                return $stmt;
             }
-            if (false === $stmt->execute()) {
-                throw new \RuntimeException("Unable to execute statement $query");
-            }
-            return $stmt;
         } catch (\Throwable $ex) {
             $this->logger->info("-- Query fail with SQL: $query");
             $this->logger->error("FAIL: $query\nLast message:" . $this->getLastMessage());
@@ -130,8 +140,8 @@ class DBAL extends AbstractDBAL
 
     public function queryResult(string $query, array $overrideTypes = [])
     {
-        $stmt = $this->queryDriver($query);
-        if (false !== $stmt) {
+        $stmt = $this->queryDriver($query, false);
+        if ($stmt instanceof PDOStatement) {
             return new Result($stmt, $overrideTypes);
         }
         return false;
@@ -139,9 +149,9 @@ class DBAL extends AbstractDBAL
 
     protected function queryAffectedRows(string $query)
     {
-        $stmt = $this->queryDriver($query);
-        if (false !== $stmt) {
-            return $stmt->rowCount();
+        $affectedRows = $this->queryDriver($query, true);
+        if (is_int($affectedRows)) {
+            return max(0, $affectedRows);
         }
         return false;
     }

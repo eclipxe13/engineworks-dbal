@@ -126,7 +126,7 @@ class DBAL extends AbstractDBAL
     {
         $stmt = $this->queryDriver($query);
         if (false !== $stmt) {
-            return new Result($stmt, -1, $overrideTypes);
+            return new Result($stmt, $stmt->rowCount(), $overrideTypes);
         }
         return false;
     }
@@ -135,7 +135,7 @@ class DBAL extends AbstractDBAL
     {
         $stmt = $this->queryDriver($query);
         if (false !== $stmt) {
-            return $stmt->rowCount();
+            return max(0, $stmt->rowCount());
         }
         return false;
     }

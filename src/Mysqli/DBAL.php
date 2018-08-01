@@ -130,7 +130,7 @@ class DBAL extends AbstractDBAL
     protected function queryAffectedRows(string $query)
     {
         if (false !== $this->queryDriver($query)) {
-            return $this->mysqli()->affected_rows;
+            return max(0, $this->mysqli()->affected_rows);
         }
         return false;
     }

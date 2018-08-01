@@ -1,3 +1,14 @@
+# Version 2.0.2 2018-08-01
+
+- Sqlsrv\DBAL::queryDriver allow to aks only for affected rows
+  When ask for affected rows it execute instead of prepare statement and execute,  performance increased!
+- Make sure that queryAffectedRows always return false or integer greater or equal than zero in all drivers
+- Tests:
+    - Rename WithSqlsrvDatabaseTestCase to SqlsrvWithDatabaseTestCase
+    - Fix environment config for Sqlsrv
+    - Test behavior of NOCOUNT setting into MS Sql Server drivers
+
+
 # Version 2.0.1 2018-07-29
 
 - Add `connect-timeout` option to `Sqlsrv` driver
@@ -6,7 +17,9 @@
 - Composer: fix require, require-dev & suggest sections
 - Composer: rename scripts names (prefix with "dev:" and add descriptions)
 
+
 # version 2.0.0 2018-07-27
+
 - Set minimal php version to PHP 7.0
 - Add type declarations to arguments and returns
 - Add `DBAL::sqlIn` to better queries using `IN` and empty arrays

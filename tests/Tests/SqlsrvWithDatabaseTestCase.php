@@ -1,7 +1,7 @@
 <?php
 namespace EngineWorks\DBAL\Tests;
 
-class WithSqlsrvDatabaseTestCase extends WithDatabaseTestCase
+class SqlsrvWithDatabaseTestCase extends WithDatabaseTestCase
 {
     protected function checkIsAvailable()
     {
@@ -30,7 +30,7 @@ class WithSqlsrvDatabaseTestCase extends WithDatabaseTestCase
             'user' => getenv('testSqlsrv_username'),
             'password' => getenv('testSqlsrv_password'),
             'connect-timeout' => getenv('testSqlsrv_connect_timeout'),
-            'freetds-version' => getenv('testSqlsrv_freetds_version'),
+            'timeout' => getenv('testSqlsrv_timeout'),
         ];
     }
 
@@ -56,8 +56,8 @@ class WithSqlsrvDatabaseTestCase extends WithDatabaseTestCase
             . ' votes INTEGER NULL,'
             . ' lastview DATETIME NULL,'
             . ' isfree BIT NOT NULL,'
-            . ' collect DECIMAL(12, 2) NOT NULL DEFAULT 0)'
-            . ';',
+            . ' collect DECIMAL(12, 2) NOT NULL DEFAULT 0'
+            . ');',
         ];
         $this->executeStatements($statements);
     }
