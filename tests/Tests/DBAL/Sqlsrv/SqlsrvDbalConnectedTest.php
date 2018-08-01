@@ -7,9 +7,9 @@ use EngineWorks\DBAL\Tests\DBAL\TesterCases\TransactionsTester;
 use EngineWorks\DBAL\Tests\DBAL\TesterTraits\DbalQueriesTrait;
 use EngineWorks\DBAL\Tests\DBAL\TesterTraits\TransactionsPreventCommitTestTrait;
 use EngineWorks\DBAL\Tests\DBAL\TesterTraits\TransactionsWithExceptionsTestTrait;
-use EngineWorks\DBAL\Tests\WithSqlsrvDatabaseTestCase;
+use EngineWorks\DBAL\Tests\SqlsrvWithDatabaseTestCase;
 
-class SqlsrvDbalConnectedTest extends WithSqlsrvDatabaseTestCase
+class SqlsrvDbalConnectedTest extends SqlsrvWithDatabaseTestCase
 {
     // composite with transactions trait
     use TransactionsPreventCommitTestTrait;
