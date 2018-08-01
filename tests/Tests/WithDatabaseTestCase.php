@@ -112,11 +112,16 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
     protected function executeStatements(array $statements)
     {
         foreach ($statements as $statement) {
-            $execute = $this->dbal->execute($statement);
-            if (false === $execute) {
-                print_r($this->logger->messages(LogLevel::ERROR));
-                $this->fail(get_class($this) . ' statement fail: ' . $statement);
-            }
+            $this->executeStatement($statement);
+        }
+    }
+
+    public function executeStatement(string $statement)
+    {
+        $execute = $this->dbal->execute($statement);
+        if (false === $execute) {
+            print_r($this->logger->messages(LogLevel::ERROR));
+            $this->fail(get_class($this) . ' statement fail: ' . $statement);
         }
     }
 
