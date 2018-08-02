@@ -1,6 +1,8 @@
 <?php
 namespace EngineWorks\DBAL;
 
+use EngineWorks\DBAL\Exceptions\QueryException;
+
 /**
  * Pagination
  * @package EngineWorks\DBAL
@@ -242,7 +244,7 @@ class Pager
             . ';';
         $value = (int) $this->dbal->queryOne($query, -1);
         if (-1 === $value) {
-            throw new \RuntimeException("Unable to query the record count using a subquery: $query");
+            throw new QueryException($query, 'Unable to query the record count using a subquery');
         }
         return $value;
     }
@@ -252,7 +254,7 @@ class Pager
         $query = $this->getQueryCount();
         $value = (int) $this->dbal->queryOne($query, -1);
         if (-1 === $value) {
-            throw new \RuntimeException("Unable to query the record count using a query: $query");
+            throw new QueryException($query, 'Unable to query the record count using a query');
         }
         return $value;
     }
