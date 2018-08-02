@@ -1,6 +1,7 @@
 <?php
 namespace EngineWorks\DBAL;
 
+use EngineWorks\DBAL\Exceptions\QueryException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -317,7 +318,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param array $values
      * @param string $commonType
      * @param bool $includeNull
-     * @return string|false example "(1, 3, 5)", false if the array is empty
+     * @return string example "(1, 3, 5)"
      * @throws \RuntimeException if the array of values is empty
      */
     final public function sqlQuoteIn(array $values, string $commonType = CommonTypes::TTEXT, bool $includeNull = false)
@@ -757,12 +758,37 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         array $overrideKeys = [],
         array $overrideTypes = []
     ) {
-        $recordset = new Recordset($this);
         try {
-            $recordset->query($query, $overrideEntity, $overrideKeys, $overrideTypes);
+            $recordset = $this->createRecordset($query, $overrideEntity, $overrideKeys, $overrideTypes);
         } catch (\Throwable $exception) {
             $this->logger->error("DBAL::queryRecordset failure running $query");
             return false;
+        }
+        return $recordset;
+    }
+
+    /**
+     * This is an strict mode of queryRecordset but throws an exception instead of return FALSE
+     *
+     * @param string $query
+     * @param string $overrideEntity
+     * @param array $overrideKeys
+     * @param array $overrideTypes
+     * @see DBAL::queryRecordset()
+     * @throws QueryException if some error occurs when creating the Recordset object or getting the page
+     * @return Recordset
+     */
+    final public function createRecordset(
+        string $query,
+        string $overrideEntity = '',
+        array $overrideKeys = [],
+        array $overrideTypes = []
+    ): Recordset {
+        try {
+            $recordset = new Recordset($this);
+            $recordset->query($query, $overrideEntity, $overrideKeys, $overrideTypes);
+        } catch (\Throwable $exception) {
+            throw new QueryException($query, null, 0, $exception);
         }
         return $recordset;
     }
@@ -774,6 +800,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param string $queryCount
      * @param int $page if -1 then it will query all records (not paged)
      * @param int $recordsPerPage
+     * @see DBAL::createPager()
      * @return Pager|false
      */
     final public function queryPager(
@@ -782,14 +809,47 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         int $page = 1,
         int $recordsPerPage = 20
     ) {
-        $pager = new Pager($this, $querySelect, $queryCount);
-        $pager->setPageSize($recordsPerPage);
-        $success = ($page == -1) ? $pager->queryAll() : $pager->queryPage($page);
-        if (! $success) {
+        try {
+            return $this->createPager($querySelect, $queryCount, $page, $recordsPerPage);
+        } catch (\Throwable $exception) {
             $this->logger->error("DBAL::queryPager failure running $querySelect");
             return false;
         }
-        return $pager;
+    }
+
+    /**
+     * This is an strict mode of queryPager but throws an exception instead of return FALSE
+     *
+     * @param string $querySelect
+     * @param string $queryCount
+     * @param int $page
+     * @param int $recordsPerPage
+     * @see DBAL::queryPager()
+     * @throws QueryException if some error occurs when creating the Pager object or getting the page
+     * @return Pager
+     */
+    final public function createPager(
+        string $querySelect,
+        string $queryCount = '',
+        int $page = 1,
+        int $recordsPerPage = 20
+    ): Pager {
+        $previous = null;
+        try {
+            $pager = new Pager($this, $querySelect, $queryCount);
+            $pager->setPageSize($recordsPerPage);
+            $success = ($page == -1) ? $pager->queryAll() : $pager->queryPage($page);
+            if (! $success) {
+                $pager = false;
+            }
+        } catch (\Throwable $exception) {
+            $previous = $exception;
+            $pager = false;
+        }
+        if ($pager instanceof Pager) {
+            return $pager;
+        }
+        throw new QueryException($querySelect, null, 0, $previous);
     }
 
     /**

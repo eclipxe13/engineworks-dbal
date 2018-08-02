@@ -1,3 +1,10 @@
+# Version 2.1.0 2018-08-01
+
+- Add strict methods to `DBAL` as the first attempt to remove *returning false* practice
+    - `DBAL::createRecordset(...): Recordset`
+    - `DBAL::createPager(...): Pager`
+- Introduce `DBAL\Exceptions\QueryException` and is used when `createRecordset` or `createPager` found an error.
+
 # Version 2.0.2 2018-08-01
 
 - Sqlsrv\DBAL::queryDriver allow to aks only for affected rows

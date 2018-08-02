@@ -3,6 +3,7 @@ namespace EngineWorks\DBAL\Tests\DBAL\TesterTraits;
 
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\DBAL;
+use EngineWorks\DBAL\Exceptions\QueryException;
 use EngineWorks\DBAL\Result;
 use EngineWorks\DBAL\Tests\DBAL\Sample\ArrayLogger;
 
@@ -315,5 +316,21 @@ trait DbalQueriesTrait
         ];
 
         $this->assertArraySubset($expectedFields, $result->getFields());
+    }
+
+    public function testCreateRecordsetWithInvalidQueryCreatesException()
+    {
+        $query = 'select * from nonexistent';
+        $this->expectException(QueryException::class);
+        $this->expectExceptionMessage($query);
+        $this->getDbal()->createRecordset($query);
+    }
+
+    public function testCreatePagerWithInvalidQueryCreatesException()
+    {
+        $query = 'select * from nonexistent';
+        $this->expectException(QueryException::class);
+        $this->expectExceptionMessage($query);
+        $this->getDbal()->createPager($query);
     }
 }

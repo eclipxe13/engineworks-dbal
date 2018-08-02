@@ -1,7 +1,6 @@
 <?php
 namespace EngineWorks\DBAL\Tests\DBAL\TesterTraits;
 
-/** @var $this \EngineWorks\DBAL\Tests\WithDatabaseTestCase */
 trait MsSqlServerNoCountSettingTrait
 {
     protected $heavyNumCount = 5000;
