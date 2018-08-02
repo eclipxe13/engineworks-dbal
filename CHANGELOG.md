@@ -1,3 +1,8 @@
+# Version 2.1.1 2018-08-01
+
+- `DBAL\Exceptions\QueryException` does not exposes the query in the exception message,
+  if you need the query check the `getQuery()` method. 
+
 # Version 2.1.0 2018-08-01
 
 - Add strict methods to `DBAL` as the first attempt to remove *returning false* practice

@@ -322,7 +322,7 @@ trait DbalQueriesTrait
     {
         $query = 'select * from nonexistent';
         $this->expectException(QueryException::class);
-        $this->expectExceptionMessage($query);
+        $this->expectExceptionMessage('Unable to create a valid Recordset');
         $this->getDbal()->createRecordset($query);
     }
 
@@ -330,7 +330,7 @@ trait DbalQueriesTrait
     {
         $query = 'select * from nonexistent';
         $this->expectException(QueryException::class);
-        $this->expectExceptionMessage($query);
+        $this->expectExceptionMessage('Unable to create a valid Pager');
         $this->getDbal()->createPager($query);
     }
 }

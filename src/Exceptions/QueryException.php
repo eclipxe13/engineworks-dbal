@@ -8,12 +8,10 @@ class QueryException extends \RuntimeException
     /** @var string */
     private $query;
 
-    public function __construct(string $query = '', string $prefix = null, int $code = 0, Throwable $previous = null)
+    public function __construct(string $message = '', string $query = '', int $code = 0, Throwable $previous = null)
     {
-        if (null === $prefix) {
-            $prefix = 'Unable to perform query';
-        }
-        parent::__construct("$prefix: $query", $code, $previous);
+        parent::__construct($message, $code, $previous);
+        $this->query = $query;
     }
 
     public function getQuery(): string

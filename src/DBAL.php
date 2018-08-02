@@ -788,7 +788,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
             $recordset = new Recordset($this);
             $recordset->query($query, $overrideEntity, $overrideKeys, $overrideTypes);
         } catch (\Throwable $exception) {
-            throw new QueryException($query, null, 0, $exception);
+            throw new QueryException('Unable to create a valid Recordset', $query, 0, $exception);
         }
         return $recordset;
     }
@@ -849,7 +849,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         if ($pager instanceof Pager) {
             return $pager;
         }
-        throw new QueryException($querySelect, null, 0, $previous);
+        throw new QueryException('Unable to create a valid Pager', $querySelect, 0, $previous);
     }
 
     /**

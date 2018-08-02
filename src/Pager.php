@@ -244,7 +244,7 @@ class Pager
             . ';';
         $value = (int) $this->dbal->queryOne($query, -1);
         if (-1 === $value) {
-            throw new QueryException($query, 'Unable to query the record count using a subquery');
+            throw new QueryException('Unable to query the record count using a subquery', $query);
         }
         return $value;
     }
@@ -254,7 +254,7 @@ class Pager
         $query = $this->getQueryCount();
         $value = (int) $this->dbal->queryOne($query, -1);
         if (-1 === $value) {
-            throw new QueryException($query, 'Unable to query the record count using a query');
+            throw new QueryException('Unable to query the record count using a query', $query);
         }
         return $value;
     }
