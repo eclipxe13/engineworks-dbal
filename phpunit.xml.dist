@@ -6,10 +6,9 @@
     verbose="true"
     stopOnFailure="false"
     processIsolation="false"
-    backupGlobals="false"
-    syntaxCheck="true">
+    backupGlobals="false">
     <testsuites>
-        <testsuite>
+        <testsuite name="default">
             <directory suffix="Test.php">./tests</directory>
         </testsuite>
     </testsuites>

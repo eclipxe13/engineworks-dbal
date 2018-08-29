@@ -126,7 +126,7 @@ trait DbalQueriesTrait
     public function testQueryArrayValues()
     {
         $sql = 'SELECT * FROM albums WHERE (albumid BETWEEN 1 AND 5) ORDER BY albumid;';
-        $arrayValues = $this->getDbal()->queryArrayValues($sql, $this->overrideTypes());
+        $arrayValues = $this->getDbal()->queryArrayValues($sql, $this->overrideTypes()) ?: [];
         $this->assertInternalType('array', $arrayValues);
         $this->assertCount(5, $arrayValues);
 

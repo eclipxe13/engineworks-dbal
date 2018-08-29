@@ -56,7 +56,8 @@ class Result implements ResultInterface
             return $this->cachedGetFields;
         }
         $fields = [];
-        foreach ($this->query->fetch_fields() as $fetched) {
+        $fetchedFields = $this->query->fetch_fields() ?: [];
+        foreach ($fetchedFields as $fetched) {
             $fields[] = [
                 'name' => $fetched->name,
                 'commontype' => $this->getCommonType($fetched),

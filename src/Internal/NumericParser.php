@@ -25,7 +25,7 @@ class NumericParser
 
         // is object, convert to string
         if (is_object($value)) {
-            $value = (string) $value;
+            $value = strval($value);
         }
         // is not string, early exit with 0
         if (! is_string($value)) {

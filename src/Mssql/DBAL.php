@@ -92,11 +92,11 @@ class DBAL extends AbstractDBAL
 
     public function sqlString($variable): string
     {
-        // there are no function to escape without a link
-        if ('' === 'THIS IS NOT WORKING WITH MULTIBYTE STRINGS' && $this->isConnected()) {
-            $quoted = $this->pdo()->quote($variable);
-            return substr($quoted, 1, strlen($quoted) - 2);
-        }
+        // there are no function to escape without a link, it fails on multibyte strings
+        //if ($this->isConnected()) {
+        //    $quoted = $this->pdo()->quote($variable);
+        //    return substr($quoted, 1, strlen($quoted) - 2);
+        //}
         return str_replace(["\0", "'"], ['', "''"], $variable);
     }
 

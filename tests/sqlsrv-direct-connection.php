@@ -18,7 +18,11 @@ exit(call_user_func(function ($arguments): int {
         );
 
         $sql = 'SELECT @@VERSION;';
-        $version = implode(' ', $pdo->query($sql)->fetch(PDO::FETCH_NUM) ?? []);
+        $statement = $pdo->query($sql);
+        if (false === $statement) {
+            throw new \RuntimeException("Cannot create statement to query: $sql");
+        }
+        $version = implode(' ', $statement->fetch(PDO::FETCH_NUM) ?? []);
         echo PHP_EOL, $sql, PHP_EOL, $version, PHP_EOL;
     } catch (\Throwable $exception) {
         file_put_contents('php://stderr', $exception->getMessage() . PHP_EOL, FILE_APPEND);

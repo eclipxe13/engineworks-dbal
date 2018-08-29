@@ -114,7 +114,7 @@ class DBAL extends AbstractDBAL
         try {
             if ($returnAffectedRows) {
                 $affectedRows = $this->pdo()->exec($query);
-                if (false === $affectedRows) {
+                if (! is_int($affectedRows)) {
                     throw new \RuntimeException("Unable to execute statement $query");
                 }
                 return $affectedRows;
@@ -123,7 +123,7 @@ class DBAL extends AbstractDBAL
                     PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL,
                     PDO::SQLSRV_ATTR_DIRECT_QUERY => true,
                 ]);
-                if (false === $stmt) {
+                if (! ($stmt instanceof PDOStatement)) {
                     throw new \RuntimeException("Unable to prepare statement $query");
                 }
                 if (false === $stmt->execute()) {

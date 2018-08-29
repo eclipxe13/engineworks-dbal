@@ -48,7 +48,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         return $result;
     }
 
-    public function getFixedValuesWithLabels($idFrom = 1, $idTo = 10): array
+    public function getFixedValuesWithLabels(int $idFrom = 1, int $idTo = 10): array
     {
         $array = $this->getFixedValues($idFrom, $idTo);
         $keys = ['albumid', 'title', 'votes', 'lastview', 'isfree', 'collect'];
@@ -59,7 +59,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         return $array;
     }
 
-    protected function getFixedValues($idFrom = 1, $idTo = 10): array
+    protected function getFixedValues(int $idFrom = 1, int $idTo = 10): array
     {
         $values = [
             [1, 'Zelda Brakus III', 0, 1468513306, false, 1930.52],

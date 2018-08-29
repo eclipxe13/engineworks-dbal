@@ -1,7 +1,17 @@
+# Version 2.1.2 2018-08-28
+
+- Improve `DBAL` docblocks
+- Add `DBAL::createQueryException` to create a new `QueryException` with DBAL::getLastMessage() or `Database error`
+- Fix issues found by pedantic phpstan 0.10.3 (with love!)
+- Fix composer dependences:
+    - phpunit compatible with version 7.0 and 7.3
+    - phpstan-shim compatible with PHP version 7.0 and 7.3
+- Fix `phpunit.xml.dist` removing `syntaxCheck` attribute and add `testsuite@name` attribute
+
 # Version 2.1.1 2018-08-01
 
 - `DBAL\Exceptions\QueryException` does not exposes the query in the exception message,
-  if you need the query check the `getQuery()` method. 
+  if you need the query check the `getQuery()` method.
 
 # Version 2.1.0 2018-08-01
 

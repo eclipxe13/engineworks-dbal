@@ -27,9 +27,10 @@ class DBAL extends AbstractDBAL
         // create the sqlite3 object without error reporting
         $level = error_reporting(0);
         try {
+            $defaultFlags = SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE;
             $this->sqlite = new SQLite3(
                 (string) $this->settings->get('filename', ':memory:'),
-                ($this->settings->exists('flags')) ? (int) $this->settings->get('flags') : null
+                ($this->settings->exists('flags')) ? (int) $this->settings->get('flags') : $defaultFlags
             );
         } catch (\Throwable $ex) {
             $this->logger->info('-- Connection fail');
@@ -61,7 +62,7 @@ class DBAL extends AbstractDBAL
 
     public function lastInsertedID(): int
     {
-        return (int) $this->sqlite()->lastInsertRowID();
+        return $this->sqlite()->lastInsertRowID();
     }
 
     public function sqlString($variable): string
@@ -71,7 +72,8 @@ class DBAL extends AbstractDBAL
 
     public function queryResult(string $query, array $overrideTypes = [])
     {
-        if (false !== $rslt = @$this->sqlite()->query($query)) {
+        $rslt = @$this->sqlite()->query($query);
+        if (false !== $rslt) {
             return new Result($rslt, $overrideTypes);
         }
         return false;

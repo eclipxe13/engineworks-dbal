@@ -265,7 +265,7 @@ class Pager
      */
     public function getTotalPages(): int
     {
-        return max(1, ceil($this->getTotalCount() / $this->getPageSize()));
+        return max(1, intval(ceil($this->getTotalCount() / $this->getPageSize())));
     }
 
     /**

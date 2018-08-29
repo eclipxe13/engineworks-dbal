@@ -85,7 +85,7 @@ class Result implements ResultInterface
             return false;
         }
         $values = $this->query->fetchArray($mode);
-        if (false === $values) {
+        if (! is_array($values)) {
             $this->hasReachEOL = true;
         }
         return $values;

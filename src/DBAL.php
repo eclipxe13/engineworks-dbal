@@ -12,9 +12,6 @@ use Psr\Log\NullLogger;
  */
 abstract class DBAL implements CommonTypes, LoggerAwareInterface
 {
-    /* -----
-     * Logger
-     */
     use LoggerAwareTrait;
 
     /**
@@ -24,10 +21,6 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     {
         return $this->logger;
     }
-
-    /* -----
-     * protected variables about the object
-     */
 
     /**
      * Settings object
@@ -47,10 +40,6 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      */
     protected $preventCommit = false;
 
-    /* -----
-     * magic methods
-     */
-
     /**
      * @param Settings $settings
      * @param LoggerInterface|null $logger If null then a NullLogger will be used
@@ -68,10 +57,6 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     {
         $this->disconnect();
     }
-
-    /* -----
-     * public methods (to override)
-     */
 
     /**
      * Try to connect to the database with the current configured options
@@ -166,7 +151,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     }
 
     /**
-     * start a transaction
+     * Start a transaction
      * @return void
      */
     final public function transBegin()
@@ -207,7 +192,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     }
 
     /**
-     * rollback a transaction
+     * Rollback a transaction
      * @return void
      */
     final public function transRollback()
@@ -454,7 +439,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
             ($matchAnyTerm) ? ' OR ' : ' AND ',
             array_map(function (string $term) use ($fieldName): string {
                 return '(' . $this->sqlLike($fieldName, $term) . ')';
-            }, array_unique(array_filter(explode($termsSeparator, $searchTerms))))
+            }, array_unique(array_filter(explode($termsSeparator, $searchTerms) ?: [])))
         );
     }
 
@@ -503,14 +488,11 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      */
     abstract protected function getLastErrorMessage(): string;
 
-    /* -----
-     * public methods (finals, not to override)
-     */
-
     /**
      * Executes a query and return the affected rows
+     *
      * @param string $query
-     * @param string $exceptionMessage
+     * @param string $exceptionMessage Throws QueryException with message on error
      * @return int|false Number of affected rows or FALSE on error
      * @throws \RuntimeException if the result is FALSE and the $exceptionMessage was set
      */
@@ -520,7 +502,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         if (false === $return) {
             if ('' !== $exceptionMessage) {
                 $previous = $this->getLastErrorMessage() ? new \RuntimeException($this->getLastErrorMessage()) : null;
-                throw new \RuntimeException($exceptionMessage, 0, $previous);
+                throw new QueryException($exceptionMessage, $query, 0, $previous);
             }
             return false;
         }
@@ -545,8 +527,8 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     }
 
     /**
-     * Get the first field an( row of a query
-     * Returns false if error or empty
+     * Get the first field in row of a query
+     *
      * @param string $query
      * @param mixed $default
      * @return mixed
@@ -558,7 +540,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * Get the first row of a query
-     * Returns false if error or empty row
+     *
      * @param string $query
      * @return array|false
      */
@@ -579,7 +561,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * Get the first row of a query, the values are in common types
-     * Returns false if error or empty row
+     *
      * @param string $query
      * @param array $overrideTypes
      * @return array|false
@@ -598,7 +580,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * Get an array of rows of a query
-     * Returns false if error
+     *
      * @param string $query
      * @return array|false
      */
@@ -618,7 +600,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * Get an array of rows of a query, the values are in common types
-     * Returns false if error
+     *
      * @param string $query
      * @param array $overrideTypes
      * @return array|false
@@ -641,7 +623,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     /**
      * Get an array of rows of a query
      * It uses the keyField as index of the array
-     * Returns false if error
+     *
      * @param string $query
      * @param string $keyField
      * @param string $keyPrefix
@@ -655,7 +637,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         }
 
         $return = [];
-        while (false !== $row = $result->fetchRow()) {
+        while ($row = $result->fetchRow()) {
             if (! array_key_exists($keyField, $row)) {
                 return false;
             }
@@ -668,7 +650,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Return a one dimension array with keys and values defined by keyField and valueField
      * The resulting array keys can have a prefix defined by keyPrefix
      * If two keys collapse then the last value will be used
-     * Always return an array, even if fail
+     * Always return an array, even if it fails
      *
      * @param string $query
      * @param string $keyField
@@ -694,7 +676,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * Return one dimensional array with the values of one column of the query
-     * if the field is not set then the function will take the first column
+     * If the field is not set then the function will take the first column
      *
      * @param string $query
      * @param string $field
@@ -709,7 +691,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
         $return = [];
         $verifiedFieldName = false;
-        while (false !== $row = $result->fetchRow()) {
+        while ($row = $result->fetchRow()) {
             if ('' === $field) {
                 $keys = array_keys($row);
                 $field = $keys[0];
@@ -846,10 +828,11 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
             $previous = $exception;
             $pager = false;
         }
-        if ($pager instanceof Pager) {
-            return $pager;
+        if (! ($pager instanceof Pager)) {
+            throw new QueryException('Unable to create a valid Pager', $querySelect, 0, $previous);
         }
-        throw new QueryException('Unable to create a valid Pager', $querySelect, 0, $previous);
+
+        return $pager;
     }
 
     /**
@@ -863,5 +846,17 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
             return $this->getLastErrorMessage();
         }
         return '';
+    }
+
+    /**
+     * Creates a QueryException with the last message, if no last message exists then uses 'Database error'
+     *
+     * @param string $query
+     * @param \Throwable|null $previous
+     * @return QueryException
+     */
+    final public function createQueryException(string $query, \Throwable $previous = null): QueryException
+    {
+        return new QueryException($this->getLastMessage() ?: 'Database error', $query, 0, $previous);
     }
 }

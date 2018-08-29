@@ -307,7 +307,7 @@ class Recordset implements \IteratorAggregate, \Countable
         }
         // do not continue using the object, convert to string
         if (is_object($current)) {
-            $current = (string) $current;
+            $current = strval($current);
         }
         // simple comparison
         return ($original != $current);
@@ -478,7 +478,7 @@ class Recordset implements \IteratorAggregate, \Countable
                     $diffs[] = $name;
                 }
             }
-            $this->logger->warning(print_r([
+            $this->logger->warning((string) print_r([
                 'message' => "Recordset: The statement $sql return zero affected rows but the values are different",
                 'entity' => $this->entity,
                 'extraWhereClause' => $extraWhereClause,
@@ -508,7 +508,7 @@ class Recordset implements \IteratorAggregate, \Countable
         $sql = $this->sqlDelete($extraWhereClause);
         $altered = $this->dbal->execute($sql);
         if (0 === $altered) {
-            $this->logger->warning(print_r([
+            $this->logger->warning((string) print_r([
                 'message' => "Recordset: The statement '$sql' return zero affected rows"
                     . ' but it should delete at least one record',
                 'entity' => $this->entity,

@@ -134,8 +134,8 @@ class SqlQuoteTester
 
     public function testSqlQuoteWithLocale(string $locale, string $expected, string $value)
     {
-        $currentNumeric = setlocale(LC_NUMERIC, '0');
-        $currentMonetary = setlocale(LC_MONETARY, '0');
+        $currentNumeric = strval(setlocale(LC_NUMERIC, '0'));
+        $currentMonetary = strval(setlocale(LC_MONETARY, '0'));
 
         // mark skipped if not found
         if (false === setlocale(LC_NUMERIC, $locale) || false === setlocale(LC_MONETARY, $locale)) {
