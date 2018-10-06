@@ -309,6 +309,10 @@ class Recordset implements \IteratorAggregate, \Countable
         if (is_object($current)) {
             $current = strval($current);
         }
+        // strict comparison if types are strings
+        if (is_string($original) && is_string($current)) {
+            return ($original !== $current);
+        }
         // simple comparison
         return ($original != $current);
     }

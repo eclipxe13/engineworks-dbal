@@ -1,3 +1,9 @@
+# Version 2.1.3 2018-10-05
+
+- Fix bug when comparing if values had changed when comparing two strings in a recordset
+  it have issues when updating values like "1" to "01". To fix it uses strict comparison when
+  original value and current value are strings.
+
 # Version 2.1.2 2018-08-28
 
 - Improve `DBAL` docblocks
