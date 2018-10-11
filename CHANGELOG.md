@@ -1,3 +1,7 @@
+# Version 2.1.4 DEVELOPMENT
+
+- Fix parameter name on DBAL::sqlFieldEscape from $tableName to $fieldName
+
 # Version 2.1.3 2018-10-05
 
 - Fix bug when comparing if values had changed when comparing two strings in a recordset

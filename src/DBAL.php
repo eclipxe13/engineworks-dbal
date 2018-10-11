@@ -277,11 +277,11 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Escapes a table name to not get confused with reserved words or invalid chars.
      * Optionaly renames it as an alias.
      *
-     * @param string $tableName
+     * @param string $fieldName
      * @param string $asTable
      * @return string
      */
-    abstract public function sqlFieldEscape(string $tableName, string $asTable = ''): string;
+    abstract public function sqlFieldEscape(string $fieldName, string $asTable = ''): string;
 
     /**
      * Parses a value to secure SQL
