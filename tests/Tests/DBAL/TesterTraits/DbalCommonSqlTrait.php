@@ -59,6 +59,18 @@ trait DbalCommonSqlTrait
         $dbal->sqlQuoteIn([]);
     }
 
+    public function testSqlIsNull()
+    {
+        $dbal = $this->getDbal();
+        $this->assertSame('foo IS NULL', $dbal->sqlIsNull('foo'));
+    }
+
+    public function testSqlIfNull()
+    {
+        $dbal = $this->getDbal();
+        $this->assertSame('IFNULL(foo, bar)', $dbal->sqlIfNull('foo', 'bar'));
+    }
+
     public function testSqlIn()
     {
         $dbal = $this->getDbal();

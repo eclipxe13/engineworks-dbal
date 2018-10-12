@@ -1,6 +1,11 @@
-# Version 2.1.4 DEVELOPMENT
+# Future breaking changes
+
+- Change minimal version to PHP 7.2
+
+# Version 2.2.0 DEVELOPMENT
 
 - Fix parameter name on DBAL::sqlFieldEscape from $tableName to $fieldName
+- Move test from driver specification to DbalCommonSqlTrait on testSqlIsNull & testSqlIfNull
 
 # Version 2.1.3 2018-10-05
 
