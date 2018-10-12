@@ -2,12 +2,15 @@
 
 - Change minimal version to PHP 7.2
 - Parameter to negate DBAL::sqlIsNull will be deprecated
+- Parameter to negate DBAL::sqlIn will be deprecated
 
 # Version 2.2.0 DEVELOPMENT
 
 - Fix parameter name on DBAL::sqlFieldEscape from $tableName to $fieldName
 - Add DBAL::sqlIsNotNull as a negative to DBAL::sqlIsNull
 - Add notice if using DBAL::sqlIsNull with negation
+- Add DBAL::sqlNotIn as a negative to DBAL::sqlIn but if elements are empty then return a true condition
+- Add notice if using DBAL::sqlIn with negation
 - Move test from driver specification to DbalCommonSqlTrait on testSqlIsNull & testSqlIfNull
 
 # Version 2.1.3 2018-10-05

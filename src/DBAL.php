@@ -339,11 +339,43 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         string $commonType = CommonTypes::TTEXT,
         bool $positive = true,
         bool $includeNull = false
-    ) {
+    ): string {
+        if (! $positive) {
+            trigger_error(
+                __METHOD__ . ' with argument $positive = false is deprecated, use DBAL::sqlNotIn',
+                E_USER_NOTICE
+            );
+            return $this->sqlNotIn($field, $values, $commonType, $includeNull);
+        }
         if (0 === count($values)) {
             return '0 = 1';
         }
-        return $field . ((! $positive) ? ' NOT' : '') . ' IN ' . $this->sqlQuoteIn($values, $commonType, $includeNull);
+        return $field . ' IN ' . $this->sqlQuoteIn($values, $commonType, $includeNull);
+    }
+
+    /**
+     * Return a NEGATIVE comparison condition using IN operator
+     * If the array of values is empty then create an always true condition "1 = 1"
+     *
+     * @see sqlQuoteIn
+     *
+     * @param string $field
+     * @param array $values
+     * @param string $commonType
+     * @param bool $includeNull
+     *
+     * @return string
+     */
+    final public function sqlNotIn(
+        string $field,
+        array $values,
+        string $commonType = CommonTypes::TTEXT,
+        bool $includeNull = false
+    ): string {
+        if (0 === count($values)) {
+            return '1 = 1';
+        }
+        return $field . ' NOT IN ' . $this->sqlQuoteIn($values, $commonType, $includeNull);
     }
 
     /**
