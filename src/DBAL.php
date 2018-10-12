@@ -369,7 +369,25 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      */
     final public function sqlIsNull(string $field, bool $positive = true): string
     {
-        return $field . ' IS' . ((! $positive) ? ' NOT' : '') . ' NULL';
+        if (! $positive) {
+            trigger_error(
+                __METHOD__ . ' with argument $positive = false is deprecated, use DBAL::sqlIsNotNull',
+                E_USER_NOTICE
+            );
+            return $this->sqlIsNotNull($field);
+        }
+        return $field . ' IS NULL';
+    }
+
+    /**
+     * Return a NEGATIVE comparison condition against null
+     *
+     * @param string $field
+     * @return string
+     */
+    final public function sqlIsNotNull(string $field): string
+    {
+        return $field . ' IS NOT NULL';
     }
 
     /**

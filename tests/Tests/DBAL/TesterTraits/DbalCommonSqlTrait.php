@@ -63,6 +63,7 @@ trait DbalCommonSqlTrait
     {
         $dbal = $this->getDbal();
         $this->assertSame('foo IS NULL', $dbal->sqlIsNull('foo'));
+        $this->assertSame('foo IS NOT NULL', $dbal->sqlIsNotNull('foo'));
     }
 
     public function testSqlIfNull()
