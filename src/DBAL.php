@@ -423,6 +423,27 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     }
 
     /**
+     * Return a condition using between operator quoting lower and upper bounds
+     *
+     * @param string $field
+     * @param mixed $lowerBound
+     * @param mixed $upperBound
+     * @param string $commonType
+     * @return string
+     */
+    final public function sqlBetweenQuote(
+        string $field,
+        $lowerBound,
+        $upperBound,
+        string $commonType = CommonTypes::TTEXT
+    ): string {
+        return $field
+            . ' BETWEEN ' . $this->sqlQuote($lowerBound, $commonType)
+            . ' AND ' . $this->sqlQuote($upperBound, $commonType)
+            . ';';
+    }
+
+    /**
      * If function
      * @param string $condition
      * @param string $truePart

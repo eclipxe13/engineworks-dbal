@@ -12,6 +12,7 @@
 - Add DBAL::sqlNotIn as a negative to DBAL::sqlIn but if elements are empty then return a true condition
 - Add notice if using DBAL::sqlIn with negation
 - Move test from driver specification to DbalCommonSqlTrait on testSqlIsNull & testSqlIfNull
+- Add DBAL::sqlBetweenQuote
 
 # Version 2.1.3 2018-10-05
 
