@@ -151,9 +151,9 @@ class DBAL extends AbstractDBAL
         return '[' . $tableName . ']' . (('' !== $asTable) ? ' AS [' . $asTable . ']' : '');
     }
 
-    public function sqlFieldEscape(string $tableName, string $asTable = ''): string
+    public function sqlFieldEscape(string $fieldName, string $asTable = ''): string
     {
-        return '[' . $tableName . ']' . (('' !== $asTable) ? ' AS [' . $asTable . ']' : '');
+        return '[' . $fieldName . ']' . (('' !== $asTable) ? ' AS [' . $asTable . ']' : '');
     }
 
     public function sqlDatePart(string $part, string $expression): string

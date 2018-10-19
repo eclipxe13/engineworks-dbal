@@ -80,23 +80,12 @@ class MssqlDbalDisconnectedTest extends WithDbalTestCase
         $this->assertSame('RAND()', $this->dbal->sqlRandomFunc());
     }
 
-    public function testSqlIsNull()
-    {
-        $this->assertSame('foo IS NULL', $this->dbal->sqlIsNull('foo'));
-        $this->assertSame('foo IS NOT NULL', $this->dbal->sqlIsNull('foo', false));
-    }
-
     public function testSqlIf()
     {
         $this->assertSame(
             'CASE WHEN (condition) THEN true ELSE false END',
             $this->dbal->sqlIf('condition', 'true', 'false')
         );
-    }
-
-    public function testSqlIfNull()
-    {
-        $this->assertSame('IFNULL(foo, bar)', $this->dbal->sqlIfNull('foo', 'bar'));
     }
 
     public function testSqlLimit()

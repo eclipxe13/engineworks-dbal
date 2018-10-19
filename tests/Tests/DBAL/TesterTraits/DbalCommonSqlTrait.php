@@ -59,11 +59,24 @@ trait DbalCommonSqlTrait
         $dbal->sqlQuoteIn([]);
     }
 
+    public function testSqlIsNull()
+    {
+        $dbal = $this->getDbal();
+        $this->assertSame('foo IS NULL', $dbal->sqlIsNull('foo'));
+        $this->assertSame('foo IS NOT NULL', $dbal->sqlIsNotNull('foo'));
+    }
+
+    public function testSqlIfNull()
+    {
+        $dbal = $this->getDbal();
+        $this->assertSame('IFNULL(foo, bar)', $dbal->sqlIfNull('foo', 'bar'));
+    }
+
     public function testSqlIn()
     {
         $dbal = $this->getDbal();
-        $expected = 'foo NOT IN (3, 6, 9)';
-        $this->assertSame($expected, $dbal->sqlIn('foo', [3, 6, 9], DBAL::TINT, false));
+        $expected = 'foo IN (3, 6, 9)';
+        $this->assertSame($expected, $dbal->sqlIn('foo', [3, 6, 9], DBAL::TINT));
     }
 
     public function testSqlInWithEmptyArray()
@@ -71,5 +84,19 @@ trait DbalCommonSqlTrait
         $dbal = $this->getDbal();
         $expected = '0 = 1';
         $this->assertSame($expected, $dbal->sqlIn('foo', []));
+    }
+
+    public function testSqlNotIn()
+    {
+        $dbal = $this->getDbal();
+        $expected = 'foo NOT IN (3, 6, 9)';
+        $this->assertSame($expected, $dbal->sqlNotIn('foo', [3, 6, 9], DBAL::TINT));
+    }
+
+    public function testSqlNotInWithEmptyArray()
+    {
+        $dbal = $this->getDbal();
+        $expected = '1 = 1';
+        $this->assertSame($expected, $dbal->sqlNotIn('foo', []));
     }
 }

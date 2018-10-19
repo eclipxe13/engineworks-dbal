@@ -277,11 +277,11 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Escapes a table name to not get confused with reserved words or invalid chars.
      * Optionaly renames it as an alias.
      *
-     * @param string $tableName
+     * @param string $fieldName
      * @param string $asTable
      * @return string
      */
-    abstract public function sqlFieldEscape(string $tableName, string $asTable = ''): string;
+    abstract public function sqlFieldEscape(string $fieldName, string $asTable = ''): string;
 
     /**
      * Parses a value to secure SQL
@@ -339,11 +339,43 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         string $commonType = CommonTypes::TTEXT,
         bool $positive = true,
         bool $includeNull = false
-    ) {
+    ): string {
+        if (! $positive) {
+            trigger_error(
+                __METHOD__ . ' with argument $positive = false is deprecated, use DBAL::sqlNotIn',
+                E_USER_NOTICE
+            );
+            return $this->sqlNotIn($field, $values, $commonType, $includeNull);
+        }
         if (0 === count($values)) {
             return '0 = 1';
         }
-        return $field . ((! $positive) ? ' NOT' : '') . ' IN ' . $this->sqlQuoteIn($values, $commonType, $includeNull);
+        return $field . ' IN ' . $this->sqlQuoteIn($values, $commonType, $includeNull);
+    }
+
+    /**
+     * Return a NEGATIVE comparison condition using IN operator
+     * If the array of values is empty then create an always true condition "1 = 1"
+     *
+     * @see sqlQuoteIn
+     *
+     * @param string $field
+     * @param array $values
+     * @param string $commonType
+     * @param bool $includeNull
+     *
+     * @return string
+     */
+    final public function sqlNotIn(
+        string $field,
+        array $values,
+        string $commonType = CommonTypes::TTEXT,
+        bool $includeNull = false
+    ): string {
+        if (0 === count($values)) {
+            return '1 = 1';
+        }
+        return $field . ' NOT IN ' . $this->sqlQuoteIn($values, $commonType, $includeNull);
     }
 
     /**
@@ -369,7 +401,46 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      */
     final public function sqlIsNull(string $field, bool $positive = true): string
     {
-        return $field . ' IS' . ((! $positive) ? ' NOT' : '') . ' NULL';
+        if (! $positive) {
+            trigger_error(
+                __METHOD__ . ' with argument $positive = false is deprecated, use DBAL::sqlIsNotNull',
+                E_USER_NOTICE
+            );
+            return $this->sqlIsNotNull($field);
+        }
+        return $field . ' IS NULL';
+    }
+
+    /**
+     * Return a NEGATIVE comparison condition against null
+     *
+     * @param string $field
+     * @return string
+     */
+    final public function sqlIsNotNull(string $field): string
+    {
+        return $field . ' IS NOT NULL';
+    }
+
+    /**
+     * Return a condition using between operator quoting lower and upper bounds
+     *
+     * @param string $field
+     * @param mixed $lowerBound
+     * @param mixed $upperBound
+     * @param string $commonType
+     * @return string
+     */
+    final public function sqlBetweenQuote(
+        string $field,
+        $lowerBound,
+        $upperBound,
+        string $commonType = CommonTypes::TTEXT
+    ): string {
+        return $field
+            . ' BETWEEN ' . $this->sqlQuote($lowerBound, $commonType)
+            . ' AND ' . $this->sqlQuote($upperBound, $commonType)
+            . ';';
     }
 
     /**

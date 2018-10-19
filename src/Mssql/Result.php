@@ -90,7 +90,7 @@ class Result implements ResultInterface
             $fields[] = [
                 'name' => $fetched['name'],
                 'commontype' => $this->getCommonType($fetched['name'], $fetched['native_type']),
-                'table' => isset($fetched['table']) ? $fetched['table'] : '',
+                'table' => $fetched['table'] ?? '',
             ];
         }
         $this->cachedGetFields = $fields;
