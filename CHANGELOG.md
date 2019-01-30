@@ -1,8 +1,13 @@
 # Future breaking changes
 
-- Change minimal version to PHP 7.2
-- Parameter to negate DBAL::sqlIsNull will be deprecated
-- Parameter to negate DBAL::sqlIn will be deprecated
+- See [Version 3](VERSION_3.md) for major changes
+
+# Version 2.2.1 2019-01-30
+
+- Development: Upgrade vlucas/phpdotenv from ^2.4 to ^3.3
+- Travis: Add support for PHP 7.3 on build matrix
+- Documents: Plans for next major release (version 3)
+
 
 # Version 2.2.0 2018-10-19
 

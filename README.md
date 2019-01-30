@@ -84,11 +84,13 @@ It support Mysqli, Mssql, Sqlsrv and Sqlite3 drivers, you are free to create you
 
 ## Compatibility
 
-This class will be compatible according to [PHP Supported versions](http://php.net/supported-versions.php),
-Security Support.
+This class will be compatible according to [PHP Supported versions](http://php.net/supported-versions.php).
 
-- PHP 5.6, version **1.x**, until 2018-12-31
-- PHP 7.0, version **2.x**, until 2018-12-03
+- PHP 5.6, version **1.x**, until 2018-12-31 (Security support)
+- PHP 7.0, version **2.x**, until 2018-12-03 (Security support)
+- PHP 7.1, version **2.x**, until 2018-12-01 (Active support)
+- PHP 7.2, version **3.x**, until 2019-12-01 (Active support)
+- PHP 7.3, version **3.x**, until 2020-12-01 (Active support)
 
 
 ## Contributing
