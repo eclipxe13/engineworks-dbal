@@ -29,7 +29,7 @@
         "ext-PDO": "*",
         "ext-sqlite3": "*",
         "ext-mysqli": "*",
-        "vlucas/phpdotenv": "^2.4",
+        "vlucas/phpdotenv": "^3.3",
         "fzaninotto/faker": "^1.7",
         "phpunit/phpunit": "^6.5|^7.0",
         "overtrue/phplint": "^1.0",
