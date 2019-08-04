@@ -17,7 +17,7 @@ env:
 # Needed for docker support and dist other than trusty
 sudo: required
 
-dist: bionic
+dist: xenial
 
 before_script:
   # ms sql server, run first to allow server run while install other things
@@ -32,7 +32,7 @@ before_script:
   - 'php -i | grep -i sqlsrv'
   # install msodbcsql17
   - curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-  - curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list | sudo tee -a /etc/apt/sources.list.d/msodbcsql17.list
+  - curl https://packages.microsoft.com/config/ubuntu/16.04/prod.list | sudo tee -a /etc/apt/sources.list.d/msodbcsql17.list
   - sudo apt-get update -q -q
   - apt-cache policy sodbcsql17 mssql-tools unixodbc libssl1.0.0 libsybdb5
   - sudo ACCEPT_EULA=Y apt-get install -q -y msodbcsql17 mssql-tools unixodbc libssl1.0.0 libsybdb5
