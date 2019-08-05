@@ -2,6 +2,13 @@
 
 - See [Version 3](VERSION_3.md) for major changes
 
+# Version (no new release) 2019-08-05
+
+- Not released since it did not change but build & travis
+- Travis: use Ubuntu Xenial, move to Ubuntu Bionic once PHP 7.0 is deprecated
+- Allow phpstan version ^0.11.0
+
+
 # Version 2.2.1 2019-01-30
 
 - Development: Upgrade vlucas/phpdotenv from ^2.4 to ^3.3

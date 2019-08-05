@@ -14,25 +14,29 @@ services:
 env:
   - COVERAGE_PHP_VERSION: 7.3
 
-# Needed for docker support
+# Needed for docker support and dist other than trusty
 sudo: required
+
+dist: xenial
 
 before_script:
   # ms sql server, run first to allow server run while install other things
   - docker pull microsoft/mssql-server-linux
   - docker run --name dbal-mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Password-123456' -p 1433:1433 -d microsoft/mssql-server-linux
   - docker ps -a
+  # apt setup including microsoft packages
+  - curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+  - curl https://packages.microsoft.com/config/ubuntu/16.04/prod.list | sudo tee -a /etc/apt/sources.list.d/microsoft.list
+  - sudo apt-get update -q -q
   # ms sql server php driver, run before install msodbcsql17
+  - sudo apt install -q -y unixodbc-dev
   - pecl channel-update pecl.php.net
-  - export SQLSRV_VERSION=$(test $(php --version | head -n 1 | grep 7.3 -c) -eq 1 && echo 5.5.0preview || echo 5.3.0)
+  - export SQLSRV_VERSION=$(test $(php --version | head -n 1 | grep 7.0 -c) -eq 1 && echo 5.3.0 || echo 5.6.1)
   - pecl search sqlsrv-${SQLSRV_VERSION}
   - pecl install sqlsrv-${SQLSRV_VERSION} pdo_sqlsrv-${SQLSRV_VERSION}
   - 'php -i | grep -i sqlsrv'
   # install msodbcsql17
-  - curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-  - curl https://packages.microsoft.com/config/ubuntu/14.04/prod.list | sudo tee -a /etc/apt/sources.list.d/msodbcsql17.list
-  - sudo apt-get update -q -q
-  - apt-cache policy sodbcsql17 mssql-tools unixodbc libssl1.0.0 libsybdb5
+  - apt-cache policy msodbcsql17 mssql-tools unixodbc libssl1.0.0 libsybdb5
   - sudo ACCEPT_EULA=Y apt-get install -q -y msodbcsql17 mssql-tools unixodbc libssl1.0.0 libsybdb5
   # test connections
   - docker exec dbal-mssql /opt/mssql-tools/bin/sqlcmd -U sa -P 'Password-123456' -Q "SELECT @@VERSION"
