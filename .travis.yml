@@ -25,6 +25,7 @@ before_script:
   - docker run --name dbal-mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Password-123456' -p 1433:1433 -d microsoft/mssql-server-linux
   - docker ps -a
   # ms sql server php driver, run before install msodbcsql17
+  - apt install -q -y unixodbc-dev
   - pecl channel-update pecl.php.net
   - export SQLSRV_VERSION=$(test $(php --version | head -n 1 | grep 7.0 -c) -eq 1 && echo 5.3.0 || echo 5.6.1)
   - pecl search sqlsrv-${SQLSRV_VERSION}
@@ -34,7 +35,7 @@ before_script:
   - curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
   - curl https://packages.microsoft.com/config/ubuntu/16.04/prod.list | sudo tee -a /etc/apt/sources.list.d/msodbcsql17.list
   - sudo apt-get update -q -q
-  - apt-cache policy sodbcsql17 mssql-tools unixodbc libssl1.0.0 libsybdb5
+  - apt-cache policy msodbcsql17 mssql-tools unixodbc libssl1.0.0 libsybdb5
   - sudo ACCEPT_EULA=Y apt-get install -q -y msodbcsql17 mssql-tools unixodbc libssl1.0.0 libsybdb5
   # test connections
   - docker exec dbal-mssql /opt/mssql-tools/bin/sqlcmd -U sa -P 'Password-123456' -Q "SELECT @@VERSION"
