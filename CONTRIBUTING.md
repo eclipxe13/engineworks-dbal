@@ -80,7 +80,6 @@ it will result in a complete build failure. Before you can run these, be sure to
 
 ```
 mkdir -p build
-./vendor/bin/phplint
 ./vendor/bin/phpcs src tests --encoding=utf-8 --standard=psr2 -sp
 ./vendor/bin/phpunit --coverage-text
 ./vendor/bin/phpstan analyse --level max src/ tests/
@@ -103,13 +102,17 @@ If you don't have one you can use Docker with the image `microsoft/mssql-server-
 ```bash
 # install/update the microsoft image
 docker pull microsoft/mssql-server-linux
+
 # run an instance of mssql
 docker run --name dbal-mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Password-123456' -p 1433:1433 -d microsoft/mssql-server-linux
+
 # access the instance and run mssql
 docker exec -it dbal-mssql /bin/bash
 /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Password-123456
+
 # stop the instance
 docker stop dbal-mssql
+
 # remove the instance 
 docker rm dbal-mssql
 ```
