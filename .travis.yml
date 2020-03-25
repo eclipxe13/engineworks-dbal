@@ -1,25 +1,19 @@
 language: php
 
 # php compatibility
-php:
-  - 7.0
-  - 7.1
-  - 7.2
-  - 7.3
+php: ["7.2", "7.3", "7.4"]
 
 services:
   - mysql
   - docker
 
 env:
-  - COVERAGE_PHP_VERSION: 7.3
-
-# Needed for docker support and dist other than trusty
-sudo: required
-
-dist: xenial
+  global:
+    - COVERAGE_PHP_VERSION: "7.3"
 
 before_script:
+  # disable xdebug
+  - phpenv config-rm xdebug.ini || true
   # ms sql server, run first to allow server run while install other things
   - docker pull microsoft/mssql-server-linux
   - docker run --name dbal-mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Password-123456' -p 1433:1433 -d microsoft/mssql-server-linux
