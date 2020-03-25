@@ -11,7 +11,7 @@ class SqlsrvResultTest extends SqlsrvWithDatabaseTestCase
     /** @var Result */
     protected $result;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         if (! $this->result instanceof Result) {
@@ -70,9 +70,9 @@ class SqlsrvResultTest extends SqlsrvWithDatabaseTestCase
 
     public function testFetchRowSequence()
     {
-        $this->assertInternalType('array', $this->result->fetchRow());
-        $this->assertInternalType('array', $this->result->fetchRow());
-        $this->assertInternalType('array', $this->result->fetchRow());
+        $this->assertIsArray($this->result->fetchRow());
+        $this->assertIsArray($this->result->fetchRow());
+        $this->assertIsArray($this->result->fetchRow());
         $this->assertSame(false, $this->result->fetchRow());
         $this->assertSame(false, $this->result->fetchRow());
     }
@@ -153,7 +153,7 @@ class SqlsrvResultTest extends SqlsrvWithDatabaseTestCase
     {
         $array = [];
         foreach ($this->result as $key => $values) {
-            $this->assertInternalType('array', $values);
+            $this->assertIsArray($values);
             $array[$key] = $values;
         }
         return $array;

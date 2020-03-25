@@ -14,7 +14,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
 
     abstract protected function checkIsAvailable();
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->checkIsAvailable();
@@ -24,7 +24,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         }
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
         $this->dbal->disconnect();

@@ -15,7 +15,7 @@ class MysqliDisconnectedTest extends WithDbalTestCase
         return 'EngineWorks\DBAL\Mysqli';
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->setupDbalWithSettings([

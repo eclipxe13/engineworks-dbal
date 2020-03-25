@@ -11,7 +11,7 @@ class SqlsrvConnectFailuresTest extends WithDbalTestCase
         return 'EngineWorks\DBAL\Sqlsrv';
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->setupDbalWithSettings(['connect-timeout' => 1]);

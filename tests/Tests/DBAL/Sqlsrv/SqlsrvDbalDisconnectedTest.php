@@ -14,7 +14,7 @@ class SqlsrvDbalDisconnectedTest extends WithDbalTestCase
         return 'EngineWorks\DBAL\Sqlsrv';
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->setupDbalWithSettings([]);

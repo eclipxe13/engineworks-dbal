@@ -11,7 +11,7 @@ class MysqliResultTest extends MysqliWithDatabaseTestCase
     /** @var Result */
     private $result;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->result = $this->queryResult('SELECT * FROM albums WHERE (albumid between 1 and 3);');
@@ -68,9 +68,9 @@ class MysqliResultTest extends MysqliWithDatabaseTestCase
 
     public function testFetchRowSequence()
     {
-        $this->assertInternalType('array', $this->result->fetchRow());
-        $this->assertInternalType('array', $this->result->fetchRow());
-        $this->assertInternalType('array', $this->result->fetchRow());
+        $this->assertIsArray($this->result->fetchRow());
+        $this->assertIsArray($this->result->fetchRow());
+        $this->assertIsArray($this->result->fetchRow());
         $this->assertSame(false, $this->result->fetchRow());
         $this->assertSame(false, $this->result->fetchRow());
     }
@@ -160,7 +160,7 @@ class MysqliResultTest extends MysqliWithDatabaseTestCase
     {
         $array = [];
         foreach ($this->result as $key => $values) {
-            $this->assertInternalType('array', $values);
+            $this->assertIsArray($values);
             $array[$key] = $values;
         }
         return $array;

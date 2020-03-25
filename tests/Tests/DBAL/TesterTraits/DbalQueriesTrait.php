@@ -60,7 +60,7 @@ trait DbalQueriesTrait
 
         $sql = 'SELECT * FROM albums WHERE (albumid = 5);';
         $result = $this->getDbal()->queryRow($sql);
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
         $this->assertEquals($expectedRows, [$result]);
     }
 
@@ -80,7 +80,7 @@ trait DbalQueriesTrait
     {
         $sql = 'SELECT * FROM albums WHERE (albumid BETWEEN 4 AND 5);';
         $result = $this->getDbal()->queryArray($sql);
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
         $result = $result ?: [];
         $this->assertCount(2, $result);
         $result = $this->convertArrayStringsToFixedValues($result);
@@ -105,7 +105,7 @@ trait DbalQueriesTrait
     {
         $sql = 'SELECT * FROM albums WHERE (albumid = 5);';
         $values = $this->getDbal()->queryValues($sql, $this->overrideTypes());
-        $this->assertInternalType('array', $values);
+        $this->assertIsArray($values);
 
         $expectedValues = $this->getFixedValuesWithLabels(5, 5)[0];
         $this->assertEquals($expectedValues, $values);
@@ -127,11 +127,11 @@ trait DbalQueriesTrait
     {
         $sql = 'SELECT * FROM albums WHERE (albumid BETWEEN 1 AND 5) ORDER BY albumid;';
         $arrayValues = $this->getDbal()->queryArrayValues($sql, $this->overrideTypes()) ?: [];
-        $this->assertInternalType('array', $arrayValues);
+        $this->assertIsArray($arrayValues);
         $this->assertCount(5, $arrayValues);
 
         $values = $arrayValues[0];
-        $this->assertInternalType('array', $values);
+        $this->assertIsArray($values);
 
         $expectedValues = $this->getFixedValuesWithLabels(1, 1)[0];
         $this->assertEquals($expectedValues, $values);
@@ -154,7 +154,7 @@ trait DbalQueriesTrait
     {
         $sql = 'SELECT * FROM albums WHERE (albumid BETWEEN 1 AND 3) ORDER BY albumid;';
         $results = $this->getDbal()->queryArrayKey($sql, 'albumid', 'X');
-        $this->assertInternalType('array', $results);
+        $this->assertIsArray($results);
         $results = $results ?: [];
         $this->assertCount(3, $results);
 
@@ -299,7 +299,7 @@ trait DbalQueriesTrait
         $this->assertSame(1, $result->resultCount());
         // get first
         $fetchedFirst = $result->fetchRow();
-        $this->assertInternalType('array', $fetchedFirst);
+        $this->assertIsArray($fetchedFirst);
         // move and get first again
         $this->assertTrue($result->moveFirst());
         $fetchedSecond = $result->fetchRow();
@@ -315,7 +315,8 @@ trait DbalQueriesTrait
             ['name' => 'collect', 'commontype' => CommonTypes::TNUMBER, 'table' => $expectedTablename],
         ];
 
-        $this->assertArraySubset($expectedFields, $result->getFields());
+        $fields = $result->getFields();
+        $this->assertEquals(array_replace_recursive($fields, $expectedFields), $fields);
     }
 
     public function testCreateRecordsetWithInvalidQueryCreatesException()

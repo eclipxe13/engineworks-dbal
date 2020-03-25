@@ -133,7 +133,7 @@ class RecordsetTester
         $test->assertInstanceOf(Recordset::class, $recordset);
         $test->assertSame(5, $recordset->getRecordCount());
         $test->assertFalse($recordset->eof());
-        $test->assertInternalType('array', $recordset->values);
+        $test->assertIsArray($recordset->values);
         $test->assertEquals(
             ['albumid', 'title', 'votes', 'lastview', 'isfree', 'collect'],
             array_keys($recordset->values)

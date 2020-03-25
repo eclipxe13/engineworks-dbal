@@ -11,7 +11,7 @@ class MssqlResultTest extends MssqlWithDatabaseTestCase
     /** @var Result */
     private $result;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->result = $this->queryResult('SELECT * FROM albums WHERE (albumid between 1 and 3);');
@@ -68,9 +68,9 @@ class MssqlResultTest extends MssqlWithDatabaseTestCase
 
     public function testFetchRowSequence()
     {
-        $this->assertInternalType('array', $this->result->fetchRow());
-        $this->assertInternalType('array', $this->result->fetchRow());
-        $this->assertInternalType('array', $this->result->fetchRow());
+        $this->assertIsArray($this->result->fetchRow());
+        $this->assertIsArray($this->result->fetchRow());
+        $this->assertIsArray($this->result->fetchRow());
         $this->assertSame(false, $this->result->fetchRow());
         $this->assertSame(false, $this->result->fetchRow());
     }
@@ -128,7 +128,7 @@ class MssqlResultTest extends MssqlWithDatabaseTestCase
     public function testGetIterator()
     {
         $iterator = $this->result->getIterator();
-        $this->assertInstanceOf(\Iterator::class, $iterator);
+        $this->assertInstanceOf(Iterator::class, $iterator);
         $this->assertInstanceOf(ResultIterator::class, $iterator);
     }
 

@@ -11,7 +11,7 @@ class SqliteResultTest extends SqliteWithDatabaseTestCase
     /** @var Result */
     private $result;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->result = $this->queryResult('SELECT * FROM albums WHERE (albumid between 1 and 3);');
@@ -70,9 +70,9 @@ class SqliteResultTest extends SqliteWithDatabaseTestCase
     {
         // this is made to check undocumented behavior on SQLite3Result::fetchArray
         // http://php.net/manual/en/sqlite3result.fetcharray.php#115856
-        $this->assertInternalType('array', $this->result->fetchRow());
-        $this->assertInternalType('array', $this->result->fetchRow());
-        $this->assertInternalType('array', $this->result->fetchRow());
+        $this->assertIsArray($this->result->fetchRow());
+        $this->assertIsArray($this->result->fetchRow());
+        $this->assertIsArray($this->result->fetchRow());
         $this->assertSame(false, $this->result->fetchRow(), 'First fetch row on EOF must return FALSE');
         $this->assertSame(false, $this->result->fetchRow(), 'Second fetch row on EOF must return FALSE');
         $this->assertSame(false, $this->result->fetchRow(), 'Third fetch row on EOF must return FALSE');
@@ -148,7 +148,7 @@ class SqliteResultTest extends SqliteWithDatabaseTestCase
     {
         $array = [];
         foreach ($this->result as $key => $values) {
-            $this->assertInternalType('array', $values);
+            $this->assertIsArray($values);
             $array[$key] = $values;
         }
         return $array;

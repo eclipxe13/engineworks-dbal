@@ -44,15 +44,15 @@ class TransactionsTester
     {
         $this->test->assertSame(0, $this->dbal->getTransactionLevel());
         $this->dbal->transBegin();
-        $this->test->assertContains('TRANSACTION', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('TRANSACTION', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(1, $this->dbal->getTransactionLevel());
         $this->dbal->transRollback();
-        $this->test->assertContains('ROLLBACK', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('ROLLBACK', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(0, $this->dbal->getTransactionLevel());
         $this->dbal->transBegin();
         $this->test->assertSame(1, $this->dbal->getTransactionLevel());
         $this->dbal->transCommit();
-        $this->test->assertContains('COMMIT', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('COMMIT', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(0, $this->dbal->getTransactionLevel());
     }
 
@@ -84,26 +84,26 @@ class TransactionsTester
 
         $this->dbal->transBegin();
         $this->test->assertSame(2, $this->dbal->getTransactionLevel());
-        $this->test->assertContains('LEVEL_1', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('LEVEL_1', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->insertRecord(1001);
         $this->test->assertEquals($this->count + 2, $this->getRecordCount());
 
         $this->dbal->transBegin();
-        $this->test->assertContains('LEVEL_2', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('LEVEL_2', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(3, $this->dbal->getTransactionLevel());
         $this->insertRecord(1002);
         $this->test->assertEquals($this->count + 3, $this->getRecordCount());
 
         $this->dbal->transCommit();
-        $this->test->assertContains('LEVEL_2', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('LEVEL_2', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(2, $this->dbal->getTransactionLevel());
 
         $this->dbal->transCommit();
-        $this->test->assertContains('LEVEL_1', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('LEVEL_1', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(1, $this->dbal->getTransactionLevel());
 
         $this->dbal->transCommit();
-        $this->test->assertContains('COMMIT', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('COMMIT', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(0, $this->dbal->getTransactionLevel());
 
         $this->test->assertEquals($this->count + 3, $this->getRecordCount());
@@ -122,17 +122,17 @@ class TransactionsTester
         $this->test->assertEquals($this->count + 3, $this->getRecordCount());
 
         $this->dbal->transRollback();
-        $this->test->assertContains('LEVEL_2', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('LEVEL_2', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(2, $this->dbal->getTransactionLevel());
         $this->test->assertEquals($this->count + 2, $this->getRecordCount());
 
         $this->dbal->transRollback();
-        $this->test->assertContains('LEVEL_1', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('LEVEL_1', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(1, $this->dbal->getTransactionLevel());
         $this->test->assertEquals($this->count + 1, $this->getRecordCount());
 
         $this->dbal->transRollback();
-        $this->test->assertContains('ROLLBACK', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('ROLLBACK', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(0, $this->dbal->getTransactionLevel());
         $this->test->assertEquals($this->count, $this->getRecordCount());
     }

@@ -1,12 +1,7 @@
-<phpunit bootstrap="./tests/bootstrap.php"
-    colors="true"
-    convertErrorsToExceptions="true"
-    convertNoticesToExceptions="true"
-    convertWarningsToExceptions="true"
-    verbose="true"
-    stopOnFailure="false"
-    processIsolation="false"
-    backupGlobals="false">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="./vendor/phpunit/phpunit/phpunit.xsd"
+    bootstrap="./tests/bootstrap.php"
+    colors="true">
     <testsuites>
         <testsuite name="default">
             <directory suffix="Test.php">./tests</directory>

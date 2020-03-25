@@ -5,7 +5,7 @@ trait MsSqlServerNoCountSettingTrait
 {
     protected $heavyNumCount = 5000;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->executeStatement(
@@ -34,7 +34,7 @@ trait MsSqlServerNoCountSettingTrait
         $this->executeStatement('CREATE ' . 'TABLE ExpensiveTable (pos integer NOT NULL, data nvarchar(200));');
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->executeStatement(
             '

@@ -15,7 +15,7 @@ class MssqlDbalDisconnectedTest extends WithDbalTestCase
         return 'EngineWorks\DBAL\Mssql';
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->setupDbalWithSettings();

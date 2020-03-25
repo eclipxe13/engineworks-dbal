@@ -19,7 +19,7 @@ abstract class WithDbalTestCase extends TestCase
 
     abstract protected function getFactoryNamespace();
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->factory = new Factory($this->getFactoryNamespace());
