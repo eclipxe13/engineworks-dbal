@@ -186,7 +186,7 @@ class TransactionsTester
     private function insertRecord($albumid)
     {
         $sql = 'SELECT * FROM albums WHERE (albumid IS NULL);';
-        $recordset = $this->test->queryRecordset($sql, 'albums', ['albumid']);
+        $recordset = $this->test->createRecordset($sql, 'albums', ['albumid']);
         $recordset->addNew();
         $recordset->values = [
             'albumid' => $albumid,

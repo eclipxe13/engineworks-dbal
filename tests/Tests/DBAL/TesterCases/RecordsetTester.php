@@ -48,13 +48,13 @@ class RecordsetTester
     private function queryAlbumAsRecordset($albumid): Recordset
     {
         $sql = 'SELECT * FROM albums WHERE (albumid = ' . $this->dbal->sqlQuote($albumid, CommonTypes::TINT) . ');';
-        return $this->test->queryRecordset($sql, 'albums', ['albumid']);
+        return $this->test->createRecordset($sql, 'albums', ['albumid']);
     }
 
     public function testRecordCount()
     {
         $sql = 'SELECT * FROM albums ORDER BY albumid;';
-        $recordset = $this->test->queryRecordset($sql, 'albums', ['albumid']);
+        $recordset = $this->test->createRecordset($sql, 'albums', ['albumid']);
         $this->test->assertSame($sql, $recordset->getSource());
         $this->test->assertSame(45, $recordset->getRecordCount());
         for ($i = 1; $i <= 45; $i++) {
@@ -127,7 +127,7 @@ class RecordsetTester
             'isfree' => CommonTypes::TBOOL,
         ];
         $sql = 'SELECT * FROM albums WHERE (albumid between 1 and 5);';
-        $recordset = $this->test->queryRecordset($sql, 'albums', ['albumid'], $overrideTypes);
+        $recordset = $this->test->createRecordset($sql, 'albums', ['albumid'], $overrideTypes);
         $test->assertSame('albums', $recordset->getEntityName());
         $test->assertSame(['albumid'], $recordset->getIdFields());
         $test->assertInstanceOf(Recordset::class, $recordset);

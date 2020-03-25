@@ -30,13 +30,9 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         $this->dbal->disconnect();
     }
 
-    public function queryRecordset(string $query, string $entity = '', array $keys = [], array $types = []): Recordset
+    public function createRecordset(string $query, string $entity = '', array $keys = [], array $types = []): Recordset
     {
-        $recordset = $this->dbal->queryRecordset($query, $entity, $keys, $types);
-        if ($recordset instanceof $recordset) {
-            return $recordset;
-        }
-        throw new \LogicException("Cannot get recordset from query: $query");
+        return $this->dbal->createRecordset($query, $entity, $keys, $types);
     }
 
     public function queryResult(string $query, array $types = []): Result
