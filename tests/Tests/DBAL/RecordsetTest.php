@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\DBAL;
 
 use EngineWorks\DBAL\CommonTypes;
@@ -6,7 +9,7 @@ use EngineWorks\DBAL\Tests\SqliteWithDatabaseTestCase;
 
 class RecordsetTest extends SqliteWithDatabaseTestCase
 {
-    public function testValuesHadChangedWithStringZeros()
+    public function testValuesHadChangedWithStringZeros(): void
     {
         $dbal = $this->dbal;
 

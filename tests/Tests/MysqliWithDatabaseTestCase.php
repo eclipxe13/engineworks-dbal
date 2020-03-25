@@ -1,11 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests;
 
 class MysqliWithDatabaseTestCase extends WithDatabaseTestCase
 {
-    protected function checkIsAvailable()
+    protected function checkIsAvailable(): void
     {
-        if (getenv('testMysqli') !== 'yes') {
+        if ('yes' !== getenv('testMysqli')) {
             $this->markTestSkipped('Environment does not include mysqli tests');
         }
         if (! function_exists('mysqli_init')) {
@@ -29,7 +32,7 @@ class MysqliWithDatabaseTestCase extends WithDatabaseTestCase
         ];
     }
 
-    protected function createDatabaseStructure()
+    protected function createDatabaseStructure(): void
     {
         $statements = [
             'DROP DATABASE IF EXISTS dbaltest;',

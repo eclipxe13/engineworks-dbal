@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\DBAL\Mysqli;
 
 use EngineWorks\DBAL\Tests\DBAL\TesterCases\RecordsetTester;
@@ -16,19 +19,19 @@ class MysqliDbalConnectedTest extends MysqliWithDatabaseTestCase
     use TransactionsWithExceptionsTestTrait;
     use DbalQueriesTrait;
 
-    public function testRecordsetUsingTester()
+    public function testRecordsetUsingTester(): void
     {
         $tester = new RecordsetTester($this);
         $tester->execute();
     }
 
-    public function testTransactionsUsingTester()
+    public function testTransactionsUsingTester(): void
     {
         $tester = new TransactionsTester($this);
         $tester->execute();
     }
 
-    public function testSqlQuoteUsingTester()
+    public function testSqlQuoteUsingTester(): void
     {
         $tester = new SqlQuoteTester($this, "'\\''", "'\\\"'");
         $tester->execute();

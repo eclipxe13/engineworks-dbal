@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL;
 
 use EngineWorks\DBAL\Exceptions\QueryException;
@@ -6,6 +9,8 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use RuntimeException;
+use Throwable;
 
 /**
  * Database Abstraction Layer Abstract Class
@@ -70,7 +75,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Disconnect
      * @return void
      */
-    abstract public function disconnect();
+    abstract public function disconnect(): void;
 
     /**
      * Return the state of the connection
@@ -88,7 +93,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Implement the transaction begin command
      * @return void
      */
-    protected function commandTransactionBegin()
+    protected function commandTransactionBegin(): void
     {
         $this->execute('BEGIN TRANSACTION', 'Cannot start transaction');
     }
@@ -97,7 +102,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Implement the transaction commit command
      * @return void
      */
-    protected function commandTransactionCommit()
+    protected function commandTransactionCommit(): void
     {
         $this->execute('COMMIT', 'Cannot commit transaction');
     }
@@ -106,7 +111,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Implement the transaction rollback command
      * @return void
      */
-    protected function commandTransactionRollback()
+    protected function commandTransactionRollback(): void
     {
         $this->execute('ROLLBACK', 'Cannot rollback transaction');
     }
@@ -116,7 +121,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param string $name
      * @return void
      */
-    protected function commandSavepoint(string $name)
+    protected function commandSavepoint(string $name): void
     {
         $this->execute("SAVEPOINT $name", "Cannot create savepoint $name");
     }
@@ -126,7 +131,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param string $name
      * @return void
      */
-    protected function commandReleaseSavepoint(string $name)
+    protected function commandReleaseSavepoint(string $name): void
     {
         $this->execute("RELEASE SAVEPOINT $name", "Cannot release savepoint $name");
     }
@@ -136,7 +141,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param string $name
      * @return void
      */
-    protected function commandRollbackToSavepoint(string $name)
+    protected function commandRollbackToSavepoint(string $name): void
     {
         $this->execute("ROLLBACK TO SAVEPOINT $name", "Cannot rollback to savepoint $name");
     }
@@ -154,7 +159,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Start a transaction
      * @return void
      */
-    final public function transBegin()
+    final public function transBegin(): void
     {
         $this->logger->info('-- TRANSACTION BEGIN');
         if (0 === $this->transactionLevel) {
@@ -169,11 +174,11 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Commit a transaction
      * @return void
      */
-    final public function transCommit()
+    final public function transCommit(): void
     {
         $this->logger->info('-- TRANSACTION COMMIT');
         // reduce the transaction level
-        if ($this->transactionLevel === 0) {
+        if (0 === $this->transactionLevel) {
             trigger_error('Try to call commit without a transaction', E_USER_NOTICE);
             return;
         }
@@ -195,11 +200,11 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Rollback a transaction
      * @return void
      */
-    final public function transRollback()
+    final public function transRollback(): void
     {
         $this->logger->info('-- TRANSACTION ROLLBACK ');
         // reduce the transaction level
-        if ($this->transactionLevel === 0) {
+        if (0 === $this->transactionLevel) {
             trigger_error('Try to call rollback without a transaction', E_USER_NOTICE);
             return;
         }
@@ -304,12 +309,12 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param string $commonType
      * @param bool $includeNull
      * @return string example "(1, 3, 5)"
-     * @throws \RuntimeException if the array of values is empty
+     * @throws RuntimeException if the array of values is empty
      */
     final public function sqlQuoteIn(array $values, string $commonType = CommonTypes::TTEXT, bool $includeNull = false)
     {
         if (0 === count($values)) {
-            throw new \RuntimeException('The array of values passed to DBAL::sqlQuoteIn is empty');
+            throw new RuntimeException('The array of values passed to DBAL::sqlQuoteIn is empty');
         }
         return ''
             . '('
@@ -440,7 +445,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         return $field
             . ' BETWEEN ' . $this->sqlQuote($lowerBound, $commonType)
             . ' AND ' . $this->sqlQuote($upperBound, $commonType)
-            . ';';
+            ;
     }
 
     /**
@@ -565,14 +570,14 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param string $query
      * @param string $exceptionMessage Throws QueryException with message on error
      * @return int|false Number of affected rows or FALSE on error
-     * @throws \RuntimeException if the result is FALSE and the $exceptionMessage was set
+     * @throws RuntimeException if the result is FALSE and the $exceptionMessage was set
      */
     final public function execute(string $query, string $exceptionMessage = '')
     {
         $return = $this->queryAffectedRows($query);
         if (false === $return) {
             if ('' !== $exceptionMessage) {
-                $previous = $this->getLastErrorMessage() ? new \RuntimeException($this->getLastErrorMessage()) : null;
+                $previous = $this->getLastErrorMessage() ? new RuntimeException($this->getLastErrorMessage()) : null;
                 throw new QueryException($exceptionMessage, $query, 0, $previous);
             }
             return false;
@@ -708,6 +713,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         }
 
         $return = [];
+        /** @noinspection PhpAssignmentInConditionInspection */
         while ($row = $result->fetchRow()) {
             if (! array_key_exists($keyField, $row)) {
                 return false;
@@ -762,6 +768,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
         $return = [];
         $verifiedFieldName = false;
+        /** @noinspection PhpAssignmentInConditionInspection */
         while ($row = $result->fetchRow()) {
             if ('' === $field) {
                 $keys = array_keys($row);
@@ -813,7 +820,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     ) {
         try {
             $recordset = $this->createRecordset($query, $overrideEntity, $overrideKeys, $overrideTypes);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->logger->error("DBAL::queryRecordset failure running $query");
             return false;
         }
@@ -840,7 +847,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         try {
             $recordset = new Recordset($this);
             $recordset->query($query, $overrideEntity, $overrideKeys, $overrideTypes);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             throw new QueryException('Unable to create a valid Recordset', $query, 0, $exception);
         }
         return $recordset;
@@ -864,7 +871,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     ) {
         try {
             return $this->createPager($querySelect, $queryCount, $page, $recordsPerPage);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->logger->error("DBAL::queryPager failure running $querySelect");
             return false;
         }
@@ -891,11 +898,11 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
         try {
             $pager = new Pager($this, $querySelect, $queryCount);
             $pager->setPageSize($recordsPerPage);
-            $success = ($page == -1) ? $pager->queryAll() : $pager->queryPage($page);
+            $success = (-1 == $page) ? $pager->queryAll() : $pager->queryPage($page);
             if (! $success) {
                 $pager = false;
             }
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $previous = $exception;
             $pager = false;
         }
@@ -923,10 +930,10 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Creates a QueryException with the last message, if no last message exists then uses 'Database error'
      *
      * @param string $query
-     * @param \Throwable|null $previous
+     * @param Throwable|null $previous
      * @return QueryException
      */
-    final public function createQueryException(string $query, \Throwable $previous = null): QueryException
+    final public function createQueryException(string $query, Throwable $previous = null): QueryException
     {
         return new QueryException($this->getLastMessage() ?: 'Database error', $query, 0, $previous);
     }

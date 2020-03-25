@@ -1,4 +1,9 @@
 <?php
+
+/** @noinspection PhpComposerExtensionStubsInspection */
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Sqlsrv;
 
 use EngineWorks\DBAL\CommonTypes;
@@ -7,6 +12,7 @@ use EngineWorks\DBAL\Traits\ResultImplementsCountable;
 use EngineWorks\DBAL\Traits\ResultImplementsIterator;
 use PDO;
 use PDOStatement;
+use RuntimeException;
 
 class Result implements ResultInterface
 {
@@ -47,7 +53,7 @@ class Result implements ResultInterface
     {
         $numRows = $result->rowCount();
         if (-1 === $numRows) {
-            throw new \RuntimeException('Must use cursor PDO::CURSOR_SCROLL');
+            throw new RuntimeException('Must use cursor PDO::CURSOR_SCROLL');
         }
 
         $this->stmt = $result;

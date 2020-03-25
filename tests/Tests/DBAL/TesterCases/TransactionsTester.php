@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\DBAL\TesterCases;
 
 use EngineWorks\DBAL\CommonTypes;
@@ -7,9 +10,9 @@ use EngineWorks\DBAL\Tests\DBAL\Sample\ArrayLogger;
 use EngineWorks\DBAL\Tests\WithDatabaseTestCase;
 use Psr\Log\LogLevel;
 
-class TransactionsTester
+final class TransactionsTester
 {
-    /** @var \EngineWorks\DBAL\Tests\WithDatabaseTestCase */
+    /** @var WithDatabaseTestCase */
     private $test;
 
     /** @var DBAL */
@@ -29,7 +32,7 @@ class TransactionsTester
         $this->count = $this->getRecordCount();
     }
 
-    public function execute()
+    public function execute(): void
     {
         $this->testTransactionLevelBeginRollbackCommit();
         $this->testTransactionRollback();
@@ -40,7 +43,7 @@ class TransactionsTester
         $this->testNestedCommitRollbackCommit();
     }
 
-    public function testTransactionLevelBeginRollbackCommit()
+    public function testTransactionLevelBeginRollbackCommit(): void
     {
         $this->test->assertSame(0, $this->dbal->getTransactionLevel());
         $this->dbal->transBegin();
@@ -56,7 +59,7 @@ class TransactionsTester
         $this->test->assertSame(0, $this->dbal->getTransactionLevel());
     }
 
-    public function testTransactionRollback()
+    public function testTransactionRollback(): void
     {
         $this->dbal->transBegin();
         $this->insertRecord(1000);
@@ -65,7 +68,7 @@ class TransactionsTester
         $this->test->assertEquals($this->count, $this->getRecordCount());
     }
 
-    public function testTransactionCommit()
+    public function testTransactionCommit(): void
     {
         $this->dbal->transBegin();
         $this->insertRecord(1000);
@@ -76,7 +79,7 @@ class TransactionsTester
         $this->test->assertEquals($this->count, $this->getRecordCount());
     }
 
-    public function testNestedCommit()
+    public function testNestedCommit(): void
     {
         $this->dbal->transBegin();
         $this->insertRecord(1000);
@@ -110,7 +113,7 @@ class TransactionsTester
         $this->deleteRecords([1000, 1001, 1002]);
     }
 
-    public function testNestedRollback()
+    public function testNestedRollback(): void
     {
         $this->dbal->transBegin();
         $this->insertRecord(1000);
@@ -137,7 +140,7 @@ class TransactionsTester
         $this->test->assertEquals($this->count, $this->getRecordCount());
     }
 
-    public function testNestedRollbackCommitRollback()
+    public function testNestedRollbackCommitRollback(): void
     {
         $this->dbal->transBegin();
         $this->insertRecord(1000);
@@ -156,7 +159,7 @@ class TransactionsTester
         $this->test->assertEquals($this->count, $this->getRecordCount());
     }
 
-    public function testNestedCommitRollbackCommit()
+    public function testNestedCommitRollbackCommit(): void
     {
         $this->dbal->transBegin();
         $this->insertRecord(1000);
@@ -183,7 +186,7 @@ class TransactionsTester
         return $this->dbal->queryOne('SELECT COUNT(*) FROM albums', 0);
     }
 
-    private function insertRecord($albumid)
+    private function insertRecord($albumid): void
     {
         $sql = 'SELECT * FROM albums WHERE (albumid IS NULL);';
         $recordset = $this->test->createRecordset($sql, 'albums', ['albumid']);
@@ -199,13 +202,13 @@ class TransactionsTester
         $recordset->update();
     }
 
-    private function deleteRecord($albumid)
+    private function deleteRecord($albumid): void
     {
         $sql = 'DELETE FROM albums WHERE (albumid = ' . $this->dbal->sqlQuote($albumid, CommonTypes::TINT) . ');';
         $this->dbal->execute($sql, "Cannot remove record $albumid");
     }
 
-    private function deleteRecords(array $albumids)
+    private function deleteRecords(array $albumids): void
     {
         foreach ($albumids as $albumid) {
             $this->deleteRecord($albumid);

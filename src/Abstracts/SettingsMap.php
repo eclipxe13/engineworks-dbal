@@ -1,7 +1,11 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Abstracts;
 
 use EngineWorks\DBAL\Settings as SettingsInterface;
+use InvalidArgumentException;
 
 /**
  * This is a utility class to implement the Settings interface, it is used
@@ -37,12 +41,12 @@ class SettingsMap implements SettingsInterface
      *
      * @param string $name
      * @param mixed $value
-     * @throws \InvalidArgumentException if setting does not exists
+     * @throws InvalidArgumentException if setting does not exists
      */
-    public function set(string $name, $value)
+    public function set(string $name, $value): void
     {
         if (! array_key_exists($name, $this->map)) {
-            throw new \InvalidArgumentException("Setting $name does not exists");
+            throw new InvalidArgumentException("Setting $name does not exists");
         }
         $this->map[$name] = $value;
     }
@@ -52,7 +56,7 @@ class SettingsMap implements SettingsInterface
      *
      * @param array $settings
      */
-    public function setAll(array $settings)
+    public function setAll(array $settings): void
     {
         foreach ($settings as $name => $value) {
             if (is_string($name) && $this->exists($name)) { // avoid the logic exception

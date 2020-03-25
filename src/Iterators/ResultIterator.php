@@ -1,9 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Iterators;
 
 use EngineWorks\DBAL\Result;
+use Iterator;
 
-class ResultIterator implements \Iterator
+class ResultIterator implements Iterator
 {
     /** @var Result */
     private $result;
@@ -40,14 +44,14 @@ class ResultIterator implements \Iterator
     }
 
     /** @return void */
-    public function next()
+    public function next(): void
     {
         $this->currentValues = $this->result->fetchRow();
         $this->index = $this->index + 1;
     }
 
     /** @return void */
-    public function rewind()
+    public function rewind(): void
     {
         $this->result->moveFirst();
         $this->currentValues = $this->result->fetchRow();

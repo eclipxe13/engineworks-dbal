@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests;
 
 use EngineWorks\DBAL\DBAL;
@@ -105,14 +108,14 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         return $values;
     }
 
-    protected function executeStatements(array $statements)
+    protected function executeStatements(array $statements): void
     {
         foreach ($statements as $statement) {
             $this->executeStatement($statement);
         }
     }
 
-    public function executeStatement(string $statement)
+    public function executeStatement(string $statement): void
     {
         $execute = $this->dbal->execute($statement);
         if (false === $execute) {
@@ -121,7 +124,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         }
     }
 
-    private function createDatabase()
+    private function createDatabase(): void
     {
         if (! $this->dbal->connect()) {
             $this->fail(
@@ -135,7 +138,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         $this->logger->clear();
     }
 
-    private function createDatabaseData()
+    private function createDatabaseData(): void
     {
         $faker = \Faker\Factory::create();
         // create albums

@@ -1,6 +1,10 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL;
 
+use LogicException;
 use Psr\Log\LoggerInterface;
 
 class Factory
@@ -38,16 +42,16 @@ class Factory
     {
         $classname = $this->namespace . '\\' . $class;
         if (! class_exists($classname)) {
-            throw new \LogicException("Class $classname does not exists");
+            throw new LogicException("Class $classname does not exists");
         }
         if ('' !== $extends) {
             if (! in_array($extends, class_parents($classname))) {
-                throw new \LogicException("Class $classname does not extends $extends");
+                throw new LogicException("Class $classname does not extends $extends");
             }
         }
         if ('' !== $implements) {
             if (! in_array($implements, class_implements($classname))) {
-                throw new \LogicException("Class $classname does not implements $implements");
+                throw new LogicException("Class $classname does not implements $implements");
             }
         }
         return $classname;

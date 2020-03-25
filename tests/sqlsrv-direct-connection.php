@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 //
 // This script does not depends on anything, it only check connection to ms sql server
 //
@@ -20,11 +22,11 @@ exit(call_user_func(function ($arguments): int {
         $sql = 'SELECT @@VERSION;';
         $statement = $pdo->query($sql);
         if (false === $statement) {
-            throw new \RuntimeException("Cannot create statement to query: $sql");
+            throw new RuntimeException("Cannot create statement to query: $sql");
         }
         $version = implode(' ', $statement->fetch(PDO::FETCH_NUM) ?? []);
         echo PHP_EOL, $sql, PHP_EOL, $version, PHP_EOL;
-    } catch (\Throwable $exception) {
+    } catch (Throwable $exception) {
         file_put_contents('php://stderr', $exception->getMessage() . PHP_EOL, FILE_APPEND);
         return 1;
     }

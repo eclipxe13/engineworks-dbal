@@ -1,9 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Traits;
 
 use EngineWorks\DBAL\CommonTypes;
+use EngineWorks\DBAL\DBAL;
 
-/** @var \EngineWorks\DBAL\DBAL $this */
+/** @var DBAL $this */
 trait MethodSqlLimit
 {
     public function sqlLimit(string $query, int $requestedPage, int $recordsPerPage = 20): string

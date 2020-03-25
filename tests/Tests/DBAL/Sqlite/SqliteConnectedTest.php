@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\DBAL\Sqlite;
 
 use EngineWorks\DBAL\CommonTypes;
@@ -17,19 +20,19 @@ class SqliteConnectedTest extends SqliteWithDatabaseTestCase
     use DbalQueriesTrait;
     use TransactionsPreventCommitTestTrait;
 
-    public function testRecordsetUsingTester()
+    public function testRecordsetUsingTester(): void
     {
         $tester = new RecordsetTester($this);
         $tester->execute();
     }
 
-    public function testTransactionsUsingTester()
+    public function testTransactionsUsingTester(): void
     {
         $tester = new TransactionsTester($this);
         $tester->execute();
     }
 
-    public function testSqlQuoteUsingTester()
+    public function testSqlQuoteUsingTester(): void
     {
         $tester = new SqlQuoteTester($this);
         $tester->execute();

@@ -1,11 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\DBAL\TesterCases;
 
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Tests\WithDbalTestCase;
 use PHPUnit\Framework\TestCase;
+use SimpleXMLElement;
 
-class SqlQuoteTester
+final class SqlQuoteTester
 {
     /** @var TestCase */
     private $test;
@@ -14,6 +18,7 @@ class SqlQuoteTester
     private $dbal;
 
     private $expectedSingleQuote = "''''";
+
     private $expectedDoubleQuote = "'\"'";
 
     public function __construct(
@@ -31,7 +36,7 @@ class SqlQuoteTester
         }
     }
 
-    public function execute()
+    public function execute(): void
     {
         foreach ($this->providerSqlQuote() as $label => $arguments) {
             $this->testSqlQuote(...array_merge([$label], $arguments));
@@ -48,7 +53,7 @@ class SqlQuoteTester
         $date = '2016-12-31';
         $time = '23:31:59';
         $datetime = "$date $time";
-        $xmlValue = (new \SimpleXMLElement('<' . 'd v="55.1"/>'))['v'];
+        $xmlValue = (new SimpleXMLElement('<d v="55.1"/>'))['v'];
         return [
             // texts
             'text normal' => ["'foo'", 'foo', DBAL::TTEXT, false],
@@ -114,7 +119,7 @@ class SqlQuoteTester
         ];
     }
 
-    public function testSqlQuote(string $label, string $expected, $value, string $type, bool $includeNull)
+    public function testSqlQuote(string $label, string $expected, $value, string $type, bool $includeNull): void
     {
         $this->test->assertSame(
             $expected,
@@ -132,7 +137,7 @@ class SqlQuoteTester
         ];
     }
 
-    public function testSqlQuoteWithLocale(string $locale, string $expected, string $value)
+    public function testSqlQuoteWithLocale(string $locale, string $expected, string $value): void
     {
         $currentNumeric = strval(setlocale(LC_NUMERIC, '0'));
         $currentMonetary = strval(setlocale(LC_MONETARY, '0'));
@@ -152,7 +157,7 @@ class SqlQuoteTester
         setlocale(LC_MONETARY, $currentMonetary);
     }
 
-    public function testWithInvalidCommonType()
+    public function testWithInvalidCommonType(): void
     {
         $this->test->assertSame("'Ñu'", $this->dbal->sqlQuote('Ñu', 'NON-EXISTENT-COMMONTYPE'));
     }

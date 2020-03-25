@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\DBAL\Sample;
 
 use Psr\Log\AbstractLogger;
@@ -8,7 +11,7 @@ class ArrayLogger extends AbstractLogger
     /** @var array */
     private $logs = [];
 
-    public function log($level, $message, array $context = [])
+    public function log($level, $message, array $context = []): void
     {
         $this->logs[$level][] = [
             'message' => $message,
@@ -43,12 +46,12 @@ class ArrayLogger extends AbstractLogger
         return $return;
     }
 
-    public function clear()
+    public function clear(): void
     {
         $this->logs = [];
     }
 
-    public function lastMessage($level)
+    public function lastMessage($level): string
     {
         $list = $this->retrieve($level);
         $count = count($list);

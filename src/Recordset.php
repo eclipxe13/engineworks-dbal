@@ -1,17 +1,27 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL;
 
+use Countable;
+use InvalidArgumentException;
+use IteratorAggregate;
+use LogicException;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 /**
  * Recordset class
  * Hint: Use DBAL->queryRecordset instead of using this class directly
  */
-class Recordset implements \IteratorAggregate, \Countable
+class Recordset implements IteratorAggregate, Countable
 {
-    const RSMODE_NOTCONNECTED = 0;
-    const RSMODE_CONNECTED_EDIT = 1;
-    const RSMODE_CONNECTED_ADDNEW = 2;
+    public const RSMODE_NOTCONNECTED = 0;
+
+    public const RSMODE_CONNECTED_EDIT = 1;
+
+    public const RSMODE_CONNECTED_ADDNEW = 2;
 
     /**
      * Associative array of the current record
@@ -94,11 +104,11 @@ class Recordset implements \IteratorAggregate, \Countable
     ) {
         $this->initialize();
         if (! $this->hasDBAL()) {
-            throw new \LogicException('Recordset: object does not have a connected DBAL');
+            throw new LogicException('Recordset: object does not have a connected DBAL');
         }
         $result = $this->dbal->queryResult($sql, $overrideTypes);
         if (! $result instanceof Result) {
-            throw new \LogicException("Recordset: Unable to perform query $sql");
+            throw new LogicException("Recordset: Unable to perform query $sql");
         }
         $this->mode = self::RSMODE_CONNECTED_EDIT;
         $this->result = $result;
@@ -125,14 +135,14 @@ class Recordset implements \IteratorAggregate, \Countable
         } else {
             // validate overrideKeys
             if ($overrideKeys !== array_unique($overrideKeys)) {
-                throw new \InvalidArgumentException('Keys contains repeated values');
+                throw new InvalidArgumentException('Keys contains repeated values');
             }
             foreach ($overrideKeys as $fieldName) {
                 if (! is_string($fieldName)) {
-                    throw new \InvalidArgumentException('Keys were set but at least one is not a string');
+                    throw new InvalidArgumentException('Keys were set but at least one is not a string');
                 }
                 if (! array_key_exists($fieldName, $this->datafields)) {
-                    throw new \InvalidArgumentException(
+                    throw new InvalidArgumentException(
                         "The field name $fieldName does not exists in the set of fields"
                     );
                 }
@@ -149,7 +159,7 @@ class Recordset implements \IteratorAggregate, \Countable
     /**
      * Internal procedure to initiate all the variables
      */
-    private function initialize()
+    private function initialize(): void
     {
         $this->entity = '';
         $this->source = '';
@@ -167,7 +177,7 @@ class Recordset implements \IteratorAggregate, \Countable
      */
     final public function isOpen(): bool
     {
-        return ($this->hasDBAL() && $this->result !== null);
+        return ($this->hasDBAL() && null !== $this->result);
     }
 
     /**
@@ -203,7 +213,7 @@ class Recordset implements \IteratorAggregate, \Countable
      */
     public function canModify(): bool
     {
-        return ($this->mode !== self::RSMODE_NOTCONNECTED && '' !== $this->entity);
+        return (self::RSMODE_NOTCONNECTED !== $this->mode && '' !== $this->entity);
     }
 
     /**
@@ -233,12 +243,12 @@ class Recordset implements \IteratorAggregate, \Countable
      * Return an array with the original values.
      *
      * @return array
-     * @throws \RuntimeException There are no original values
+     * @throws RuntimeException There are no original values
      */
     final public function getOriginalValues(): array
     {
         if (! is_array($this->originalValues)) {
-            throw new \RuntimeException('There are no original values');
+            throw new RuntimeException('There are no original values');
         }
         return $this->originalValues;
     }
@@ -248,7 +258,7 @@ class Recordset implements \IteratorAggregate, \Countable
      * All the values are set to null
      * @return void
      */
-    final public function addNew()
+    final public function addNew(): void
     {
         $this->originalValues = null;
         $this->values = $this->emptyValuesFromDataFields();
@@ -270,12 +280,12 @@ class Recordset implements \IteratorAggregate, \Countable
      * Check whether the current values are different from the original ones
      * The base are the original values
      * @return bool
-     * @throws \RuntimeException if no original values exists
+     * @throws RuntimeException if no original values exists
      */
     final public function valuesHadChanged(): bool
     {
         if (! is_array($this->originalValues)) {
-            throw new \RuntimeException('The recordset does not contain any original values');
+            throw new RuntimeException('The recordset does not contain any original values');
         }
         foreach ($this->originalValues as $field => $value) {
             $current = array_key_exists($field, $this->values) ? $this->values[$field] : null;
@@ -379,7 +389,7 @@ class Recordset implements \IteratorAggregate, \Countable
             $inserts[$escapedFieldName] = $this->dbal->sqlQuote($value, $field['commontype'], true);
         }
         if (! count($inserts)) {
-            throw new \LogicException('Recordset: Insert does not have any fields to insert');
+            throw new LogicException('Recordset: Insert does not have any fields to insert');
         }
         return 'INSERT INTO ' . $this->dbal->sqlTableEscape($this->entity)
         . ' (' . implode(', ', array_keys($inserts)) . ')'
@@ -399,7 +409,7 @@ class Recordset implements \IteratorAggregate, \Countable
         $conditions = $this->sqlWhereConditions($extraWhereClause);
         // if no conditions then log error and return false
         if (! count($conditions)) {
-            throw new \LogicException('Recordset: The current record does not have any conditions to update');
+            throw new LogicException('Recordset: The current record does not have any conditions to update');
         }
         // get the fields that have changed compared to originalValues
         $updates = [];
@@ -435,7 +445,7 @@ class Recordset implements \IteratorAggregate, \Countable
         $conditions = $this->sqlWhereConditions($extraWhereClause);
         // if no conditions then log error and return false
         if (! count($conditions)) {
-            throw new \LogicException('Recordset: The current record does not have any conditions to delete');
+            throw new LogicException('Recordset: The current record does not have any conditions to delete');
         }
         return 'DELETE'
             . ' FROM ' . $this->dbal->sqlTableEscape($this->entity)
@@ -454,13 +464,13 @@ class Recordset implements \IteratorAggregate, \Countable
     {
         // check the current mode is on ADDNEW or EDIT
         if (self::RSMODE_CONNECTED_ADDNEW !== $this->mode && self::RSMODE_CONNECTED_EDIT !== $this->mode) {
-            throw new \LogicException(
+            throw new LogicException(
                 "Recordset: The recordset is not on edit or addnew mode [current: {$this->mode}]"
             );
         }
         // check the entity is not empty
         if ('' === $this->entity) {
-            throw new \LogicException('Recordset: The recordset does not have a valid unique entity');
+            throw new LogicException('Recordset: The recordset does not have a valid unique entity');
         }
         $sql = '';
         if (self::RSMODE_CONNECTED_ADDNEW == $this->mode) {
@@ -503,11 +513,11 @@ class Recordset implements \IteratorAggregate, \Countable
     final public function delete($extraWhereClause = '')
     {
         if (self::RSMODE_CONNECTED_EDIT !== $this->mode) {
-            throw new \LogicException('Recordset: The recordset is not on edit mode [current: ' . $this->mode . ']');
+            throw new LogicException('Recordset: The recordset is not on edit mode [current: ' . $this->mode . ']');
         }
         // check the entity is not empty
         if ('' === $this->entity) {
-            throw new \LogicException('Recordset: The recordset does not have a valid unique entity');
+            throw new LogicException('Recordset: The recordset does not have a valid unique entity');
         }
         $sql = $this->sqlDelete($extraWhereClause);
         $altered = $this->dbal->execute($sql);
@@ -663,7 +673,7 @@ class Recordset implements \IteratorAggregate, \Countable
     private function result(): Result
     {
         if (null === $this->result) {
-            throw new \RuntimeException('The current state of the result is NULL');
+            throw new RuntimeException('The current state of the result is NULL');
         }
         return $this->result;
     }

@@ -1,12 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL;
+
+use Countable;
+use IteratorAggregate;
 
 /**
  * Interface Result, this interface must be implemented by the Drivers
  *
  * @package EngineWorks\DBAL
  */
-interface Result extends \IteratorAggregate, \Countable
+interface Result extends IteratorAggregate, Countable
 {
     /**
      * Get one row from the resource, the result is an associative array

@@ -1,7 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Traits;
 
-/** @var \EngineWorks\DBAL\DBAL $this */
+use EngineWorks\DBAL\DBAL;
+
+/** @var DBAL $this */
 trait MethodSqlConcatenate
 {
     public function sqlConcatenate(...$strings): string

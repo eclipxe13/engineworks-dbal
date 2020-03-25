@@ -1,4 +1,9 @@
 <?php
+
+/** @noinspection PhpComposerExtensionStubsInspection */
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Sqlite;
 
 use EngineWorks\DBAL\Abstracts\SettingsMap;

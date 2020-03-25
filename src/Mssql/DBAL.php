@@ -1,11 +1,21 @@
 <?php
+
+/** @noinspection PhpComposerExtensionStubsInspection */
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Mssql;
 
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\DBAL as AbstractDBAL;
 use EngineWorks\DBAL\Traits\MethodSqlConcatenate;
 use EngineWorks\DBAL\Traits\MethodSqlQuote;
+use Exception;
+use InvalidArgumentException;
 use PDO;
+use PDOStatement;
+use RuntimeException;
+use Throwable;
 
 /**
  * Mssql implementation
@@ -13,8 +23,8 @@ use PDO;
  */
 class DBAL extends AbstractDBAL
 {
-    use MethodSqlQuote;
     use MethodSqlConcatenate;
+    use MethodSqlQuote;
 
     /** @var PDO|null */
     protected $pdo = null;
@@ -59,7 +69,7 @@ class DBAL extends AbstractDBAL
                     PDO::ATTR_FETCH_TABLE_NAMES => true,
                 ]
             );
-        } catch (\Throwable $ex) {
+        } catch (Throwable $ex) {
             $this->logger->info('-- Connection fail ' . $ex->getMessage());
             $this->logger->error('Cannot create PDO object for MS SQL ' . $ex->getMessage());
             return false;
@@ -71,7 +81,7 @@ class DBAL extends AbstractDBAL
         return true;
     }
 
-    public function disconnect()
+    public function disconnect(): void
     {
         if ($this->isConnected()) {
             $this->logger->info('-- Disconnection');
@@ -105,17 +115,17 @@ class DBAL extends AbstractDBAL
      * This is the internal function to do the query according to the database functions
      * It's used by queryResult and queryAffectedRows methods
      * @param string $query
-     * @return \PDOStatement|false
+     * @return PDOStatement|false
      */
     protected function queryDriver($query)
     {
         $this->logger->debug($query);
         try {
             if (false === $stmt = $this->pdo()->query($query)) {
-                throw new \RuntimeException("Unable to prepare statement $query");
+                throw new RuntimeException("Unable to prepare statement $query");
             }
             return $stmt;
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $this->logger->info("-- Query fail with SQL: $query");
             $this->logger->error("FAIL: $query\nLast message:" . $this->getLastMessage());
             return false;
@@ -180,7 +190,7 @@ class DBAL extends AbstractDBAL
             case 'SECOND':
                 return "DATEPART(ss, $expression)";
         }
-        throw new \InvalidArgumentException("Date part $part is not valid");
+        throw new InvalidArgumentException("Date part $part is not valid");
     }
 
     public function sqlIf(string $condition, string $truePart, string $falsePart): string
@@ -219,7 +229,7 @@ class DBAL extends AbstractDBAL
             . (($wildcardBegin) ? '%' : '') . $this->sqlString($searchString) . (($wildcardEnd) ? '%' : '') . "'";
     }
 
-    protected function commandSavepoint(string $name)
+    protected function commandSavepoint(string $name): void
     {
         $this->execute(
             'SAVE TRANSACTION ' . $this->sqlFieldEscape($name) . ';',
@@ -227,13 +237,13 @@ class DBAL extends AbstractDBAL
         );
     }
 
-    protected function commandReleaseSavepoint(string $name)
+    protected function commandReleaseSavepoint(string $name): void
     {
         // do not execute, the command commit transaction does not works with save transaction
         $this->logger->debug("-- COMMIT TRANSACTION $name");
     }
 
-    protected function commandRollbackToSavepoint(string $name)
+    protected function commandRollbackToSavepoint(string $name): void
     {
         $this->execute(
             'ROLLBACK TRANSACTION ' . $this->sqlFieldEscape($name) . ';',
@@ -244,7 +254,7 @@ class DBAL extends AbstractDBAL
     private function pdo(): PDO
     {
         if (null === $this->pdo) {
-            throw new \RuntimeException('The current state of the connection is NULL');
+            throw new RuntimeException('The current state of the connection is NULL');
         }
         return $this->pdo;
     }

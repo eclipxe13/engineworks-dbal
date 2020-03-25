@@ -1,9 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests;
 
 abstract class SqliteWithDatabaseTestCase extends WithDatabaseTestCase
 {
-    protected function checkIsAvailable()
+    protected function checkIsAvailable(): void
     {
         if (! class_exists('\SQLite3')) {
             $this->markTestSkipped('Environment does not have the extension sqlite3');
@@ -22,7 +25,7 @@ abstract class SqliteWithDatabaseTestCase extends WithDatabaseTestCase
         ];
     }
 
-    protected function createDatabaseStructure()
+    protected function createDatabaseStructure(): void
     {
         $this->executeStatements([
             'CREATE ' . ' TABLE albums ('

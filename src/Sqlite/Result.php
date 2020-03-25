@@ -1,4 +1,9 @@
 <?php
+
+/** @noinspection PhpComposerExtensionStubsInspection */
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Sqlite;
 
 use EngineWorks\DBAL\CommonTypes;
@@ -71,7 +76,10 @@ class Result implements ResultInterface
     {
         // suppress errors because the query may already been closed
         // see https://bugs.php.net/bug.php?id=72502
-        /** @scrutinizer ignore-unhandled */
+        /**
+         * @scrutinizer ignore-unhandled
+         * @noinspection PhpUsageOfSilenceOperatorInspection
+         */
         @$this->query->finalize();
     }
 

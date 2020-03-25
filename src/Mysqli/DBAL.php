@@ -1,13 +1,20 @@
 <?php
+
+/** @noinspection PhpComposerExtensionStubsInspection */
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Mysqli;
 
 use EngineWorks\DBAL\DBAL as AbstractDBAL;
 use EngineWorks\DBAL\Traits\MethodSqlConcatenate;
+use EngineWorks\DBAL\Traits\MethodSqlDatePartFormatAnsi;
 use EngineWorks\DBAL\Traits\MethodSqlLike;
 use EngineWorks\DBAL\Traits\MethodSqlLimit;
 use EngineWorks\DBAL\Traits\MethodSqlQuote;
 use mysqli;
 use mysqli_result;
+use RuntimeException;
 
 /**
  * Mysqli implementation
@@ -19,6 +26,7 @@ class DBAL extends AbstractDBAL
     use MethodSqlLike;
     use MethodSqlLimit;
     use MethodSqlConcatenate;
+    use MethodSqlDatePartFormatAnsi;
 
     /**
      * Contains the connection resource for mysqli
@@ -39,9 +47,9 @@ class DBAL extends AbstractDBAL
             $this->settings->get('user'),
             $this->settings->get('password'),
             $this->settings->get('database'),
-            $this->settings->get('port'),
-            $this->settings->get('socket'),
-            $this->settings->get('flags')
+            intval($this->settings->get('port')),
+            strval($this->settings->get('socket')),
+            intval($this->settings->get('flags'))
         );
         error_reporting($errorLevel);
         // check there are no connection errors
@@ -64,7 +72,7 @@ class DBAL extends AbstractDBAL
         return true;
     }
 
-    public function disconnect()
+    public function disconnect(): void
     {
         if ($this->isConnected()) {
             $this->logger->info('-- Disconnection');
@@ -87,7 +95,7 @@ class DBAL extends AbstractDBAL
     public function sqlString($variable): string
     {
         if ($this->isConnected()) {
-            return $this->mysqli()->escape_string($variable);
+            return $this->mysqli()->escape_string(strval($variable));
         }
         // there are no function to escape without a link
         return str_replace(
@@ -152,38 +160,8 @@ class DBAL extends AbstractDBAL
 
     public function sqlDatePart(string $part, string $expression): string
     {
-        switch (strtoupper($part)) {
-            case 'YEAR':
-                $format = '%Y';
-                break;
-            case 'MONTH':
-                $format = '%m';
-                break;
-            case 'FDOM':
-                $format = '%Y-%m-01';
-                break;
-            case 'FYM':
-                $format = '%Y-%m';
-                break;
-            case 'FYMD':
-                $format = '%Y-%m-%d';
-                break;
-            case 'DAY':
-                $format = '%d';
-                break;
-            case 'HOUR':
-                $format = '%H';
-                break;
-            case 'MINUTE':
-                $format = '%i';
-                break;
-            case 'SECOND':
-                $format = '%s';
-                break;
-            default:
-                throw new \InvalidArgumentException("Date part $part is not valid");
-        }
-        return 'DATE_FORMAT(' . $expression . ", '" . $format . "')";
+        $format = $this->sqlDatePartFormatAnsi($part);
+        return sprintf('DATE_FORMAT(%s, %s)', $expression, $this->sqlQuote($format, self::TTEXT));
     }
 
     public function sqlIf(string $condition, string $truePart, string $falsePart): string
@@ -196,7 +174,7 @@ class DBAL extends AbstractDBAL
         return 'RAND()';
     }
 
-    protected function commandTransactionBegin()
+    protected function commandTransactionBegin(): void
     {
         $this->execute('START TRANSACTION', 'Cannot start transaction');
     }
@@ -207,7 +185,7 @@ class DBAL extends AbstractDBAL
     private function mysqli()
     {
         if (null === $this->mysqli) {
-            throw new \RuntimeException('The current state of the connection is NULL');
+            throw new RuntimeException('The current state of the connection is NULL');
         }
         return $this->mysqli;
     }

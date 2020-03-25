@@ -1,18 +1,28 @@
 <?php
+
+/** @noinspection PhpComposerExtensionStubsInspection */
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Sqlite;
 
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\DBAL as AbstractDBAL;
+use EngineWorks\DBAL\Traits\MethodSqlDatePartFormatAnsi;
 use EngineWorks\DBAL\Traits\MethodSqlLike;
 use EngineWorks\DBAL\Traits\MethodSqlLimit;
 use EngineWorks\DBAL\Traits\MethodSqlQuote;
+use Exception;
+use RuntimeException;
 use SQLite3;
+use Throwable;
 
 class DBAL extends AbstractDBAL
 {
     use MethodSqlQuote;
     use MethodSqlLike;
     use MethodSqlLimit;
+    use MethodSqlDatePartFormatAnsi;
 
     /**
      * Contains the connection resource for SQLite3
@@ -32,7 +42,7 @@ class DBAL extends AbstractDBAL
                 (string) $this->settings->get('filename', ':memory:'),
                 ($this->settings->exists('flags')) ? (int) $this->settings->get('flags') : $defaultFlags
             );
-        } catch (\Throwable $ex) {
+        } catch (Throwable $ex) {
             $this->logger->info('-- Connection fail');
             $this->logger->error('Cannot create SQLite3 object: ' . $ex->getMessage());
             return false;
@@ -45,7 +55,7 @@ class DBAL extends AbstractDBAL
         return true;
     }
 
-    public function disconnect()
+    public function disconnect(): void
     {
         if ($this->isConnected()) {
             $this->logger->info('-- Disconnection');
@@ -72,6 +82,10 @@ class DBAL extends AbstractDBAL
 
     public function queryResult(string $query, array $overrideTypes = [])
     {
+        /**
+         * @scrutinizer ignore-unhandled
+         * @noinspection PhpUsageOfSilenceOperatorInspection
+         */
         $rslt = @$this->sqlite()->query($query);
         if (false !== $rslt) {
             return new Result($rslt, $overrideTypes);
@@ -84,7 +98,7 @@ class DBAL extends AbstractDBAL
         $this->logger->debug($query);
         try {
             $exec = $this->sqlite()->exec($query);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $exec = false;
             $this->logger->info("-- Query fail with SQL: $query");
             $this->logger->error("FAIL: $query\nLast message:" . $ex->getMessage());
@@ -120,38 +134,8 @@ class DBAL extends AbstractDBAL
 
     public function sqlDatePart(string $part, string $expression): string
     {
-        switch (strtoupper($part)) {
-            case 'YEAR':
-                $format = '%Y';
-                break;
-            case 'MONTH':
-                $format = '%m';
-                break;
-            case 'FDOM':
-                $format = '%Y-%m-01';
-                break;
-            case 'FYM':
-                $format = '%Y-%m';
-                break;
-            case 'FYMD':
-                $format = '%Y-%m-%d';
-                break;
-            case 'DAY':
-                $format = '%d';
-                break;
-            case 'HOUR':
-                $format = '%H';
-                break;
-            case 'MINUTE':
-                $format = '%i';
-                break;
-            case 'SECOND':
-                $format = '%s';
-                break;
-            default:
-                throw new \InvalidArgumentException("Date part $part is not valid");
-        }
-        return 'STRFTIME(' . $expression . ", '" . $format . "')";
+        $format = $this->sqlDatePartFormatAnsi($part);
+        return sprintf('STRFTIME(%s, %s)', $expression, $this->sqlQuote($format, self::TTEXT));
     }
 
     public function sqlIf(string $condition, string $truePart, string $falsePart): string
@@ -170,7 +154,7 @@ class DBAL extends AbstractDBAL
     private function sqlite()
     {
         if (null === $this->sqlite) {
-            throw new \RuntimeException('The current state of the connection is NULL');
+            throw new RuntimeException('The current state of the connection is NULL');
         }
         return $this->sqlite;
     }

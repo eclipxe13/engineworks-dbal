@@ -1,12 +1,21 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\DBAL\TesterTraits;
 
+use EngineWorks\DBAL\DBAL;
+
+/**
+ * @property-read DBAL $dbal
+ */
 trait MsSqlServerNoCountSettingTrait
 {
     protected $heavyNumCount = 5000;
 
     protected function setUp(): void
     {
+        /** @noinspection PhpUndefinedClassInspection */
         parent::setUp();
         $this->executeStatement(
             '
@@ -42,22 +51,23 @@ trait MsSqlServerNoCountSettingTrait
             DROP TABLE ExpensiveTable;
             '
         );
+        /** @noinspection PhpUndefinedClassInspection */
         parent::tearDown();
     }
 
     private function queryRecordCount(): int
     {
-        return (int) $this->getDbal()->queryOne('SELECT COUNT(*) FROM ExpensiveTable;');
+        return (int) $this->dbal->queryOne('SELECT COUNT(*) FROM ExpensiveTable;');
     }
 
-    public function testExecuteWithOne()
+    public function testExecuteWithOne(): void
     {
         $execReturn = $this->dbal->execute('EXEC ExpensiveTest 1;');
         $this->assertSame(0, $execReturn, 'EXEC was expected to return -1');
         $this->assertSame(1, $this->queryRecordCount(), 'EXEC did not insert 1 record');
     }
 
-    public function testExecuteWithOutNoCount()
+    public function testExecuteWithOutNoCount(): void
     {
         $numRows = $this->heavyNumCount;
         $execReturn = $this->dbal->execute("EXEC ExpensiveTest $numRows;");
@@ -69,7 +79,7 @@ trait MsSqlServerNoCountSettingTrait
         );
     }
 
-    public function testExecuteWithNoCountOff()
+    public function testExecuteWithNoCountOff(): void
     {
         $numRows = $this->heavyNumCount;
         $this->dbal->execute('SET NOCOUNT OFF;');
@@ -82,7 +92,7 @@ trait MsSqlServerNoCountSettingTrait
         );
     }
 
-    public function testExecuteWithNoCountOn()
+    public function testExecuteWithNoCountOn(): void
     {
         $numRows = $this->heavyNumCount;
         $this->dbal->execute('SET NOCOUNT ON;');
@@ -95,28 +105,28 @@ trait MsSqlServerNoCountSettingTrait
         );
     }
 
-    public function testDeleteWithoutSetCount()
+    public function testDeleteWithoutSetCount(): void
     {
         $numRows = 10;
         $this->dbal->execute("EXEC ExpensiveTest $numRows;");
         $this->assertSame($numRows, $this->dbal->execute('DELETE FROM ExpensiveTable;'));
     }
 
-    public function testDeleteWithSetCountOn()
+    public function testDeleteWithSetCountOn(): void
     {
         $numRows = 10;
         $this->dbal->execute("SET NOCOUNT ON; EXEC ExpensiveTest $numRows;");
         $this->assertSame(0, $this->dbal->execute('DELETE FROM ExpensiveTable;'));
     }
 
-    public function testDeleteWithSetCountOff()
+    public function testDeleteWithSetCountOff(): void
     {
         $numRows = 10;
         $this->dbal->execute("SET NOCOUNT OFF; EXEC ExpensiveTest $numRows;");
         $this->assertSame($numRows, $this->dbal->execute('DELETE FROM ExpensiveTable;'));
     }
 
-    public function testDeleteWithSetCountOnAndOff()
+    public function testDeleteWithSetCountOnAndOff(): void
     {
         $numRows = 10;
         $this->dbal->execute("SET NOCOUNT ON; EXEC ExpensiveTest $numRows; SET NOCOUNT OFF;");

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Mysqli;
 
 use EngineWorks\DBAL\Abstracts\SettingsMap;

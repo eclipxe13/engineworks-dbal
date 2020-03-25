@@ -1,4 +1,9 @@
 <?php
+
+/** @noinspection PhpComposerExtensionStubsInspection */
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Mysqli;
 
 use EngineWorks\DBAL\CommonTypes;
@@ -112,9 +117,9 @@ class Result implements ResultInterface
         $type = CommonTypes::TTEXT;
         if (array_key_exists($field->{'type'}, $types)) {
             $type = $types[$field->{'type'}];
-            if (1 == $field->{'length'} && ($type == CommonTypes::TINT || $type == CommonTypes::TNUMBER)) {
+            if (1 == $field->{'length'} && (CommonTypes::TINT == $type || CommonTypes::TNUMBER == $type)) {
                 $type = CommonTypes::TBOOL;
-            } elseif ($type == CommonTypes::TNUMBER && $field->{'decimals'} == 0) {
+            } elseif (CommonTypes::TNUMBER == $type && 0 == $field->{'decimals'}) {
                 $type = CommonTypes::TINT;
             }
         }

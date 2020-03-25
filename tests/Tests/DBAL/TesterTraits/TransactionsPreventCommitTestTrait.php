@@ -1,13 +1,17 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\DBAL\TesterTraits;
 
 use EngineWorks\DBAL\DBAL;
+use Throwable;
 
 trait TransactionsPreventCommitTestTrait
 {
     abstract protected function getDbal(): DBAL;
 
-    public function testTransactionPreventCommitChangeStatus()
+    public function testTransactionPreventCommitChangeStatus(): void
     {
         $dbal = $this->getDbal();
 
@@ -17,7 +21,7 @@ trait TransactionsPreventCommitTestTrait
         $this->assertFalse($dbal->transPreventCommit());
     }
 
-    public function testTransactionPreventCommitError()
+    public function testTransactionPreventCommitError(): void
     {
         $dbal = $this->getDbal();
 
@@ -30,7 +34,7 @@ trait TransactionsPreventCommitTestTrait
         $lastCommitError = false;
         try {
             $dbal->transCommit();
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $lastCommitError = true;
         }
         $this->assertTrue($lastCommitError);

@@ -1,11 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests;
 
 class SqlsrvWithDatabaseTestCase extends WithDatabaseTestCase
 {
-    protected function checkIsAvailable()
+    protected function checkIsAvailable(): void
     {
-        if (getenv('testSqlsrv') !== 'yes') {
+        if ('yes' !== getenv('testSqlsrv')) {
             $this->markTestSkipped('Environment does not include mssql tests');
         }
         if (! function_exists('pdo_drivers')) {
@@ -34,7 +37,7 @@ class SqlsrvWithDatabaseTestCase extends WithDatabaseTestCase
         ];
     }
 
-    protected function createDatabaseStructure()
+    protected function createDatabaseStructure(): void
     {
         /*
          * These statements were used to drop the database but in new version is very expensive,

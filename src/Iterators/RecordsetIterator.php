@@ -1,9 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Iterators;
 
 use EngineWorks\DBAL\Recordset;
+use Iterator;
 
-class RecordsetIterator implements \Iterator
+class RecordsetIterator implements Iterator
 {
     /** @var Recordset */
     private $recordset;
@@ -37,7 +41,7 @@ class RecordsetIterator implements \Iterator
     }
 
     /** @return void */
-    public function next()
+    public function next(): void
     {
         $this->recordset->moveNext();
         $this->index = $this->index + 1;
@@ -61,9 +65,9 @@ class RecordsetIterator implements \Iterator
     }
 
     /** @return void */
-    public function rewind()
+    public function rewind(): void
     {
-        if ($this->index !== 0) {
+        if (0 !== $this->index) {
             $this->recordset->moveFirst();
             $this->index = 0;
         }

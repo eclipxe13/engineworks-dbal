@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\DBAL\Mysqli;
 
 use EngineWorks\DBAL\Tests\DBAL\Sample\ArrayLogger;
@@ -23,7 +26,7 @@ class MysqliDisconnectedTest extends WithDbalTestCase
         ]);
     }
 
-    public function testConnectReturnFalseWhenCannotConnect()
+    public function testConnectReturnFalseWhenCannotConnect(): void
     {
         $logger = new ArrayLogger();
         $this->dbal->setLogger($logger);
@@ -45,19 +48,19 @@ class MysqliDisconnectedTest extends WithDbalTestCase
      *
      */
 
-    public function testSqlField()
+    public function testSqlField(): void
     {
         $expectedName = 'some-field AS `some - label`';
         $this->assertSame($expectedName, $this->dbal->sqlField('some-field', 'some - label'));
     }
 
-    public function testSqlFieldEscape()
+    public function testSqlFieldEscape(): void
     {
         $expectedName = '`some-field` AS `some - label`';
         $this->assertSame($expectedName, $this->dbal->sqlFieldEscape('some-field', 'some - label'));
     }
 
-    public function testSqlTable()
+    public function testSqlTable(): void
     {
         $this->setupDbalWithSettings([
             'prefix' => 'foo_',
@@ -68,7 +71,7 @@ class MysqliDisconnectedTest extends WithDbalTestCase
         $this->assertSame($expectedNoSuffix, $this->dbal->sqlTableEscape('bar', 'x'));
     }
 
-    public function testSqlString()
+    public function testSqlString(): void
     {
         $this->assertSame("  foo\tbar  \\n", $this->dbal->sqlString("  foo\tbar  \n"));
         $this->assertSame("\\'", $this->dbal->sqlString("'"));
@@ -77,12 +80,12 @@ class MysqliDisconnectedTest extends WithDbalTestCase
         $this->assertSame("\\'\\'\\'", $this->dbal->sqlString("'''"));
     }
 
-    public function testSqlRandomFunc()
+    public function testSqlRandomFunc(): void
     {
         $this->assertSame('RAND()', $this->dbal->sqlRandomFunc());
     }
 
-    public function testSqlIf()
+    public function testSqlIf(): void
     {
         $this->assertSame(
             'IF(condition, true, false)',
@@ -90,21 +93,21 @@ class MysqliDisconnectedTest extends WithDbalTestCase
         );
     }
 
-    public function testSqlLimit()
+    public function testSqlLimit(): void
     {
         $expected = 'SELECT a LIMIT 20 OFFSET 80;';
         $this->assertSame($expected, $this->dbal->sqlLimit('SELECT a ', 5, 20));
         $this->assertSame($expected, $this->dbal->sqlLimit('SELECT a;', 5, 20));
     }
 
-    public function testSqlConcatenate()
+    public function testSqlConcatenate(): void
     {
         $this->assertSame('CONCAT(9, 8, 7)', $this->dbal->sqlConcatenate(...['9', '8', '7']));
         $this->assertSame('CONCAT(a, b, c)', $this->dbal->sqlConcatenate('a', 'b', 'c'));
         $this->assertSame("''", $this->dbal->sqlConcatenate());
     }
 
-    public function testSqlQuoteUsingTester()
+    public function testSqlQuoteUsingTester(): void
     {
         $tester = new SqlQuoteTester($this, "'\\''", "'\\\"'");
         $tester->execute();

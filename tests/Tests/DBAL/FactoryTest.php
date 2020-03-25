@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\DBAL;
 
 use EngineWorks\DBAL\DBAL;
@@ -8,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class FactoryTest extends TestCase
 {
-    public function testFactoryCreateValidSqlite()
+    public function testFactoryCreateValidSqlite(): void
     {
         $namespace = 'EngineWorks\DBAL\Sqlite';
         $factory = new Factory($namespace);
@@ -20,7 +23,7 @@ class FactoryTest extends TestCase
         $this->assertNotNull($dbal);
     }
 
-    public function testSettingWhenClassDoesNotExists()
+    public function testSettingWhenClassDoesNotExists(): void
     {
         $namespace = __NAMESPACE__ . '\Sample';
         $settingsname = 'SettingsClass';
@@ -31,7 +34,7 @@ class FactoryTest extends TestCase
         $factory->settings();
     }
 
-    public function testSettingWhenClassDoesNotImplementsInterface()
+    public function testSettingWhenClassDoesNotImplementsInterface(): void
     {
         $namespace = __NAMESPACE__ . '\Sample';
         $factory = new Factory($namespace, '', 'EmptyObject');
@@ -42,7 +45,7 @@ class FactoryTest extends TestCase
         $factory->settings();
     }
 
-    public function testDbalWhenClassDoesNotExists()
+    public function testDbalWhenClassDoesNotExists(): void
     {
         $namespace = __NAMESPACE__ . '\Sample';
         $dbalname = 'SettingsClass';
@@ -56,7 +59,7 @@ class FactoryTest extends TestCase
         $factory->dbal($mockSettings);
     }
 
-    public function testDbalWhenClassDoesNotExtendsDbal()
+    public function testDbalWhenClassDoesNotExtendsDbal(): void
     {
         $namespace = __NAMESPACE__ . '\Sample';
         $dbalname = 'EmptyObject';

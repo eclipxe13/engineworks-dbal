@@ -1,10 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\DBAL\Sqlite;
 
+use Countable;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Iterators\ResultIterator;
 use EngineWorks\DBAL\Result;
 use EngineWorks\DBAL\Tests\SqliteWithDatabaseTestCase;
+use Iterator;
+use Traversable;
 
 class SqliteResultTest extends SqliteWithDatabaseTestCase
 {
@@ -17,20 +23,20 @@ class SqliteResultTest extends SqliteWithDatabaseTestCase
         $this->result = $this->queryResult('SELECT * FROM albums WHERE (albumid between 1 and 3);');
     }
 
-    public function testResultCount()
+    public function testResultCount(): void
     {
         $this->assertSame(3, $this->result->resultCount());
     }
 
-    public function testQueryResult()
+    public function testQueryResult(): void
     {
         $this->assertInstanceOf(Result::class, $this->result);
-        $this->assertInstanceOf(\Countable::class, $this->result);
-        $this->assertInstanceOf(\Traversable::class, $this->result);
+        $this->assertInstanceOf(Countable::class, $this->result);
+        $this->assertInstanceOf(Traversable::class, $this->result);
         $this->assertCount(3, $this->result);
     }
 
-    public function testIterator()
+    public function testIterator(): void
     {
         $fist = $this->getForEach();
         $this->assertCount(3, $fist);
@@ -39,20 +45,20 @@ class SqliteResultTest extends SqliteWithDatabaseTestCase
         $this->assertEquals($fist, $second);
     }
 
-    public function testIteratorAfterMovingTheFirstRecord()
+    public function testIteratorAfterMovingTheFirstRecord(): void
     {
         $this->result->fetchRow();
         $contents = $this->getForEach();
         $this->assertCount(3, $contents);
     }
 
-    public function testMoveToOutOfBounds()
+    public function testMoveToOutOfBounds(): void
     {
         $this->assertFalse($this->result->moveTo(-10));
         $this->assertFalse($this->result->moveTo(10000));
     }
 
-    public function testMoveOffSet()
+    public function testMoveOffSet(): void
     {
         $current = $this->getForEach();
         $this->assertSame(false, $this->result->fetchRow(), 'After for each fetch must return FALSE');
@@ -66,7 +72,7 @@ class SqliteResultTest extends SqliteWithDatabaseTestCase
         $this->assertSame($current[1], $this->result->fetchRow(), 'After move to index 1 fetch must return second row');
     }
 
-    public function testFetchRowSequence()
+    public function testFetchRowSequence(): void
     {
         // this is made to check undocumented behavior on SQLite3Result::fetchArray
         // http://php.net/manual/en/sqlite3result.fetcharray.php#115856
@@ -78,7 +84,7 @@ class SqliteResultTest extends SqliteWithDatabaseTestCase
         $this->assertSame(false, $this->result->fetchRow(), 'Third fetch row on EOF must return FALSE');
     }
 
-    public function testGetFields()
+    public function testGetFields(): void
     {
         // cannot get (yet) the table from a query
         $expected = [
@@ -116,7 +122,7 @@ class SqliteResultTest extends SqliteWithDatabaseTestCase
         $this->assertEquals($expected, $this->result->getFields());
     }
 
-    public function testGetFieldsWithNoContents()
+    public function testGetFieldsWithNoContents(): void
     {
         $this->markTestSkipped('Already know that Sqlite fail when the result does not have contents');
         $result = $this->queryResult('SELECT albumid FROM albums WHERE (albumid = -1);');
@@ -124,19 +130,19 @@ class SqliteResultTest extends SqliteWithDatabaseTestCase
         $this->assertEquals(CommonTypes::TINT, $fields[0]['commontype']);
     }
 
-    public function testGetIdFields()
+    public function testGetIdFields(): void
     {
         $this->assertSame(false, $this->result->getIdFields(), 'Cannot get (yet) the Id Fields from a query');
     }
 
-    public function testGetIterator()
+    public function testGetIterator(): void
     {
         $iterator = $this->result->getIterator();
-        $this->assertInstanceOf(\Iterator::class, $iterator);
+        $this->assertInstanceOf(Iterator::class, $iterator);
         $this->assertInstanceOf(ResultIterator::class, $iterator);
     }
 
-    public function testMoveFirstAndMoveReturnFalseOnEmptyResultset()
+    public function testMoveFirstAndMoveReturnFalseOnEmptyResultset(): void
     {
         $result = $this->queryResult('SELECT * FROM albums WHERE (albumid < 0);');
         $this->assertFalse($result->moveFirst());

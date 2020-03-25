@@ -1,10 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Traits;
 
 use EngineWorks\DBAL\CommonTypes;
+use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Internal\NumericParser;
 
-/** @var \EngineWorks\DBAL\DBAL $this */
+/** @var DBAL $this */
 trait MethodSqlQuote
 {
     public function sqlQuote($variable, string $commonType = CommonTypes::TTEXT, bool $includeNull = false): string
@@ -13,25 +17,25 @@ trait MethodSqlQuote
             return 'NULL';
         }
         // CommonTypes::TTEXT is here because is the most common used type
-        if ($commonType === CommonTypes::TTEXT) {
+        if (CommonTypes::TTEXT === $commonType) {
             return "'" . $this->sqlString($variable) . "'";
         }
-        if ($commonType === CommonTypes::TINT) {
+        if (CommonTypes::TINT === $commonType) {
             return $this->sqlQuoteParseNumber($variable, true);
         }
-        if ($commonType === CommonTypes::TNUMBER) {
+        if (CommonTypes::TNUMBER === $commonType) {
             return $this->sqlQuoteParseNumber($variable, false);
         }
-        if ($commonType === CommonTypes::TBOOL) {
+        if (CommonTypes::TBOOL === $commonType) {
             return ($variable) ? '1' : '0';
         }
-        if ($commonType === CommonTypes::TDATE) {
+        if (CommonTypes::TDATE === $commonType) {
             return "'" . date('Y-m-d', (int) $variable) . "'";
         }
-        if ($commonType === CommonTypes::TTIME) {
+        if (CommonTypes::TTIME === $commonType) {
             return "'" . date('H:i:s', intval($variable, 10)) . "'";
         }
-        if ($commonType === CommonTypes::TDATETIME) {
+        if (CommonTypes::TDATETIME === $commonType) {
             return "'" . date('Y-m-d H:i:s', intval($variable, 10)) . "'";
         }
         return "'" . $this->sqlString($variable) . "'";

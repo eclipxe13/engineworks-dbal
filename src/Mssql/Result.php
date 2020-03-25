@@ -1,4 +1,9 @@
 <?php
+
+/** @noinspection PhpComposerExtensionStubsInspection */
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Mssql;
 
 use EngineWorks\DBAL\CommonTypes;

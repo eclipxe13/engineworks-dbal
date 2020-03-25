@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\DBAL\TesterCases;
 
 use EngineWorks\DBAL\CommonTypes;
@@ -6,9 +9,9 @@ use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Recordset;
 use EngineWorks\DBAL\Tests\WithDatabaseTestCase;
 
-class RecordsetTester
+final class RecordsetTester
 {
-    /** @var \EngineWorks\DBAL\Tests\WithDatabaseTestCase */
+    /** @var WithDatabaseTestCase */
     private $test;
 
     /** @var DBAL */
@@ -20,7 +23,7 @@ class RecordsetTester
         $this->dbal = $test->getDbal();
     }
 
-    public function execute()
+    public function execute(): void
     {
         // check connection exists
         if (! $this->dbal->isConnected()) {
@@ -51,7 +54,7 @@ class RecordsetTester
         return $this->test->createRecordset($sql, 'albums', ['albumid']);
     }
 
-    public function testRecordCount()
+    public function testRecordCount(): void
     {
         $sql = 'SELECT * FROM albums ORDER BY albumid;';
         $recordset = $this->test->createRecordset($sql, 'albums', ['albumid']);
@@ -65,7 +68,7 @@ class RecordsetTester
         $this->test->assertTrue($recordset->eof());
     }
 
-    public function testQueryRecordsetOnNonExistent()
+    public function testQueryRecordsetOnNonExistent(): void
     {
         $recordset = $this->queryAlbumAsRecordset(999);
         $this->test->assertInstanceOf(Recordset::class, $recordset);
@@ -76,7 +79,7 @@ class RecordsetTester
         $this->test->assertTrue($recordset->canModify());
     }
 
-    public function testAddNew($values)
+    public function testAddNew($values): void
     {
         $recordset = $this->queryAlbumAsRecordset($values['albumid']);
         $this->test->assertTrue($recordset->eof());
@@ -87,7 +90,7 @@ class RecordsetTester
         $this->test->assertSame(1, $update);
     }
 
-    public function testInsertedData($values)
+    public function testInsertedData($values): void
     {
         $recordset = $this->queryAlbumAsRecordset($values['albumid']);
         $this->test->assertFalse($recordset->eof());
@@ -96,7 +99,7 @@ class RecordsetTester
         }
     }
 
-    public function testUpdate($values)
+    public function testUpdate($values): void
     {
         $recordset = $this->queryAlbumAsRecordset($values['albumid']);
         $this->test->assertFalse($recordset->eof());
@@ -108,7 +111,7 @@ class RecordsetTester
         $this->test->assertSame(55, $recordset->values['votes']);
     }
 
-    public function testDelete($values)
+    public function testDelete($values): void
     {
         $recordset = $this->queryAlbumAsRecordset($values['albumid']);
         $this->test->assertFalse($recordset->eof());
@@ -118,9 +121,9 @@ class RecordsetTester
         $this->test->assertTrue($recordset->eof());
     }
 
-    public function testIterator()
+    public function testIterator(): void
     {
-        /* @var \EngineWorks\DBAL\Tests\WithDatabaseTestCase $test */
+        /* @var WithDatabaseTestCase $test */
         $test = $this->test;
         $overrideTypes = [
             'lastview' => CommonTypes::TDATETIME,

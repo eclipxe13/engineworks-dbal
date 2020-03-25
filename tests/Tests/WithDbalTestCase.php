@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests;
 
 use EngineWorks\DBAL\DBAL;
@@ -49,8 +52,11 @@ abstract class WithDbalTestCase extends TestCase
         return $dbal;
     }
 
-    /** @return void */
-    protected function setupDbalWithSettings(array $settingsArray = [])
+    /**
+     * @param array<mixed> $settingsArray
+     * @return void
+     */
+    protected function setupDbalWithSettings(array $settingsArray = []): void
     {
         $this->dbal = $this->createDbalWithSettings($settingsArray);
         $this->logger = new ArrayLogger();

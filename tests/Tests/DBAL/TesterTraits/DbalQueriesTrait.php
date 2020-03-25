@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\DBAL\TesterTraits;
 
 use EngineWorks\DBAL\CommonTypes;
@@ -6,14 +9,17 @@ use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Exceptions\QueryException;
 use EngineWorks\DBAL\Result;
 use EngineWorks\DBAL\Tests\DBAL\Sample\ArrayLogger;
+use EngineWorks\DBAL\Tests\MssqlWithDatabaseTestCase;
+use RuntimeException;
 
+/** @var MssqlWithDatabaseTestCase $this */
 trait DbalQueriesTrait
 {
     abstract protected function getDbal(): DBAL;
 
     abstract protected function getLogger(): ArrayLogger;
 
-    public function testDisconnectAndReconnect()
+    public function testDisconnectAndReconnect(): void
     {
         // $dbal is already connected
         $dbal = $this->getDbal();
@@ -30,7 +36,7 @@ trait DbalQueriesTrait
         $this->assertSame($logger->messages('info', true), $logger->allMessages(), 'All messages should be level info');
     }
 
-    public function testQuoteAndQueryMultibyte()
+    public function testQuoteAndQueryMultibyte(): void
     {
         $text = 'á é í ó ú ñ ü € ¢ “” ½';
         $sql = 'SELECT ' . $this->getDbal()->sqlQuote($text, CommonTypes::TTEXT);
@@ -38,7 +44,7 @@ trait DbalQueriesTrait
         $this->assertSame($text, $this->getDbal()->queryOne($sql));
     }
 
-    public function testQueryOneWithValues()
+    public function testQueryOneWithValues(): void
     {
         $expected = 45;
         $value = $this->getDbal()->queryOne('SELECT COUNT(*) FROM albums;');
@@ -46,7 +52,7 @@ trait DbalQueriesTrait
         $this->assertEquals($expected, $value);
     }
 
-    public function testQueryOneWithDefault()
+    public function testQueryOneWithDefault(): void
     {
         $expected = -10;
         $value = $this->getDbal()->queryOne('SELECT 1 FROM albums WHERE (albumid = -1);', $expected);
@@ -54,7 +60,7 @@ trait DbalQueriesTrait
         $this->assertSame($expected, $value);
     }
 
-    public function testQueryRow()
+    public function testQueryRow(): void
     {
         $expectedRows = $this->convertArrayFixedValuesToStrings($this->getFixedValuesWithLabels(5, 5));
 
@@ -64,19 +70,19 @@ trait DbalQueriesTrait
         $this->assertEquals($expectedRows, [$result]);
     }
 
-    public function testQueryRowWithNoValues()
+    public function testQueryRowWithNoValues(): void
     {
         $row = $this->getDbal()->queryRow('SELECT * FROM albums WHERE (albumid = -1);');
         $this->assertSame(false, $row);
     }
 
-    public function testQueryRowWithError()
+    public function testQueryRowWithError(): void
     {
         $row = $this->getDbal()->queryRow('SELECT 1 FROM nonexistent;');
         $this->assertSame(false, $row);
     }
 
-    public function testQueryArray()
+    public function testQueryArray(): void
     {
         $sql = 'SELECT * FROM albums WHERE (albumid BETWEEN 4 AND 5);';
         $result = $this->getDbal()->queryArray($sql);
@@ -89,19 +95,19 @@ trait DbalQueriesTrait
         $this->assertEquals($expectedRows, $result);
     }
 
-    public function testQueryArrayWithError()
+    public function testQueryArrayWithError(): void
     {
         $array = $this->getDbal()->queryArray('SELECT 1 FROM nonexistent;');
         $this->assertSame(false, $array);
     }
 
-    public function testQueryArrayWithNoValues()
+    public function testQueryArrayWithNoValues(): void
     {
         $array = $this->getDbal()->queryArray('SELECT * FROM albums WHERE 1 = 2;');
         $this->assertSame([], $array);
     }
 
-    public function testQueryValues()
+    public function testQueryValues(): void
     {
         $sql = 'SELECT * FROM albums WHERE (albumid = 5);';
         $values = $this->getDbal()->queryValues($sql, $this->overrideTypes());
@@ -111,19 +117,19 @@ trait DbalQueriesTrait
         $this->assertEquals($expectedValues, $values);
     }
 
-    public function testQueryValuesWithNoValues()
+    public function testQueryValuesWithNoValues(): void
     {
         $values = $this->getDbal()->queryValues('SELECT * FROM albums WHERE (1 = 2);', $this->overrideTypes());
         $this->assertSame(false, $values);
     }
 
-    public function testQueryValuesWithError()
+    public function testQueryValuesWithError(): void
     {
         $values = $this->getDbal()->queryValues('SELECT * FROM nonexistent;', $this->overrideTypes());
         $this->assertSame(false, $values);
     }
 
-    public function testQueryArrayValues()
+    public function testQueryArrayValues(): void
     {
         $sql = 'SELECT * FROM albums WHERE (albumid BETWEEN 1 AND 5) ORDER BY albumid;';
         $arrayValues = $this->getDbal()->queryArrayValues($sql, $this->overrideTypes()) ?: [];
@@ -137,20 +143,20 @@ trait DbalQueriesTrait
         $this->assertEquals($expectedValues, $values);
     }
 
-    public function testQueryArrayValuesWithNoValues()
+    public function testQueryArrayValuesWithNoValues(): void
     {
         $sql = 'SELECT * FROM albums WHERE (1 = 2);';
         $arrayValues = $this->getDbal()->queryArrayValues($sql, $this->overrideTypes());
         $this->assertSame([], $arrayValues);
     }
 
-    public function testQueryArrayValuesWithError()
+    public function testQueryArrayValuesWithError(): void
     {
         $values = $this->getDbal()->queryArrayValues('SELECT * FROM nonexistent;', $this->overrideTypes());
         $this->assertSame(false, $values);
     }
 
-    public function testQueryArrayKey()
+    public function testQueryArrayKey(): void
     {
         $sql = 'SELECT * FROM albums WHERE (albumid BETWEEN 1 AND 3) ORDER BY albumid;';
         $results = $this->getDbal()->queryArrayKey($sql, 'albumid', 'X');
@@ -164,27 +170,27 @@ trait DbalQueriesTrait
         }
     }
 
-    public function testQueryArrayKeyWithNoValues()
+    public function testQueryArrayKeyWithNoValues(): void
     {
         $sql = 'SELECT * FROM albums WHERE (1 = 2);';
         $results = $this->getDbal()->queryArrayKey($sql, 'albumid');
         $this->assertSame([], $results);
     }
 
-    public function testQueryArrayKeyWithError()
+    public function testQueryArrayKeyWithError(): void
     {
         $results = $this->getDbal()->queryArrayKey('SELECT * FROM nonexistent;', 'albumid');
         $this->assertSame(false, $results);
     }
 
-    public function testQueryArrayKeyWithInvalidKey()
+    public function testQueryArrayKeyWithInvalidKey(): void
     {
         $sql = 'SELECT * FROM albums WHERE (albumid between 1 and 3);';
         $results = $this->getDbal()->queryArrayKey($sql, 'non-existent-key');
         $this->assertSame(false, $results);
     }
 
-    public function testQueryPairs()
+    public function testQueryPairs(): void
     {
         $sql = 'SELECT * FROM albums WHERE (albumid between 2 and 5);';
         $pairs = $this->getDbal()->queryPairs($sql, 'albumid', 'title', 'X');
@@ -199,7 +205,7 @@ trait DbalQueriesTrait
         $this->assertSame($expectedPairs, $pairs);
     }
 
-    public function testQueryPairsWithNonExistentField()
+    public function testQueryPairsWithNonExistentField(): void
     {
         $sql = 'SELECT * FROM albums WHERE (albumid between 2 and 3);';
         $pairs = $this->getDbal()->queryPairs($sql, 'albumid', 'name', '', 'not-found');
@@ -210,14 +216,14 @@ trait DbalQueriesTrait
         $this->assertSame($expectedPairs, $pairs);
     }
 
-    public function testQueryPairsWithError()
+    public function testQueryPairsWithError(): void
     {
         $sql = 'SELECT * FROM nonexistent;';
         $pairs = $this->getDbal()->queryPairs($sql, 'foo', 'bar');
         $this->assertSame([], $pairs);
     }
 
-    public function testQueryArrayOne()
+    public function testQueryArrayOne(): void
     {
         $sql = 'SELECT albumid FROM albums WHERE (albumid between 2 and 3);';
         $values = $this->getDbal()->queryArrayOne($sql);
@@ -225,7 +231,7 @@ trait DbalQueriesTrait
         $this->assertEquals($expectedValues, $values);
     }
 
-    public function testQueryArrayOneWithFieldName()
+    public function testQueryArrayOneWithFieldName(): void
     {
         $sql = 'SELECT title, albumid FROM albums WHERE (albumid between 2 and 3);';
         $values = $this->getDbal()->queryArrayOne($sql, 'albumid');
@@ -233,18 +239,18 @@ trait DbalQueriesTrait
         $this->assertEquals($expectedValues, $values);
     }
 
-    public function testQueryArrayOneWithInvalidFieldName()
+    public function testQueryArrayOneWithInvalidFieldName(): void
     {
         $values = $this->getDbal()->queryArrayOne('SELECT * FROM albums WHERE (albumid between 2 and 3);', 'foo');
         $this->assertSame(false, $values);
     }
 
-    public function testQueryArrayOneWithError()
+    public function testQueryArrayOneWithError(): void
     {
         $this->assertSame(false, $this->getDbal()->queryArrayOne('SELECT * from nonexistent;'));
     }
 
-    public function testQueryOnString()
+    public function testQueryOnString(): void
     {
         $sql = 'SELECT albumid, title FROM albums WHERE (albumid between 1 and 3);';
         $value = $this->getDbal()->queryOnString($sql, 'default', ' * ');
@@ -252,7 +258,7 @@ trait DbalQueriesTrait
         $this->assertSame($expectedValue, $value);
     }
 
-    public function testQueryOnStringUsingDefaults()
+    public function testQueryOnStringUsingDefaults(): void
     {
         $sql = 'SELECT albumid, title FROM albums WHERE (albumid between 1 and 3);';
         $value = $this->getDbal()->queryOnString($sql);
@@ -260,7 +266,7 @@ trait DbalQueriesTrait
         $this->assertSame($expectedValue, $value);
     }
 
-    public function testQueryOnStringWithError()
+    public function testQueryOnStringWithError(): void
     {
         $sql = 'SELECT * FROM nonexistent';
         $expectedValue = 'default';
@@ -280,20 +286,20 @@ trait DbalQueriesTrait
         return '';
     }
 
-    public function testExecuteWithError()
+    public function testExecuteWithError(): void
     {
         $expectedMessage = 'Invalid SQL Statement';
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage($expectedMessage);
 
         $this->getDbal()->execute('BAD STATEMENT;', $expectedMessage);
     }
 
-    public function testQueryResult()
+    public function testQueryResult(): void
     {
         $expectedTablename = $this->overrideEntity();
         $sql = 'SELECT * FROM albums WHERE (albumid = 5);';
-        /** @var \EngineWorks\DBAL\Result $result */
+        /** @var Result $result */
         $result = $this->queryResult($sql, $this->overrideTypes());
         $this->assertInstanceOf(Result::class, $result);
         $this->assertSame(1, $result->resultCount());
@@ -319,7 +325,7 @@ trait DbalQueriesTrait
         $this->assertEquals(array_replace_recursive($fields, $expectedFields), $fields);
     }
 
-    public function testCreateRecordsetWithInvalidQueryCreatesException()
+    public function testCreateRecordsetWithInvalidQueryCreatesException(): void
     {
         $query = 'select * from nonexistent';
         $this->expectException(QueryException::class);
@@ -327,7 +333,7 @@ trait DbalQueriesTrait
         $this->getDbal()->createRecordset($query);
     }
 
-    public function testCreatePagerWithInvalidQueryCreatesException()
+    public function testCreatePagerWithInvalidQueryCreatesException(): void
     {
         $query = 'select * from nonexistent';
         $this->expectException(QueryException::class);
