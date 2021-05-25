@@ -1,19 +1,19 @@
 filter:
     excluded_paths:
-        - 'tests/*'
-        - 'vendor/*'
-
-checks:
-    php:
-        code_rating: true
-        duplication: true
-
-tools:
-    external_code_coverage: true
+        - 'tests/'
+        - 'vendor/'
 
 build:
+    dependencies:
+        override:
+            - composer remove squizlabs/php_codesniffer friendsofphp/php-cs-fixer phpstan/phpstan --dev --no-interaction --no-progress --no-update
+            - composer update --no-interaction --prefer-dist
     nodes:
         analysis:
             tests:
                 override:
-                    - php-scrutinizer-run
+                    - php-scrutinizer-run --enable-security-analysis
+
+tools:
+    external_code_coverage:
+        timeout: 600 # default is 300 seconds
