@@ -4,6 +4,7 @@
 
 - Move Sqlite3 to PDO
 - Deprecate (or remove in branch 2) Mssql driver (pdo_dblib)
+- Bumb PHP 7.2 and upgrade to PHP 7.3 & PHPUnit 9.
 
 ## To do
 

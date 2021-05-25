@@ -2,6 +2,15 @@
 
 - See [Version 3](VERSION_3.md) for major changes
 
+# Version 2.3.0 2021-05-25
+
+- Upgrade codebase to fix all PHPStan 0.12 issues, minimal refactory.
+- Moved parameters and return types from documentation to code.
+- Upgrade to PHPStan 0.12.
+- Update License file.
+- Update build commands, utilities, config files, etc.
+- Upgrade Travis config file.
+
 # Version (no new release) 2019-08-05
 
 - Not released since it did not change but build & travis
