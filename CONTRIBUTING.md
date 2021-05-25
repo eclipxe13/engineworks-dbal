@@ -79,7 +79,6 @@ The following tests must pass before we will accept a pull request. If any of th
 it will result in a complete build failure. Before you can run these, be sure to `composer install`.
 
 ```
-mkdir -p build
 ./vendor/bin/phpcs src tests --encoding=utf-8 --standard=psr2 -sp
 ./vendor/bin/phpunit --coverage-text
 ./vendor/bin/phpstan analyse --level max src/ tests/
@@ -88,7 +87,6 @@ mkdir -p build
 Or simply execute:
 
 ```
-mkdir -p build
 composer dev:build
 ```
 
