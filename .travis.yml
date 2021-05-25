@@ -1,15 +1,16 @@
 language: php
 
 # php compatibility
-php: ["7.2", "7.3", "7.4"]
+php: ["7.2", "7.3", "7.4", "8.0"]
+
+dist: focal
 
 services:
   - mysql
   - docker
 
 env:
-  global:
-    - COVERAGE_PHP_VERSION: "7.3"
+  - PHP_VERSION_FULL_BUILD="8.0"
 
 before_script:
   # disable xdebug
@@ -20,43 +21,41 @@ before_script:
   - docker ps -a
   # apt setup including microsoft packages
   - curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-  - curl https://packages.microsoft.com/config/ubuntu/16.04/prod.list | sudo tee -a /etc/apt/sources.list.d/microsoft.list
+  - curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee -a /etc/apt/sources.list.d/microsoft.list
   - sudo apt-get update -q -q
   # ms sql server php driver, run before install msodbcsql17
   - sudo apt install -q -y unixodbc-dev
   - pecl channel-update pecl.php.net
-  - export SQLSRV_VERSION=$(test $(php --version | head -n 1 | grep 7.0 -c) -eq 1 && echo 5.3.0 || echo 5.6.1)
-  - pecl search sqlsrv-${SQLSRV_VERSION}
-  - pecl install sqlsrv-${SQLSRV_VERSION} pdo_sqlsrv-${SQLSRV_VERSION}
-  - 'php -i | grep -i sqlsrv'
+  - pecl search sqlsrv
+  - pecl install sqlsrv pdo_sqlsrv
   # install msodbcsql17
-  - apt-cache policy msodbcsql17 mssql-tools unixodbc libssl1.0.0 libsybdb5
-  - sudo ACCEPT_EULA=Y apt-get install -q -y msodbcsql17 mssql-tools unixodbc libssl1.0.0 libsybdb5
+  - apt-cache policy msodbcsql17 mssql-tools unixodbc php-sybase
+  - sudo ACCEPT_EULA=Y apt-get install -q -y msodbcsql17 mssql-tools unixodbc php-sybase
   # test connections
   - docker exec dbal-mssql /opt/mssql-tools/bin/sqlcmd -U sa -P 'Password-123456' -Q "SELECT @@VERSION"
   - php tests/sqlsrv-direct-connection.php localhost sa 'Password-123456'
   # project
   - phpenv config-rm xdebug.ini
-  - travis_retry composer install --no-interaction --prefer-dist
+  - composer update --no-interaction --prefer-dist
 
 script:
   - cp tests/.env.travis tests/.env
-  - vendor/bin/phpcs -sp src/ tests/
-  - vendor/bin/php-cs-fixer fix --using-cache=no --dry-run --verbose
   - |
-    if [[ $TRAVIS_PHP_VERSION == $COVERAGE_PHP_VERSION ]]; then
-      php -dzend_extension=xdebug.so vendor/bin/phpunit --coverage-text --coverage-clover=build/tests/coverage.xml
+    if [[ $TRAVIS_PHP_VERSION == $PHP_VERSION_FULL_BUILD ]]; then
+      vendor/bin/phpcs -sp
+      vendor/bin/php-cs-fixer fix --using-cache=no --dry-run --verbose
+      php -dzend_extension=xdebug.so -dxdebug.mode=coverage vendor/bin/phpunit --coverage-clover=coverage.xml --verbose
+      php vendor/bin/phpstan analyse --no-interaction --no-progress
     else
-      php vendor/bin/phpunit
+      php vendor/bin/phpunit --testdox --verbose
     fi
-  - ./vendor/bin/phpstan analyse --no-interaction --no-progress --level max src/ tests/
 
 after_script:
   # upload to scrutinizer
   - |
-    if [[ $TRAVIS_PHP_VERSION == $COVERAGE_PHP_VERSION ]]; then
-      wget https://scrutinizer-ci.com/ocular.phar
-      php ocular.phar code-coverage:upload --format=php-clover build/tests/coverage.xml
+    if [[ $TRAVIS_PHP_VERSION == $PHP_VERSION_FULL_BUILD ]]; then
+      wget -q https://scrutinizer-ci.com/ocular.phar
+      php ocular.phar code-coverage:upload --format=php-clover coverage.xml
     fi
 
 notifications:
