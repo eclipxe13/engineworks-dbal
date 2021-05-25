@@ -3,7 +3,7 @@ language: php
 # php compatibility
 php: ["7.2", "7.3", "7.4", "8.0"]
 
-dist: focal
+dist: bionic
 
 services:
   - mysql
@@ -11,6 +11,10 @@ services:
 
 env:
   - PHP_VERSION_FULL_BUILD="8.0"
+
+cache:
+  - directories:
+      - $HOME/.composer
 
 before_script:
   # disable xdebug
@@ -21,13 +25,15 @@ before_script:
   - docker ps -a
   # apt setup including microsoft packages
   - curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-  - curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee -a /etc/apt/sources.list.d/microsoft.list
+  - curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list | sudo tee -a /etc/apt/sources.list.d/microsoft.list
   - sudo apt-get update -q -q
   # ms sql server php driver, run before install msodbcsql17
   - sudo apt install -q -y unixodbc-dev
   - pecl channel-update pecl.php.net
-  - pecl search sqlsrv
+  - pecl search sqlsrv pdo_sqlsrv
   - pecl install sqlsrv pdo_sqlsrv
+  - pecl list sqlsrv pdo_sqlsrv
+  - 'php -i | grep -i sqlsrv'
   # install msodbcsql17
   - apt-cache policy msodbcsql17 mssql-tools unixodbc php-sybase
   - sudo ACCEPT_EULA=Y apt-get install -q -y msodbcsql17 mssql-tools unixodbc php-sybase
@@ -35,7 +41,7 @@ before_script:
   - docker exec dbal-mssql /opt/mssql-tools/bin/sqlcmd -U sa -P 'Password-123456' -Q "SELECT @@VERSION"
   - php tests/sqlsrv-direct-connection.php localhost sa 'Password-123456'
   # project
-  - phpenv config-rm xdebug.ini
+  - phpenv config-rm xdebug.ini || true
   - composer update --no-interaction --prefer-dist
 
 script:
@@ -59,4 +65,5 @@ after_script:
     fi
 
 notifications:
-  email: false
+  email:
+    if: branch = master
