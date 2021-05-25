@@ -125,9 +125,9 @@ class SqliteResultTest extends SqliteWithDatabaseTestCase
     public function testGetFieldsWithNoContents(): void
     {
         $this->markTestSkipped('Already know that Sqlite fail when the result does not have contents');
-        $result = $this->queryResult('SELECT albumid FROM albums WHERE (albumid = -1);');
-        $fields = $result->getFields();
-        $this->assertEquals(CommonTypes::TINT, $fields[0]['commontype']);
+        // $result = $this->queryResult('SELECT albumid FROM albums WHERE (albumid = -1);');
+        // $fields = $result->getFields();
+        // $this->assertEquals(CommonTypes::TINT, $fields[0]['commontype']);
     }
 
     public function testGetIdFields(): void
@@ -150,7 +150,12 @@ class SqliteResultTest extends SqliteWithDatabaseTestCase
         $this->assertFalse($result->moveTo(10));
     }
 
-    private function getForEach()
+    /**
+     * Iterates the result and assert that each item is an array
+     *
+     * @return array<int, mixed[]>
+     */
+    private function getForEach(): array
     {
         $array = [];
         foreach ($this->result as $key => $values) {

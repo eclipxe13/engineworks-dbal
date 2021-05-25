@@ -9,11 +9,13 @@ use InvalidArgumentException;
 use IteratorAggregate;
 use LogicException;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use RuntimeException;
 
 /**
  * Recordset class
  * Hint: Use DBAL->queryRecordset instead of using this class directly
+ * @implements IteratorAggregate<int|string, array<string, mixed>>
  */
 class Recordset implements IteratorAggregate, Countable
 {
@@ -25,7 +27,7 @@ class Recordset implements IteratorAggregate, Countable
 
     /**
      * Associative array of the current record
-     * @var array
+     * @var array<string, mixed>
      */
     public $values;
 
@@ -44,7 +46,7 @@ class Recordset implements IteratorAggregate, Countable
 
     /**
      * Array of original values
-     * @var array|null
+     * @var array<string, mixed>|null
      */
     private $originalValues;
 
@@ -65,7 +67,7 @@ class Recordset implements IteratorAggregate, Countable
 
     /**
      * This array is a local copy of $this->result->getFields()
-     * @var array
+     * @var array<string, array<string, mixed>>
      */
     private $datafields;
 
@@ -83,7 +85,7 @@ class Recordset implements IteratorAggregate, Countable
     public function __construct(DBAL $dbal, LoggerInterface $logger = null)
     {
         $this->dbal = $dbal;
-        $this->logger = $logger ?: $dbal->getLogger();
+        $this->logger = $logger ?? new NullLogger();
         $this->initialize();
     }
 
@@ -242,7 +244,7 @@ class Recordset implements IteratorAggregate, Countable
     /**
      * Return an array with the original values.
      *
-     * @return array
+     * @return array<string, mixed>
      * @throws RuntimeException There are no original values
      */
     final public function getOriginalValues(): array
@@ -256,7 +258,6 @@ class Recordset implements IteratorAggregate, Countable
     /**
      * Prepares the recordset to make an insertion
      * All the values are set to null
-     * @return void
      */
     final public function addNew(): void
     {
@@ -339,7 +340,7 @@ class Recordset implements IteratorAggregate, Countable
      * Create an array of conditions based on the current values and ids
      * This function is used on Update and on Delete
      * @param string $extraWhereClause
-     * @return array
+     * @return string[]
      */
     protected function sqlWhereConditions(string $extraWhereClause): array
     {
@@ -366,11 +367,12 @@ class Recordset implements IteratorAggregate, Countable
             if (! in_array($fieldname, $ids)) {
                 continue;
             }
-            if (null === $this->originalValues[$fieldname]) {
+            $originalValue = $this->getOriginalValue($fieldname, null);
+            if (null === $originalValue) {
                 $conditions[] = '(' . $this->dbal->sqlIsNull($this->dbal->sqlFieldEscape($fieldname)) . ')';
             } else {
                 $conditions[] = '(' . $this->dbal->sqlFieldEscape($fieldname) . ' = '
-                    . $this->dbal->sqlQuote($this->originalValues[$fieldname], $field['commontype'], false) . ')';
+                    . $this->dbal->sqlQuote($originalValue, $field['commontype'], false) . ')';
             }
         }
         return $conditions;
@@ -417,7 +419,7 @@ class Recordset implements IteratorAggregate, Countable
             if (! array_key_exists($fieldname, $this->values)) {
                 $this->values[$fieldname] = null;
             }
-            if ($this->valueIsDifferent($this->originalValues[$fieldname], $this->values[$fieldname])) {
+            if ($this->valueIsDifferent($this->getOriginalValue($fieldname, null), $this->values[$fieldname])) {
                 $updates[] = $this->dbal->sqlFieldEscape($fieldname) . ' = '
                     . $this->dbal->sqlQuote($this->values[$fieldname], $field['commontype'], true);
             }
@@ -553,7 +555,7 @@ class Recordset implements IteratorAggregate, Countable
 
     /**
      * Internal function that returns an array with the content from fields and row
-     * @return array
+     * @return array<string, null>
      */
     private function emptyValuesFromDataFields(): array
     {
@@ -564,8 +566,8 @@ class Recordset implements IteratorAggregate, Countable
      * Internal function that returns an array with the content of all datafields
      * filled with the values casted
      *
-     * @param array $source
-     * @return array
+     * @param array<string, mixed> $source
+     * @return array<string, mixed>
      */
     private function setValuesFromDatafields(array $source): array
     {
@@ -641,9 +643,9 @@ class Recordset implements IteratorAggregate, Countable
     /**
      * Return an associative array of fields, the key is the field name
      * and the content is an array containing name, common type and table
-     * @return array
+     * @return array<string, array<string, mixed>>
      */
-    final public function getFields()
+    final public function getFields(): array
     {
         return $this->datafields;
     }
@@ -662,7 +664,7 @@ class Recordset implements IteratorAggregate, Countable
         return $this->getRecordCount();
     }
 
-    final public function getIterator()
+    final public function getIterator(): Iterators\RecordsetIterator
     {
         return new Iterators\RecordsetIterator($this);
     }

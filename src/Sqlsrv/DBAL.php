@@ -9,7 +9,6 @@ namespace EngineWorks\DBAL\Sqlsrv;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\DBAL as AbstractDBAL;
 use EngineWorks\DBAL\Traits\MethodSqlConcatenate;
-use EngineWorks\DBAL\Traits\MethodSqlQuote;
 use InvalidArgumentException;
 use PDO;
 use PDOStatement;
@@ -26,12 +25,11 @@ use Throwable;
 class DBAL extends AbstractDBAL
 {
     use MethodSqlConcatenate;
-    use MethodSqlQuote;
 
     /** @var PDO|null */
     protected $pdo = null;
 
-    protected function getPDOConnectionString()
+    protected function getPDOConnectionString(): string
     {
         $vars = [];
         $vars['Server'] = $this->settings->get('host');

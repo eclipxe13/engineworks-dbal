@@ -13,12 +13,12 @@ abstract class SqliteWithDatabaseTestCase extends WithDatabaseTestCase
         }
     }
 
-    protected function getFactoryNamespace()
+    protected function getFactoryNamespace(): string
     {
         return 'EngineWorks\DBAL\Sqlite';
     }
 
-    protected function getSettingsArray()
+    protected function getSettingsArray(): array
     {
         return [
             'filename' => ':memory:',

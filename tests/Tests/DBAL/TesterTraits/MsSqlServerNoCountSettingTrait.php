@@ -11,11 +11,12 @@ use EngineWorks\DBAL\DBAL;
  */
 trait MsSqlServerNoCountSettingTrait
 {
+    /** @var int */
     protected $heavyNumCount = 5000;
 
     protected function setUp(): void
     {
-        /** @noinspection PhpUndefinedClassInspection */
+        /** @noinspection PhpMultipleClassDeclarationsInspection */
         parent::setUp();
         $this->executeStatement(
             '
@@ -51,7 +52,7 @@ trait MsSqlServerNoCountSettingTrait
             DROP TABLE ExpensiveTable;
             '
         );
-        /** @noinspection PhpUndefinedClassInspection */
+        /** @noinspection PhpMultipleClassDeclarationsInspection */
         parent::tearDown();
     }
 

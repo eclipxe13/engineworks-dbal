@@ -19,12 +19,12 @@ class MssqlWithDatabaseTestCase extends WithDatabaseTestCase
         }
     }
 
-    protected function getFactoryNamespace()
+    protected function getFactoryNamespace(): string
     {
         return 'EngineWorks\DBAL\Mssql';
     }
 
-    protected function getSettingsArray()
+    protected function getSettingsArray(): array
     {
         return [
             'host' => getenv('testMssql_server'),

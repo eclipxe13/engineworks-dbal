@@ -16,12 +16,12 @@ class MysqliWithDatabaseTestCase extends WithDatabaseTestCase
         }
     }
 
-    protected function getFactoryNamespace()
+    protected function getFactoryNamespace(): string
     {
         return 'EngineWorks\DBAL\Mysqli';
     }
 
-    protected function getSettingsArray()
+    protected function getSettingsArray(): array
     {
         return [
             'host' => getenv('testMysqli_server'),

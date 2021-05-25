@@ -43,7 +43,7 @@ class SqliteConnectedTest extends SqliteWithDatabaseTestCase
      * it is known that sqlite does not have date, datetime, time or boolean
      *
      * @see DbalQueriesTrait::overrideTypes()
-     * @return array
+     * @return array<string, string>
      */
     public function overrideTypes(): array
     {

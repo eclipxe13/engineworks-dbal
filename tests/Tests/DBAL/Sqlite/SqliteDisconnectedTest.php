@@ -13,7 +13,7 @@ class SqliteDisconnectedTest extends WithDbalTestCase
 {
     use DbalCommonSqlTrait;
 
-    protected function getFactoryNamespace()
+    protected function getFactoryNamespace(): string
     {
         return 'EngineWorks\DBAL\Sqlite';
     }

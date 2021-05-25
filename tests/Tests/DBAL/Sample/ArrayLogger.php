@@ -8,7 +8,7 @@ use Psr\Log\AbstractLogger;
 
 class ArrayLogger extends AbstractLogger
 {
-    /** @var array */
+    /** @var array<string, array<int, array>> */
     private $logs = [];
 
     public function log($level, $message, array $context = []): void
@@ -19,12 +19,14 @@ class ArrayLogger extends AbstractLogger
         ];
     }
 
-    public function retrieve($level)
+    /** @return array<int, mixed> */
+    public function retrieve(string $level): array
     {
         return (array_key_exists($level, $this->logs)) ? $this->logs[$level] : [];
     }
 
-    public function messages($level, $addLevelPrefix = false)
+    /** @return string[] */
+    public function messages(string $level, bool $addLevelPrefix = false): array
     {
         $list = $this->retrieve($level);
         $return = [];
@@ -34,7 +36,8 @@ class ArrayLogger extends AbstractLogger
         return $return;
     }
 
-    public function allMessages()
+    /** @return string[] */
+    public function allMessages(): array
     {
         $return = [];
         foreach (array_keys($this->logs) as $level) {
@@ -51,7 +54,7 @@ class ArrayLogger extends AbstractLogger
         $this->logs = [];
     }
 
-    public function lastMessage($level): string
+    public function lastMessage(string $level): string
     {
         $list = $this->retrieve($level);
         $count = count($list);

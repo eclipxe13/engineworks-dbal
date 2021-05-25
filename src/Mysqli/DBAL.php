@@ -11,7 +11,6 @@ use EngineWorks\DBAL\Traits\MethodSqlConcatenate;
 use EngineWorks\DBAL\Traits\MethodSqlDatePartFormatAnsi;
 use EngineWorks\DBAL\Traits\MethodSqlLike;
 use EngineWorks\DBAL\Traits\MethodSqlLimit;
-use EngineWorks\DBAL\Traits\MethodSqlQuote;
 use mysqli;
 use mysqli_result;
 use RuntimeException;
@@ -22,7 +21,6 @@ use RuntimeException;
  */
 class DBAL extends AbstractDBAL
 {
-    use MethodSqlQuote;
     use MethodSqlLike;
     use MethodSqlLimit;
     use MethodSqlConcatenate;
@@ -40,7 +38,11 @@ class DBAL extends AbstractDBAL
         $this->disconnect();
         // create the mysqli object without error reporting
         $errorLevel = error_reporting(0);
-        $this->mysqli = mysqli_init();
+        $mysqli = mysqli_init();
+        if (! $mysqli instanceof mysqli) {
+            throw new \LogicException('Unable to create Mysqli empty object');
+        }
+        $this->mysqli = $mysqli;
         $this->mysqli->options(MYSQLI_OPT_CONNECT_TIMEOUT, $this->settings->get('connect-timeout'));
         $this->mysqli->real_connect(
             $this->settings->get('host'),
@@ -110,7 +112,7 @@ class DBAL extends AbstractDBAL
      * This is the internal function to do the query according to the database functions
      * It's used by queryResult and queryAffectedRows methods
      * @param string $query
-     * @return mysqli_result|bool
+     * @return mysqli_result<mixed>|bool
      */
     protected function queryDriver($query)
     {

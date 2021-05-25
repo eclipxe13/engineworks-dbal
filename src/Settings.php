@@ -13,7 +13,7 @@ interface Settings
     /**
      * Settings constructor.
      *
-     * @param array $settings Subset of settings to initialize in the object
+     * @param mixed[] $settings Subset of settings to initialize in the object
      */
     public function __construct(array $settings = []);
 

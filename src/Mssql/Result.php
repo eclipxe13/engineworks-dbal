@@ -18,9 +18,35 @@ class Result implements ResultInterface
     use ResultImplementsCountable;
     use ResultImplementsIterator;
 
+    private const TYPES = [
+        // integers
+        'int' => CommonTypes::TINT,
+        'tinyint' => CommonTypes::TINT,
+        'smallint' => CommonTypes::TINT,
+        'bigint' => CommonTypes::TINT,
+        // floats
+        'float' => CommonTypes::TNUMBER,
+        'real' => CommonTypes::TNUMBER,
+        'decimal' => CommonTypes::TNUMBER,
+        'numeric' => CommonTypes::TNUMBER,
+        'money' => CommonTypes::TNUMBER,
+        'smallmoney' => CommonTypes::TNUMBER,
+        // dates
+        'date' => CommonTypes::TDATE,
+        'time' => CommonTypes::TTIME,
+        'datetime' => CommonTypes::TDATETIME,
+        'smalldatetime' => CommonTypes::TDATETIME,
+        // bool
+        'bit' => CommonTypes::TBOOL,
+        // text
+        'char' => CommonTypes::TTEXT,
+        'varchar' => CommonTypes::TTEXT,
+        'text' => CommonTypes::TTEXT,
+    ];
+
     /**
      * PDO element
-     * @var PDOStatement
+     * @var PDOStatement<mixed>
      */
     private $stmt;
 
@@ -32,25 +58,25 @@ class Result implements ResultInterface
 
     /**
      * Set of fieldname and commontype to use instead of detectedTypes
-     * @var array
+     * @var array<string, string>
      */
     private $overrideTypes;
 
     /**
      * The place where getFields result is cached
-     * @var array
+     * @var array<int, array<string, mixed>>|null
      */
     private $cachedGetFields;
 
     /**
      * Result based on PDOStatement
      *
-     * @param PDOStatement $result
+     * @param PDOStatement<mixed> $result
      * @param int $numRows If negative number then the number of rows will be obtained
      * from fetching all the rows and move first
-     * @param array $overrideTypes
+     * @param array<string, string> $overrideTypes
      */
-    public function __construct(PDOStatement $result, $numRows, array $overrideTypes = [])
+    public function __construct(PDOStatement $result, int $numRows, array $overrideTypes = [])
     {
         $this->stmt = $result;
         $this->overrideTypes = $overrideTypes;
@@ -67,10 +93,8 @@ class Result implements ResultInterface
 
     /**
      * Internal method to retrieve the number of rows if not supplied from constructor
-     *
-     * @return int
      */
-    private function obtainNumRows()
+    private function obtainNumRows(): int
     {
         $count = 0;
         while (false !== $this->stmt->fetch(PDO::FETCH_NUM)) {
@@ -88,7 +112,10 @@ class Result implements ResultInterface
         $columnsCount = $this->stmt->columnCount();
         $columns = [];
         for ($column = 0; $column < $columnsCount; $column++) {
-            $columns[] = $this->stmt->getColumnMeta($column);
+            $columnMeta = $this->stmt->getColumnMeta($column);
+            if (is_array($columnMeta)) {
+                $columns[] = $columnMeta;
+            }
         }
         $fields = [];
         foreach ($columns as $fetched) {
@@ -104,49 +131,17 @@ class Result implements ResultInterface
 
     /**
      * Private function to get the common type from the information of the field
-     * @param string $fieldName
-     * @param string $nativeType
-     * @return string
      */
-    private function getCommonType($fieldName, $nativeType)
+    private function getCommonType(string $fieldName, string $nativeType): string
     {
-        static $types = [
-            // integers
-            'int' => CommonTypes::TINT,
-            'tinyint' => CommonTypes::TINT,
-            'smallint' => CommonTypes::TINT,
-            'bigint' => CommonTypes::TINT,
-            // floats
-            'float' => CommonTypes::TNUMBER,
-            'real' => CommonTypes::TNUMBER,
-            'decimal' => CommonTypes::TNUMBER,
-            'numeric' => CommonTypes::TNUMBER,
-            'money' => CommonTypes::TNUMBER,
-            'smallmoney' => CommonTypes::TNUMBER,
-            // dates
-            'date' => CommonTypes::TDATE,
-            'time' => CommonTypes::TTIME,
-            'datetime' => CommonTypes::TDATETIME,
-            'smalldatetime' => CommonTypes::TDATETIME,
-            // bool
-            'bit' => CommonTypes::TBOOL,
-            // text
-            'char' => CommonTypes::TTEXT,
-            'varchar' => CommonTypes::TTEXT,
-            'text' => CommonTypes::TTEXT,
-        ];
         if (isset($this->overrideTypes[$fieldName])) {
             return $this->overrideTypes[$fieldName];
         }
         $nativeType = strtolower($nativeType);
-        $type = CommonTypes::TTEXT;
-        if (array_key_exists($nativeType, $types)) {
-            $type = $types[$nativeType];
-        }
-        return $type;
+        return self::TYPES[$nativeType] ?? CommonTypes::TTEXT;
     }
 
-    public function getIdFields()
+    public function getIdFields(): bool
     {
         return false;
     }

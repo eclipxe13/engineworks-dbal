@@ -19,49 +19,7 @@ class Result implements ResultInterface
     use ResultImplementsCountable;
     use ResultImplementsIterator;
 
-    /**
-     * PDO element
-     * @var PDOStatement
-     */
-    private $stmt;
-
-    /**
-     * The number of the result rows
-     * @var int
-     */
-    private $numRows;
-
-    /**
-     * Set of fieldname and commontype to use instead of detectedTypes
-     * @var array
-     */
-    private $overrideTypes;
-
-    /**
-     * The place where getFields result is cached
-     * @var array|null
-     */
-    private $cachedGetFields;
-
-    /**
-     * Result based on PDOStatement
-     *
-     * @param PDOStatement $result
-     * @param array $overrideTypes
-     */
-    public function __construct(PDOStatement $result, array $overrideTypes = [])
-    {
-        $numRows = $result->rowCount();
-        if (-1 === $numRows) {
-            throw new RuntimeException('Must use cursor PDO::CURSOR_SCROLL');
-        }
-
-        $this->stmt = $result;
-        $this->overrideTypes = $overrideTypes;
-        $this->numRows = $numRows;
-    }
-
-    private static $types = [
+    private const TYPES = [
         // integers
         'int' => CommonTypes::TINT,
         'tinyint' => CommonTypes::TINT,
@@ -88,6 +46,48 @@ class Result implements ResultInterface
     ];
 
     /**
+     * PDO element
+     * @var PDOStatement
+     */
+    private $stmt;
+
+    /**
+     * The number of the result rows
+     * @var int
+     */
+    private $numRows;
+
+    /**
+     * Set of fieldname and commontype to use instead of detectedTypes
+     * @var array<string, string>
+     */
+    private $overrideTypes;
+
+    /**
+     * The place where getFields result is cached
+     * @var array<int, array<string, mixed>>|null
+     */
+    private $cachedGetFields;
+
+    /**
+     * Result based on PDOStatement
+     *
+     * @param PDOStatement $result
+     * @param array<string, string> $overrideTypes
+     */
+    public function __construct(PDOStatement $result, array $overrideTypes = [])
+    {
+        $numRows = $result->rowCount();
+        if (-1 === $numRows) {
+            throw new RuntimeException('Must use cursor PDO::CURSOR_SCROLL');
+        }
+
+        $this->stmt = $result;
+        $this->overrideTypes = $overrideTypes;
+        $this->numRows = $numRows;
+    }
+
+    /**
      * Close the query and remove property association
      */
     public function __destruct()
@@ -105,7 +105,10 @@ class Result implements ResultInterface
         $columnsCount = $this->stmt->columnCount();
         $columns = [];
         for ($column = 0; $column < $columnsCount; $column++) {
-            $columns[] = $this->stmt->getColumnMeta($column);
+            $columnMeta = $this->stmt->getColumnMeta($column);
+            if (is_array($columnMeta)) {
+                $columns[] = $columnMeta;
+            }
         }
         $fields = [];
         foreach ($columns as $fetched) {
@@ -121,24 +124,21 @@ class Result implements ResultInterface
 
     /**
      * Private function to get the common type from the information of the field
+     *
      * @param string $fieldName
      * @param string $nativeType
      * @return string
      */
-    private function getCommonType($fieldName, $nativeType)
+    private function getCommonType(string $fieldName, string $nativeType): string
     {
         if (isset($this->overrideTypes[$fieldName])) {
             return $this->overrideTypes[$fieldName];
         }
         $nativeType = strtolower($nativeType);
-        $type = CommonTypes::TTEXT;
-        if (array_key_exists($nativeType, static::$types)) {
-            $type = static::$types[$nativeType];
-        }
-        return $type;
+        return self::TYPES[$nativeType] ?? CommonTypes::TTEXT;
     }
 
-    public function getIdFields()
+    public function getIdFields(): bool
     {
         return false;
     }
@@ -157,17 +157,26 @@ class Result implements ResultInterface
         return $this->convertToExpectedValues($values);
     }
 
+    /**
+     * @param array<string, mixed> $values
+     * @return array<string, mixed>
+     */
     private function convertToExpectedValues(array $values): array
     {
         $fields = $this->getFields();
         foreach ($fields as $field) {
-            $fieldname = $field['name'];
+            $fieldname = strval($field['name']);
             $values[$fieldname] = $this->convertToExpectedValue($values[$fieldname], $field['commontype']);
         }
         return $values;
     }
 
-    private function convertToExpectedValue($value, $type)
+    /**
+     * @param mixed $value
+     * @param string $type
+     * @return mixed
+     */
+    private function convertToExpectedValue($value, string $type)
     {
         if (null === $value) {
             return null;

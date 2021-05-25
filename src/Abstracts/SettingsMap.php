@@ -18,7 +18,7 @@ class SettingsMap implements SettingsInterface
 {
     /**
      * map of settings with default values
-     * @var array
+     * @var array<string, mixed>
      */
     protected $map = [];
 
@@ -29,7 +29,8 @@ class SettingsMap implements SettingsInterface
 
     /**
      * Get all the settings
-     * @return array
+     *
+     * @return array<string, mixed>
      */
     public function all(): array
     {
@@ -54,13 +55,13 @@ class SettingsMap implements SettingsInterface
     /**
      * Set an array of settings, ignores non existent or non-string-key elements
      *
-     * @param array $settings
+     * @param mixed[] $settings
      */
     public function setAll(array $settings): void
     {
         foreach ($settings as $name => $value) {
-            if (is_string($name) && $this->exists($name)) { // avoid the logic exception
-                $this->set($name, $value);
+            if (is_string($name) && array_key_exists($name, $this->map)) {
+                $this->map[$name] = $value;
             }
         }
     }

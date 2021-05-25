@@ -11,7 +11,7 @@ namespace EngineWorks\DBAL\Internal;
  */
 class NumericParser
 {
-    /** @var array|null Contains the running locale information */
+    /** @var array<string, mixed>|null Contains the running locale information */
     private $localeConv = null;
 
     /**
@@ -38,11 +38,19 @@ class NumericParser
         return ($asInteger) ? intval($value) : floatval($value);
     }
 
+    /**
+     * @param mixed $value
+     * @param bool $asInteger
+     * @return string
+     */
     public function parseAsEnglish($value, bool $asInteger): string
     {
         return $this->numberToEnglish((string) $this->parse($value, $asInteger));
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getLocaleInfo(): array
     {
         if (! is_array($this->localeConv)) {
@@ -51,6 +59,9 @@ class NumericParser
         return $this->localeConv;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function obtainLocaleInfo(): array
     {
         if ('C' === setlocale(LC_NUMERIC, '0')) {

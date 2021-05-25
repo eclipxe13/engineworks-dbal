@@ -9,7 +9,7 @@ use EngineWorks\DBAL\Tests\WithDbalTestCase;
 
 class SqlsrvConnectFailuresTest extends WithDbalTestCase
 {
-    protected function getFactoryNamespace()
+    protected function getFactoryNamespace(): string
     {
         return 'EngineWorks\DBAL\Sqlsrv';
     }
@@ -18,11 +18,6 @@ class SqlsrvConnectFailuresTest extends WithDbalTestCase
     {
         parent::setUp();
         $this->setupDbalWithSettings(['connect-timeout' => 1]);
-    }
-
-    protected function getDefaultDbalSettingsArray(): array
-    {
-        return [];
     }
 
     public function testConnectReturnFalseWhenCannotConnect(): void

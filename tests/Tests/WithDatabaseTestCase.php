@@ -11,11 +11,12 @@ use Psr\Log\LogLevel;
 
 abstract class WithDatabaseTestCase extends WithDbalTestCase
 {
-    abstract protected function getSettingsArray();
+    /** @return mixed[] */
+    abstract protected function getSettingsArray(): array;
 
-    abstract protected function createDatabaseStructure();
+    abstract protected function createDatabaseStructure(): void;
 
-    abstract protected function checkIsAvailable();
+    abstract protected function checkIsAvailable(): void;
 
     protected function setUp(): void
     {
@@ -33,11 +34,23 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         $this->dbal->disconnect();
     }
 
+    /**
+     * @param string $query
+     * @param string $entity
+     * @param string[] $keys
+     * @param array<string, string> $types
+     * @return Recordset
+     */
     public function createRecordset(string $query, string $entity = '', array $keys = [], array $types = []): Recordset
     {
         return $this->dbal->createRecordset($query, $entity, $keys, $types);
     }
 
+    /**
+     * @param string $query
+     * @param array<string, string> $types
+     * @return Result
+     */
     public function queryResult(string $query, array $types = []): Result
     {
         $result = $this->dbal->queryResult($query, $types);
@@ -47,17 +60,27 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         return $result;
     }
 
+    /**
+     * @param int $idFrom
+     * @param int $idTo
+     * @return array<int, array<string, mixed>>
+     */
     public function getFixedValuesWithLabels(int $idFrom = 1, int $idTo = 10): array
     {
         $array = $this->getFixedValues($idFrom, $idTo);
         $keys = ['albumid', 'title', 'votes', 'lastview', 'isfree', 'collect'];
         $count = count($array);
         for ($i = 0; $i < $count; $i++) {
-            $array[$i] = array_combine($keys, $array[$i]);
+            $array[$i] = array_combine($keys, $array[$i]) ?: [];
         }
         return $array;
     }
 
+    /**
+     * @param int $idFrom
+     * @param int $idTo
+     * @return array<int, mixed[]>
+     */
     protected function getFixedValues(int $idFrom = 1, int $idTo = 10): array
     {
         $values = [
@@ -75,6 +98,10 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         return array_slice($values, $idFrom - 1, $idTo - $idFrom + 1);
     }
 
+    /**
+     * @param mixed[] $values
+     * @return mixed[]
+     */
     protected function convertArrayStringsToFixedValues(array $values): array
     {
         return array_map(function ($value) {
@@ -82,6 +109,10 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         }, $values);
     }
 
+    /**
+     * @param mixed[] $values
+     * @return array<string, mixed>
+     */
     protected function convertStringsToFixedValues(array $values): array
     {
         return [
@@ -94,6 +125,10 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         ];
     }
 
+    /**
+     * @param mixed[] $values
+     * @return mixed[]
+     */
     protected function convertArrayFixedValuesToStrings(array $values): array
     {
         return array_map(function ($value) {
@@ -101,6 +136,10 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         }, $values);
     }
 
+    /**
+     * @param mixed[] $values
+     * @return mixed[]
+     */
     protected function convertFixedValuesToStrings(array $values): array
     {
         $values['lastview'] = date('Y-m-d H:i:s', $values['lastview']);
@@ -108,6 +147,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         return $values;
     }
 
+    /** @param string[] $statements */
     protected function executeStatements(array $statements): void
     {
         foreach ($statements as $statement) {

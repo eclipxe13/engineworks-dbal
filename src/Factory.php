@@ -33,24 +33,25 @@ class Factory
     /**
      * Return a valid class name (namespace + class),
      * optionally checks if the class extends or implements other classes
+     *
      * @param string $class
      * @param string $extends
      * @param string $implements
-     * @return string
+     * @return class-string
      */
-    protected function buildClassName($class, $extends = '', $implements = '')
+    protected function buildClassName(string $class, string $extends = '', string $implements = ''): string
     {
         $classname = $this->namespace . '\\' . $class;
         if (! class_exists($classname)) {
             throw new LogicException("Class $classname does not exists");
         }
         if ('' !== $extends) {
-            if (! in_array($extends, class_parents($classname))) {
+            if (! in_array($extends, class_parents($classname) ?: [])) {
                 throw new LogicException("Class $classname does not extends $extends");
             }
         }
         if ('' !== $implements) {
-            if (! in_array($implements, class_implements($classname))) {
+            if (! in_array($implements, class_implements($classname) ?: [])) {
                 throw new LogicException("Class $classname does not implements $implements");
             }
         }
@@ -62,17 +63,17 @@ class Factory
      * @param LoggerInterface|null $logger
      * @return DBAL
      */
-    public function dbal(Settings $settings, LoggerInterface $logger = null)
+    public function dbal(Settings $settings, LoggerInterface $logger = null): DBAL
     {
         $classname = $this->buildClassName($this->dbalName, DBAL::class, '');
         return new $classname($settings, $logger);
     }
 
     /**
-     * @param array $settings
+     * @param mixed[] $settings
      * @return Settings
      */
-    public function settings(array $settings = [])
+    public function settings(array $settings = []): Settings
     {
         $classname = $this->buildClassName($this->settingsName, '', Settings::class);
         return new $classname($settings);

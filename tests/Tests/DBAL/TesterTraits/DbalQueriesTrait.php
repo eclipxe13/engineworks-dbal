@@ -274,7 +274,10 @@ trait DbalQueriesTrait
         $this->assertSame($expectedValue, $value);
     }
 
-    // override if needed
+    /**
+     * Override as needed
+     * @return array<string, string>
+     */
     public function overrideTypes(): array
     {
         return [];

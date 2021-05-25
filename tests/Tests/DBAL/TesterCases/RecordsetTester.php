@@ -28,7 +28,6 @@ final class RecordsetTester
         // check connection exists
         if (! $this->dbal->isConnected()) {
             $this->test->markTestSkipped('The database is not connected');
-            return;
         }
         $this->testIterator();
         $this->testQueryRecordsetOnNonExistent();
@@ -48,7 +47,7 @@ final class RecordsetTester
         $this->testRecordCount();
     }
 
-    private function queryAlbumAsRecordset($albumid): Recordset
+    private function queryAlbumAsRecordset(int $albumid): Recordset
     {
         $sql = 'SELECT * FROM albums WHERE (albumid = ' . $this->dbal->sqlQuote($albumid, CommonTypes::TINT) . ');';
         return $this->test->createRecordset($sql, 'albums', ['albumid']);
@@ -79,7 +78,10 @@ final class RecordsetTester
         $this->test->assertTrue($recordset->canModify());
     }
 
-    public function testAddNew($values): void
+    /**
+     * @param array<string, mixed> $values
+     */
+    public function testAddNew(array $values): void
     {
         $recordset = $this->queryAlbumAsRecordset($values['albumid']);
         $this->test->assertTrue($recordset->eof());
@@ -90,7 +92,10 @@ final class RecordsetTester
         $this->test->assertSame(1, $update);
     }
 
-    public function testInsertedData($values): void
+    /**
+     * @param array<string, mixed> $values
+     */
+    public function testInsertedData(array $values): void
     {
         $recordset = $this->queryAlbumAsRecordset($values['albumid']);
         $this->test->assertFalse($recordset->eof());
@@ -99,7 +104,10 @@ final class RecordsetTester
         }
     }
 
-    public function testUpdate($values): void
+    /**
+     * @param array<string, mixed> $values
+     */
+    public function testUpdate(array $values): void
     {
         $recordset = $this->queryAlbumAsRecordset($values['albumid']);
         $this->test->assertFalse($recordset->eof());
@@ -111,7 +119,10 @@ final class RecordsetTester
         $this->test->assertSame(55, $recordset->values['votes']);
     }
 
-    public function testDelete($values): void
+    /**
+     * @param array<string, mixed> $values
+     */
+    public function testDelete(array $values): void
     {
         $recordset = $this->queryAlbumAsRecordset($values['albumid']);
         $this->test->assertFalse($recordset->eof());

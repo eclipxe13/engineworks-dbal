@@ -162,7 +162,12 @@ class MysqliResultTest extends MysqliWithDatabaseTestCase
         $this->assertEquals(CommonTypes::TINT, $fields[0]['commontype']);
     }
 
-    private function getForEach()
+    /**
+     * Iterates the result and assert that each item is an array
+     *
+     * @return array<int, mixed[]>
+     */
+    private function getForEach(): array
     {
         $array = [];
         foreach ($this->result as $key => $values) {

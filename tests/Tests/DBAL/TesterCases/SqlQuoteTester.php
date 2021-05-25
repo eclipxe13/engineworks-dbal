@@ -17,8 +17,10 @@ final class SqlQuoteTester
     /** @var DBAL */
     private $dbal;
 
+    /** @var string */
     private $expectedSingleQuote = "''''";
 
+    /** @var string */
     private $expectedDoubleQuote = "'\"'";
 
     public function __construct(
@@ -47,7 +49,8 @@ final class SqlQuoteTester
         $this->testWithInvalidCommonType();
     }
 
-    public function providerSqlQuote()
+    /** @return array<string, array> */
+    public function providerSqlQuote(): array
     {
         $timestamp = mktime(23, 31, 59, 12, 31, 2016);
         $date = '2016-12-31';
@@ -119,6 +122,13 @@ final class SqlQuoteTester
         ];
     }
 
+    /**
+     * @param string $label
+     * @param string $expected
+     * @param mixed $value
+     * @param string $type
+     * @param bool $includeNull
+     */
     public function testSqlQuote(string $label, string $expected, $value, string $type, bool $includeNull): void
     {
         $this->test->assertSame(
@@ -128,12 +138,13 @@ final class SqlQuoteTester
         );
     }
 
-    public function providerSqlQuoteWithLocale()
+    /** @return array<string, array> */
+    public function providerSqlQuoteWithLocale(): array
     {
         return [
-            ['en_US', '-1234.56789', "- $\t1,234.567,89 "],
-            ['en_US.utf-8', '-1234.56789', "- $\t1,234.567,89 "],
-            ['pt_BR', '-1234.56789', "- R$\t1.234,567.89 "],
+            'en_US' => ['en_US', '-1234.56789', "- $\t1,234.567,89 "],
+            'en_US.utf-8' => ['en_US.utf-8', '-1234.56789', "- $\t1,234.567,89 "],
+            'pt_BR' => ['pt_BR', '-1234.56789', "- R$\t1.234,567.89 "],
         ];
     }
 

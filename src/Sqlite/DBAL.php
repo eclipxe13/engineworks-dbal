@@ -11,7 +11,6 @@ use EngineWorks\DBAL\DBAL as AbstractDBAL;
 use EngineWorks\DBAL\Traits\MethodSqlDatePartFormatAnsi;
 use EngineWorks\DBAL\Traits\MethodSqlLike;
 use EngineWorks\DBAL\Traits\MethodSqlLimit;
-use EngineWorks\DBAL\Traits\MethodSqlQuote;
 use Exception;
 use RuntimeException;
 use SQLite3;
@@ -19,7 +18,6 @@ use Throwable;
 
 class DBAL extends AbstractDBAL
 {
-    use MethodSqlQuote;
     use MethodSqlLike;
     use MethodSqlLimit;
     use MethodSqlDatePartFormatAnsi;

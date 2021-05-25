@@ -110,7 +110,7 @@ final class TransactionsTester
         $this->test->assertSame(0, $this->dbal->getTransactionLevel());
 
         $this->test->assertEquals($this->count + 3, $this->getRecordCount());
-        $this->deleteRecords([1000, 1001, 1002]);
+        $this->deleteRecords(1000, 1001, 1002);
     }
 
     public function testNestedRollback(): void
@@ -181,12 +181,12 @@ final class TransactionsTester
         $this->test->assertEquals($this->count, $this->getRecordCount());
     }
 
-    private function getRecordCount()
+    private function getRecordCount(): int
     {
-        return $this->dbal->queryOne('SELECT COUNT(*) FROM albums', 0);
+        return (int) $this->dbal->queryOne('SELECT COUNT(*) FROM albums', 0);
     }
 
-    private function insertRecord($albumid): void
+    private function insertRecord(int $albumid): void
     {
         $sql = 'SELECT * FROM albums WHERE (albumid IS NULL);';
         $recordset = $this->test->createRecordset($sql, 'albums', ['albumid']);
@@ -202,13 +202,13 @@ final class TransactionsTester
         $recordset->update();
     }
 
-    private function deleteRecord($albumid): void
+    private function deleteRecord(int $albumid): void
     {
         $sql = 'DELETE FROM albums WHERE (albumid = ' . $this->dbal->sqlQuote($albumid, CommonTypes::TINT) . ');';
         $this->dbal->execute($sql, "Cannot remove record $albumid");
     }
 
-    private function deleteRecords(array $albumids): void
+    private function deleteRecords(int ...$albumids): void
     {
         foreach ($albumids as $albumid) {
             $this->deleteRecord($albumid);

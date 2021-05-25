@@ -15,16 +15,16 @@ class SqlsrvWithDatabaseTestCase extends WithDatabaseTestCase
             $this->markTestSkipped('Environment does not have the extension pdo');
         }
         if (! in_array('sqlsrv', pdo_drivers())) {
-            $this->markTestSkipped('Environment does not have the extension pdo-dblib');
+            $this->markTestSkipped('Environment does not have the PDO driver sqlsrv');
         }
     }
 
-    protected function getFactoryNamespace()
+    protected function getFactoryNamespace(): string
     {
         return 'EngineWorks\DBAL\Sqlsrv';
     }
 
-    protected function getSettingsArray()
+    protected function getSettingsArray(): array
     {
         return [
             'host' => getenv('testSqlsrv_server'),

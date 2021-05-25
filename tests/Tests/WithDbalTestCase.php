@@ -20,7 +20,7 @@ abstract class WithDbalTestCase extends TestCase
     /** @var ArrayLogger */
     protected $logger;
 
-    abstract protected function getFactoryNamespace();
+    abstract protected function getFactoryNamespace(): string;
 
     protected function setUp(): void
     {
@@ -43,6 +43,10 @@ abstract class WithDbalTestCase extends TestCase
         return $this->logger;
     }
 
+    /**
+     * @param mixed[] $settingsArray
+     * @return DBAL
+     */
     protected function createDbalWithSettings(array $settingsArray = []): DBAL
     {
         $dbal = $this->factory->dbal($this->factory->settings($settingsArray));
@@ -53,8 +57,7 @@ abstract class WithDbalTestCase extends TestCase
     }
 
     /**
-     * @param array<mixed> $settingsArray
-     * @return void
+     * @param mixed[] $settingsArray
      */
     protected function setupDbalWithSettings(array $settingsArray = []): void
     {

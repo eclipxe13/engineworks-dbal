@@ -166,7 +166,6 @@ class Pager
      * Set the SQL to query the count of records
      * This set the countMethod to COUNT_METHOD_QUERY
      * @param string $query
-     * @return void
      */
     protected function setQueryCount(string $query): void
     {
@@ -277,7 +276,6 @@ class Pager
     /**
      * Set the page size, this is fixes to a minimum value of 1
      * @param int $pageSize
-     * @return void
      */
     public function setPageSize(int $pageSize): void
     {

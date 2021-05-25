@@ -9,7 +9,6 @@ namespace EngineWorks\DBAL\Mssql;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\DBAL as AbstractDBAL;
 use EngineWorks\DBAL\Traits\MethodSqlConcatenate;
-use EngineWorks\DBAL\Traits\MethodSqlQuote;
 use Exception;
 use InvalidArgumentException;
 use PDO;
@@ -24,12 +23,11 @@ use Throwable;
 class DBAL extends AbstractDBAL
 {
     use MethodSqlConcatenate;
-    use MethodSqlQuote;
 
     /** @var PDO|null */
     protected $pdo = null;
 
-    protected function getPDOConnectionString()
+    protected function getPDOConnectionString(): string
     {
         $vars = [];
         if ($this->settings->exists('freetds-version')) {
@@ -46,6 +44,7 @@ class DBAL extends AbstractDBAL
         if ($this->settings->exists('encoding')) {
             $vars['charset'] = $this->settings->get('encoding');
         }
+
         $return = 'dblib:';
         foreach ($vars as $key => $value) {
             $return .= $key . '=' . $value . ';';

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EngineWorks\DBAL;
 
 use EngineWorks\DBAL\Exceptions\QueryException;
+use EngineWorks\DBAL\Internal\NumericParser;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -17,12 +18,12 @@ use Throwable;
  */
 abstract class DBAL implements CommonTypes, LoggerAwareInterface
 {
+    /** @var LoggerInterface */
+    protected $logger;
+
     use LoggerAwareTrait;
 
-    /**
-     * @return LoggerInterface
-     */
-    public function getLogger()
+    public function getLogger(): LoggerInterface
     {
         return $this->logger;
     }
@@ -73,7 +74,6 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * Disconnect
-     * @return void
      */
     abstract public function disconnect(): void;
 
@@ -91,7 +91,6 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * Implement the transaction begin command
-     * @return void
      */
     protected function commandTransactionBegin(): void
     {
@@ -100,7 +99,6 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * Implement the transaction commit command
-     * @return void
      */
     protected function commandTransactionCommit(): void
     {
@@ -109,7 +107,6 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * Implement the transaction rollback command
-     * @return void
      */
     protected function commandTransactionRollback(): void
     {
@@ -119,7 +116,6 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     /**
      * Implement the savepoint command
      * @param string $name
-     * @return void
      */
     protected function commandSavepoint(string $name): void
     {
@@ -129,7 +125,6 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     /**
      * Implement the release savepoint command
      * @param string $name
-     * @return void
      */
     protected function commandReleaseSavepoint(string $name): void
     {
@@ -139,7 +134,6 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     /**
      * Implement the rollback to savepoint command
      * @param string $name
-     * @return void
      */
     protected function commandRollbackToSavepoint(string $name): void
     {
@@ -157,7 +151,6 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * Start a transaction
-     * @return void
      */
     final public function transBegin(): void
     {
@@ -172,7 +165,6 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * Commit a transaction
-     * @return void
      */
     final public function transCommit(): void
     {
@@ -188,7 +180,6 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
             if ($this->transPreventCommit()) {
                 $this->transactionLevel = 1;
                 trigger_error('Try to call final commit with prevent commit enabled', E_USER_ERROR);
-                return;
             }
             $this->commandTransactionCommit();
         } else {
@@ -198,7 +189,6 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * Rollback a transaction
-     * @return void
      */
     final public function transRollback(): void
     {
@@ -296,23 +286,63 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param bool $includeNull
      * @return string
      */
-    abstract public function sqlQuote(
+    final public function sqlQuote(
         $variable,
         string $commonType = CommonTypes::TTEXT,
         bool $includeNull = false
-    ): string;
+    ): string {
+        if ($includeNull && null === $variable) {
+            return 'NULL';
+        }
+        // CommonTypes::TTEXT is here because is the most common used type
+        if (CommonTypes::TTEXT === $commonType) {
+            return "'" . $this->sqlString($variable) . "'";
+        }
+        if (CommonTypes::TINT === $commonType) {
+            return $this->sqlQuoteParseNumber($variable, true);
+        }
+        if (CommonTypes::TNUMBER === $commonType) {
+            return $this->sqlQuoteParseNumber($variable, false);
+        }
+        if (CommonTypes::TBOOL === $commonType) {
+            return ($variable) ? '1' : '0';
+        }
+        if (CommonTypes::TDATE === $commonType) {
+            return "'" . date('Y-m-d', (int) $variable) . "'";
+        }
+        if (CommonTypes::TTIME === $commonType) {
+            return "'" . date('H:i:s', (int) $variable) . "'";
+        }
+        if (CommonTypes::TDATETIME === $commonType) {
+            return "'" . date('Y-m-d H:i:s', (int) $variable) . "'";
+        }
+        return "'" . $this->sqlString($variable) . "'";
+    }
+
+    /**
+     * @param mixed $value
+     * @param bool $asInteger
+     * @return string
+     */
+    private function sqlQuoteParseNumber($value, bool $asInteger): string
+    {
+        return (new NumericParser())->parseAsEnglish((string) $value, $asInteger);
+    }
 
     /**
      * Parses values to secure SQL for IN operator
      *
-     * @param array $values
+     * @param mixed[] $values
      * @param string $commonType
      * @param bool $includeNull
      * @return string example "(1, 3, 5)"
      * @throws RuntimeException if the array of values is empty
      */
-    final public function sqlQuoteIn(array $values, string $commonType = CommonTypes::TTEXT, bool $includeNull = false)
-    {
+    final public function sqlQuoteIn(
+        array $values,
+        string $commonType = CommonTypes::TTEXT,
+        bool $includeNull = false
+    ): string {
         if (0 === count($values)) {
             throw new RuntimeException('The array of values passed to DBAL::sqlQuoteIn is empty');
         }
@@ -331,7 +361,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @see sqlQuoteIn
      *
      * @param string $field
-     * @param array $values
+     * @param mixed[] $values
      * @param string $commonType
      * @param bool $positive Set to FALSE to perform a NOT IN comparison
      * @param bool $includeNull
@@ -365,7 +395,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @see sqlQuoteIn
      *
      * @param string $field
-     * @param array $values
+     * @param mixed[] $values
      * @param string $commonType
      * @param bool $includeNull
      *
@@ -522,7 +552,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     /**
      * Concatenation, as this can allow fields and strings, all strings must be previously escaped
      *
-     * @param string[] ...$strings fields and escaped strings
+     * @param string ...$strings fields and escaped strings
      * @return string
      */
     abstract public function sqlConcatenate(...$strings): string;
@@ -545,7 +575,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Executes a query and return a Result
      *
      * @param string $query
-     * @param array $overrideTypes use this to override detected types
+     * @param array<string, string> $overrideTypes use this to override detected types
      * @return Result|false
      */
     abstract public function queryResult(string $query, array $overrideTypes = []);
@@ -618,7 +648,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Get the first row of a query
      *
      * @param string $query
-     * @return array|false
+     * @return array<string, mixed>|false
      */
     final public function queryRow(string $query)
     {
@@ -639,8 +669,8 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Get the first row of a query, the values are in common types
      *
      * @param string $query
-     * @param array $overrideTypes
-     * @return array|false
+     * @param array<string, string> $overrideTypes
+     * @return array<string, mixed>|false
      */
     final public function queryValues(string $query, array $overrideTypes = [])
     {
@@ -658,7 +688,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Get an array of rows of a query
      *
      * @param string $query
-     * @return array|false
+     * @return array<int, array<string, mixed>>|false
      */
     final public function queryArray(string $query)
     {
@@ -678,8 +708,8 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * Get an array of rows of a query, the values are in common types
      *
      * @param string $query
-     * @param array $overrideTypes
-     * @return array|false
+     * @param array<string, string> $overrideTypes
+     * @return array<int, array<string, mixed>>|false
      */
     final public function queryArrayValues(string $query, array $overrideTypes = [])
     {
@@ -703,7 +733,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param string $query
      * @param string $keyField
      * @param string $keyPrefix
-     * @return array|false
+     * @return array<array<string, mixed>>|false
      */
     final public function queryArrayKey(string $query, string $keyField, string $keyPrefix = '')
     {
@@ -734,7 +764,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param string $valueField
      * @param string $keyPrefix
      * @param mixed $default
-     * @return array
+     * @return mixed[]
      */
     final public function queryPairs(
         string $query,
@@ -757,7 +787,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      *
      * @param string $query
      * @param string $field
-     * @return array|false
+     * @return array<int, mixed>|false
      */
     final public function queryArrayOne(string $query, string $field = '')
     {
@@ -809,7 +839,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      * @param string $query
      * @param string $overrideEntity
      * @param string[] $overrideKeys
-     * @param string[] $overrideTypes
+     * @param array<string, string> $overrideTypes
      * @return Recordset|false
      */
     final public function queryRecordset(
@@ -832,8 +862,8 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
      *
      * @param string $query
      * @param string $overrideEntity
-     * @param array $overrideKeys
-     * @param array $overrideTypes
+     * @param string[] $overrideKeys
+     * @param array<string, string> $overrideTypes
      * @see DBAL::queryRecordset()
      * @throws QueryException if some error occurs when creating the Recordset object or getting the page
      * @return Recordset
