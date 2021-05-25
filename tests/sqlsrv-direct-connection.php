@@ -7,13 +7,14 @@ declare(strict_types=1);
 //
 
 exit(call_user_func(function ($arguments): int {
-    $host = $arguments[1] ?? '';
+    $host = $arguments[1] ?? 'localhost';
     $user = $arguments[2] ?? '';
     $pass = $arguments[3] ?? '';
+    $name = $arguments[4] ?? 'master';
 
     try {
         $pdo = new PDO(
-            sprintf('sqlsrv:Server=%s;Database=%s', $host, 'master'),
+            sprintf('sqlsrv:Server=%s;Database=%s', $host, $name),
             $user,
             $pass,
             [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
