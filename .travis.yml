@@ -30,8 +30,14 @@ before_script:
   # ms sql server php driver, run before install msodbcsql17
   - sudo apt install -q -y unixodbc-dev
   - pecl channel-update pecl.php.net
-  - pecl search sqlsrv pdo_sqlsrv
-  - pecl install sqlsrv pdo_sqlsrv
+  - |
+    if [[ $TRAVIS_PHP_VERSION == "7.2" ]]; then
+      pecl install sqlsrv-5.8.1 pdo_sqlsrv-5.8.1
+    fi
+  - |
+    if [[ $TRAVIS_PHP_VERSION != "7.2" ]]; then
+      pecl install sqlsrv pdo_sqlsrv
+    fi
   - pecl list sqlsrv pdo_sqlsrv
   - 'php -i | grep -i sqlsrv'
   # install msodbcsql17
