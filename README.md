@@ -8,7 +8,7 @@
 [![Coverage Status][badge-coverage]][coverage]
 [![Total Downloads][badge-downloads]][downloads]
 
-This library was created to abstract the interactions with a relational database.
+I create this library to abstract the interactions with a relational database.
 At the time it was created the PDO extension did not exist.
 If possible try to use PDO instead of this library, mostly because prepared statements.
 
@@ -61,7 +61,7 @@ you are free to create your own and (please) share it with me.
 
 ### Sqlsrv
 
-- This driver is based on Microsoft PHP Driver for SQL Server.
+- This driver uses Microsoft PHP Driver for SQL Server.
 - Result does not know the entity or primary keys of the query.
   Use overrideEntity and overrideKeys when create a Recordset for update or delete.
 
@@ -72,12 +72,12 @@ you are free to create your own and (please) share it with me.
 - When a result is empty (nothing to fetch) it is not possible to know the type
   of the fields, this make this driver unstable to update using Recordset.
 - The method SQLite3Result::fetchArray put the cursor in the first position
-  when called after end of list. This behavior is corrected on Result and fetch
+  when called after end of list. This behavior has been corrected on Result and fetch
   returns always false.
 
 ### Mssql
 
-- This driver is based on PDO dblib, you will need FreeTDS.
+- This driver uses PDO dblib, you will need FreeTDS.
 - Result does not know the entity or primary keys of the query.
   Use overrideEntity and overrideKeys when create a Recordset for update or delete.
 - The function to quote (PDO::quote) fail with multibyte strings, we are
@@ -110,7 +110,7 @@ and licensed for use under the MIT License (MIT). Please see [LICENSE][] for mor
 [coverage]: https://scrutinizer-ci.com/g/eclipxe13/engineworks-dbal/code-structure/master/code-coverage/src/
 [downloads]: https://packagist.org/packages/eclipxe/engineworks-dbal
 
-[badge-source]: http://img.shields.io/badge/source-eclipxe13/engineworks--dbal-blue?style=flat-square
+[badge-source]: https://img.shields.io/badge/source-eclipxe13/engineworks--dbal-blue?style=flat-square
 [badge-release]: https://img.shields.io/github/release/eclipxe13/engineworks-dbal?style=flat-square
 [badge-license]: https://img.shields.io/github/license/eclipxe13/engineworks-dbal?style=flat-square
 [badge-build]: https://img.shields.io/travis/com/eclipxe13/engineworks-dbal/master?style=flat-square
