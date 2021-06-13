@@ -19,7 +19,7 @@ You can find help and discussion in the following places:
 
 ## Reporting Bugs
 
-Bugs are tracked in our project's [issue tracker](https://github.com/eclipxe13/engineworks-dbal/issues).
+We track our bugs in our project's [issue tracker](https://github.com/eclipxe13/engineworks-dbal/issues).
 
 When submitting a bug report, please include enough information for us to reproduce the bug. A good bug report includes the following sections:
 
@@ -38,10 +38,10 @@ If you see a bug report that you'd like to fix, please feel free to do so. Follo
 
 ## Adding New Features
 
-If you have an idea for a new feature, it's a good idea to check out
-our [issues](https://github.com/eclipxe13/engineworks-dbal/issues)
-or active [pull requests](https://github.com/eclipxe13/engineworks-dbal/pulls)
-first to see if the feature is already being worked on.
+If you have an idea for a new feature, it's a good idea to check out our
+[issues](https://github.com/eclipxe13/engineworks-dbal/issues) or active
+[pull requests](https://github.com/eclipxe13/engineworks-dbal/pulls)
+first to see if we are being working on the feature.
 If not, feel free to submit an issue first, asking whether the feature is beneficial to the project.
 This will save you from doing a lot of development work only to have your feature rejected.
 We don't enjoy rejecting your hard work, but some features just don't fit with the goals of the project.
@@ -49,7 +49,7 @@ We don't enjoy rejecting your hard work, but some features just don't fit with t
 When you do begin working on your feature, here are some guidelines to consider:
 
 * Your pull request description should clearly detail the changes you have made.
-* We following the **[PSR-2 coding standard](http://www.php-fig.org/psr/psr-2/)**. Please ensure your code does, too.
+* Follow our code style using `squizlabs/php_codesniffer` and `friendsofphp/php-cs-fixer`.
 * Please **write tests** for any new features you add.
 * Please **ensure that tests pass** before submitting your pull request. We have Travis CI automatically running tests for pull requests. However, running the tests locally will help save time.
 * **Use topic/feature branches.** Please do not ask us to pull from your master branch.
@@ -62,9 +62,9 @@ This project include a `phpcs.xml` file that extends the PSR-2 rules.
 
 ```bash
 # find issues
-vendor/bin/phpcs -sp --colors src/ tests/
+vendor/bin/phpcs -sp --colors
 # fix sources and tests
-vendor/bin/phpcbf src/ tests/
+vendor/bin/phpcbf -sp --colors
 ```
 
 Or simply execute:
@@ -118,4 +118,4 @@ docker rm dbal-mssql
 ### Testing Mysql
 
 Ensure that you have a file with the configuration on `tests/.env`, you can use `tests/.env.example` as start point.
-In the configuration file setup your Mysql instance. Installation instructions depends on your OS.
+In the configuration file set up your Mysql instance. Installation instructions depends on your OS.
