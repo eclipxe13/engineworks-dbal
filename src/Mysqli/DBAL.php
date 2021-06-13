@@ -103,7 +103,7 @@ class DBAL extends AbstractDBAL
         return str_replace(
             ['\\', "\0", "\n", "\r", "'", '"', "\x1a"],
             ['\\\\', '\\0', '\\n', '\\r', "\\'", '\\"', '\\Z'],
-            $variable
+            (string) $variable
         );
     }
 

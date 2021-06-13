@@ -75,7 +75,7 @@ class DBAL extends AbstractDBAL
 
     public function sqlString($variable): string
     {
-        return str_replace(["\0", "'"], ['', "''"], $variable);
+        return str_replace(["\0", "'"], ['', "''"], (string) $variable);
     }
 
     public function queryResult(string $query, array $overrideTypes = [])

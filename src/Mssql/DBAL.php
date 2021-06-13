@@ -106,7 +106,7 @@ class DBAL extends AbstractDBAL
         //    $quoted = $this->pdo()->quote($variable);
         //    return substr($quoted, 1, strlen($quoted) - 2);
         //}
-        return str_replace(["\0", "'"], ['', "''"], $variable);
+        return str_replace(["\0", "'"], ['', "''"], (string) $variable);
     }
 
     /**

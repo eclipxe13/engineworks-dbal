@@ -416,7 +416,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     /**
      * Quote as string
      *
-     * @param mixed $variable
+     * @param scalar $variable
      * @return string
      */
     abstract public function sqlString($variable): string;
