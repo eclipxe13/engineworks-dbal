@@ -30,14 +30,7 @@ before_script:
   # ms sql server php driver, run before install msodbcsql17
   - sudo apt install -q -y unixodbc-dev
   - pecl channel-update pecl.php.net
-  - |
-    if [[ $TRAVIS_PHP_VERSION == "7.2" ]]; then
-      pecl install sqlsrv-5.8.1 pdo_sqlsrv-5.8.1
-    fi
-  - |
-    if [[ $TRAVIS_PHP_VERSION != "7.2" ]]; then
-      pecl install sqlsrv pdo_sqlsrv
-    fi
+  - test $TRAVIS_PHP_VERSION == "7.2" && pecl install sqlsrv-5.8.1 pdo_sqlsrv-5.8.1 || pecl install sqlsrv pdo_sqlsrv
   - pecl list sqlsrv pdo_sqlsrv
   - 'php -i | grep -i sqlsrv'
   # install msodbcsql17
@@ -54,10 +47,13 @@ script:
   - cp tests/.env.travis tests/.env
   - |
     if [[ $TRAVIS_PHP_VERSION == $PHP_VERSION_FULL_BUILD ]]; then
-      vendor/bin/phpcs -sp
-      vendor/bin/php-cs-fixer fix --using-cache=no --dry-run --verbose
-      php -dzend_extension=xdebug.so -dxdebug.mode=coverage vendor/bin/phpunit --coverage-clover=coverage.xml --verbose
-      php vendor/bin/phpstan analyse --no-interaction --no-progress
+      (
+        set -e
+        vendor/bin/phpcs -sp
+        vendor/bin/php-cs-fixer fix --using-cache=no --dry-run --verbose
+        php -dzend_extension=xdebug.so -dxdebug.mode=coverage vendor/bin/phpunit --coverage-clover=coverage.xml --verbose
+        php vendor/bin/phpstan analyse --no-interaction --no-progress
+      )
     else
       php vendor/bin/phpunit --testdox --verbose
     fi
@@ -66,8 +62,11 @@ after_script:
   # upload to scrutinizer
   - |
     if [[ $TRAVIS_PHP_VERSION == $PHP_VERSION_FULL_BUILD ]]; then
-      wget -q https://scrutinizer-ci.com/ocular.phar
-      php ocular.phar code-coverage:upload --format=php-clover coverage.xml
+      (
+        set -e
+        wget -q https://scrutinizer-ci.com/ocular.phar
+        php ocular.phar code-coverage:upload --format=php-clover coverage.xml
+      )
     fi
 
 notifications:
