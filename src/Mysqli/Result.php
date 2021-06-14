@@ -170,6 +170,9 @@ class Result implements ResultInterface
 
     public function moveTo(int $offset): bool
     {
+        if ($offset < 0) {
+            return false;
+        }
         return $this->query->data_seek($offset);
     }
 
