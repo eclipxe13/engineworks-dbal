@@ -10,7 +10,7 @@ services:
   - docker
 
 env:
-  - PHP_VERSION_FULL_BUILD="8.0"
+  - PHP_VERSION_FULL_BUILD="7.4"
 
 cache:
   - directories:
