@@ -4,6 +4,11 @@
 
 # Version 2.3.0 2021-06-13
 
+- Ensure PHP 8.0 compatibility:
+  - `SQLite3Result::finalize()` no longer produces a Warning, it now throws an error.
+  - `mysqli_result::data_seek(int $offset)` cannot be called with a negative integer.
+  - Since `pdo_sqlsrv:5.9.0` if create the `PDO` object using `PDO::ATTR_FETCH_TABLE_NAMES` throws an error on statement execution
+    with message `Cannot create PDO object for SqlSrv SQLSTATE[IMSSP]: An unsupported attribute was designated on the PDO object.`.
 - Upgrade codebase to fix all PHPStan 0.12 issues, minimal refactory.
 - Moved parameters and return types from documentation to code.
 - Upgrade to PHPStan 0.12.
