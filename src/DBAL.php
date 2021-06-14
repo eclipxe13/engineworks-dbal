@@ -53,7 +53,7 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
     public function __construct(Settings $settings, LoggerInterface $logger = null)
     {
         $this->settings = $settings;
-        $this->setLogger((null === $logger) ? new NullLogger() : $logger);
+        $this->setLogger($logger ?? new NullLogger());
     }
 
     /**

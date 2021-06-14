@@ -6,11 +6,13 @@ namespace EngineWorks\DBAL\Tests\DBAL\Sqlsrv;
 
 use EngineWorks\DBAL\Tests\DBAL\TesterCases\SqlQuoteTester;
 use EngineWorks\DBAL\Tests\DBAL\TesterTraits\DbalCommonSqlTrait;
+use EngineWorks\DBAL\Tests\DBAL\TesterTraits\DbalLoggerTrait;
 use EngineWorks\DBAL\Tests\WithDbalTestCase;
 
 class SqlsrvDbalDisconnectedTest extends WithDbalTestCase
 {
     use DbalCommonSqlTrait;
+    use DbalLoggerTrait;
 
     protected function getFactoryNamespace(): string
     {

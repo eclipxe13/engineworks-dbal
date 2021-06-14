@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace EngineWorks\DBAL\Tests\DBAL\Sqlite;
 
-use EngineWorks\DBAL\Tests\DBAL\Sample\ArrayLogger;
 use EngineWorks\DBAL\Tests\DBAL\TesterCases\SqlQuoteTester;
 use EngineWorks\DBAL\Tests\DBAL\TesterTraits\DbalCommonSqlTrait;
+use EngineWorks\DBAL\Tests\DBAL\TesterTraits\DbalLoggerTrait;
 use EngineWorks\DBAL\Tests\WithDbalTestCase;
 
 class SqliteDisconnectedTest extends WithDbalTestCase
 {
     use DbalCommonSqlTrait;
+    use DbalLoggerTrait;
 
     protected function getFactoryNamespace(): string
     {
@@ -29,14 +30,12 @@ class SqliteDisconnectedTest extends WithDbalTestCase
 
     public function testConnectReturnFalseWhenCannotConnect(): void
     {
-        $logger = new ArrayLogger();
-        $this->dbal->setLogger($logger);
         $this->assertFalse($this->dbal->connect());
         $expectedLogs = [
             'info: -- Connection fail',
             'error: Cannot create SQLite3 object: Unable to open database: ',
         ];
-        $messages = $logger->allMessages();
+        $messages = $this->logger->allMessages();
         $this->assertCount(count($expectedLogs), $messages);
         foreach ($messages as $index => $message) {
             $this->assertStringStartsWith($expectedLogs[$index], $message);

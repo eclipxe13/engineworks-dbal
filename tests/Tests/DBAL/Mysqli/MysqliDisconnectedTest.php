@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace EngineWorks\DBAL\Tests\DBAL\Mysqli;
 
-use EngineWorks\DBAL\Tests\DBAL\Sample\ArrayLogger;
 use EngineWorks\DBAL\Tests\DBAL\TesterCases\SqlQuoteTester;
 use EngineWorks\DBAL\Tests\DBAL\TesterTraits\DbalCommonSqlTrait;
+use EngineWorks\DBAL\Tests\DBAL\TesterTraits\DbalLoggerTrait;
 use EngineWorks\DBAL\Tests\WithDbalTestCase;
 
 class MysqliDisconnectedTest extends WithDbalTestCase
 {
     use DbalCommonSqlTrait;
+    use DbalLoggerTrait;
 
     protected function getFactoryNamespace(): string
     {
@@ -28,15 +29,13 @@ class MysqliDisconnectedTest extends WithDbalTestCase
 
     public function testConnectReturnFalseWhenCannotConnect(): void
     {
-        $logger = new ArrayLogger();
-        $this->dbal->setLogger($logger);
         $this->assertFalse($this->dbal->connect());
         $expectedLogs = [
             'info: -- Connection fail',
             'error: ',
         ];
         $expectedLogsCount = count($expectedLogs);
-        $actualLogs = $logger->allMessages();
+        $actualLogs = $this->logger->allMessages();
         for ($i = 0; $i < $expectedLogsCount; $i++) {
             $this->assertStringStartsWith($expectedLogs[$i], $actualLogs[$i]);
         }
