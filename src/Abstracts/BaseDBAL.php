@@ -2,17 +2,22 @@
 
 declare(strict_types=1);
 
-namespace EngineWorks\DBAL;
+namespace EngineWorks\DBAL\Abstracts;
 
+use EngineWorks\DBAL\CommonTypes;
+use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Exceptions\QueryException;
 use EngineWorks\DBAL\Internal\NumericParser;
+use EngineWorks\DBAL\Pager;
+use EngineWorks\DBAL\Recordset;
+use EngineWorks\DBAL\Settings;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
 use Throwable;
 
-abstract class AbstractDBAL implements DBAL
+abstract class BaseDBAL implements DBAL
 {
     /** @var LoggerInterface */
     protected $logger;

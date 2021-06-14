@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace EngineWorks\DBAL\Sqlsrv;
 
-use EngineWorks\DBAL\AbstractDBAL;
+use EngineWorks\DBAL\Abstracts\BaseDBAL;
 use EngineWorks\DBAL\Traits\MethodSqlConcatenate;
 use EngineWorks\DBAL\Traits\MethodSqlLimit;
 use InvalidArgumentException;
@@ -22,7 +22,7 @@ use Throwable;
  *
  * @todo: encoding: $this->settings->get('encoding')
  */
-class DBAL extends AbstractDBAL
+class DBAL extends BaseDBAL
 {
     use MethodSqlConcatenate;
     use MethodSqlLimit;

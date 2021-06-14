@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace EngineWorks\DBAL\Sqlite;
 
-use EngineWorks\DBAL\AbstractDBAL;
+use EngineWorks\DBAL\Abstracts\BaseDBAL;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Traits\MethodSqlLike;
 use EngineWorks\DBAL\Traits\MethodSqlLimit;
@@ -17,7 +17,7 @@ use SQLite3;
 use SQLite3Result;
 use Throwable;
 
-class DBAL extends AbstractDBAL
+class DBAL extends BaseDBAL
 {
     use MethodSqlLike;
     use MethodSqlLimit;

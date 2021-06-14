@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace EngineWorks\DBAL\Mssql;
 
-use EngineWorks\DBAL\AbstractDBAL;
+use EngineWorks\DBAL\Abstracts\BaseDBAL;
 use EngineWorks\DBAL\Traits\MethodSqlConcatenate;
 use EngineWorks\DBAL\Traits\MethodSqlLimit;
 use Exception;
@@ -20,7 +20,7 @@ use Throwable;
  * Mssql implementation
  * @package EngineWorks\DBAL\Mssql
  */
-class DBAL extends AbstractDBAL
+class DBAL extends BaseDBAL
 {
     use MethodSqlConcatenate;
     use MethodSqlLimit;
