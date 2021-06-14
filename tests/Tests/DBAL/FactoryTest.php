@@ -59,7 +59,7 @@ class FactoryTest extends TestCase
         $factory->dbal($mockSettings);
     }
 
-    public function testDbalWhenClassDoesNotExtendsDbal(): void
+    public function testDbalWhenClassDoesNotImplementsDbal(): void
     {
         $namespace = __NAMESPACE__ . '\Sample';
         $dbalname = 'EmptyObject';
@@ -68,7 +68,7 @@ class FactoryTest extends TestCase
         $mockSettings = $this->createMock(Settings::class);
 
         $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage("Class $namespace\\$dbalname does not extends " . DBAL::class);
+        $this->expectExceptionMessage("Class $namespace\\$dbalname does not implements " . DBAL::class);
 
         $factory->dbal($mockSettings);
     }

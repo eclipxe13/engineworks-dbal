@@ -56,7 +56,7 @@ final class SqlQuoteTester
         $date = '2016-12-31';
         $time = '23:31:59';
         $datetime = "$date $time";
-        $xmlValue = (new SimpleXMLElement('<d v="55.1"/>'))['v'];
+        $xmlValue = (new SimpleXMLElement(/** @lang xml */ '<d v="55.1"/>'))['v'];
         return [
             // texts
             'text normal' => ["'foo'", 'foo', DBAL::TTEXT, false],

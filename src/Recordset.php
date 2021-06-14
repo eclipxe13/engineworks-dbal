@@ -14,7 +14,7 @@ use RuntimeException;
 
 /**
  * Recordset class
- * Hint: Use DBAL->queryRecordset instead of using this class directly
+ * Hint: Use DBAL::queryRecordset() instead of using this class directly
  * @implements IteratorAggregate<int|string, array<string, mixed>>
  */
 class Recordset implements IteratorAggregate, Countable
@@ -31,9 +31,7 @@ class Recordset implements IteratorAggregate, Countable
      */
     public $values;
 
-    /**
-     * @var DBAL
-     */
+    /** @var DBAL */
     private $dbal;
 
     /** @var LoggerInterface */
@@ -79,6 +77,7 @@ class Recordset implements IteratorAggregate, Countable
 
     /**
      * Recordset constructor.
+     *
      * @param DBAL $dbal
      * @param LoggerInterface|null $logger If not provided it uses the DBAL Logger
      */
@@ -459,10 +458,11 @@ class Recordset implements IteratorAggregate, Countable
      * Build and execute an SQL UPDATE or INSERT sentence
      * Return how many rows where altered, if an update does not change any value then it return zero
      * Return false in case of error execution
+     *
      * @param string $extraWhereClause where clause to be append into sql on UPDATE (not insert)
      * @return int|false
      */
-    final public function update($extraWhereClause = '')
+    final public function update(string $extraWhereClause = '')
     {
         // check the current mode is on ADDNEW or EDIT
         if (self::RSMODE_CONNECTED_ADDNEW !== $this->mode && self::RSMODE_CONNECTED_EDIT !== $this->mode) {
@@ -509,10 +509,11 @@ class Recordset implements IteratorAggregate, Countable
     /**
      * Build and execute the SQL DELETE sentence
      * Return how many rows where altered
+     *
      * @param string $extraWhereClause
      * @return int|false
      */
-    final public function delete($extraWhereClause = '')
+    final public function delete(string $extraWhereClause = '')
     {
         if (self::RSMODE_CONNECTED_EDIT !== $this->mode) {
             throw new LogicException('Recordset: The recordset is not on edit mode [current: ' . $this->mode . ']');
@@ -586,7 +587,7 @@ class Recordset implements IteratorAggregate, Countable
      *
      * @param mixed $value
      * @param string $commonType
-     * @return mixed
+     * @return bool|float|int|string|null
      */
     protected function castValueWithCommonType($value, string $commonType)
     {

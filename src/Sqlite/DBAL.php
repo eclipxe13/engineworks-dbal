@@ -6,8 +6,8 @@ declare(strict_types=1);
 
 namespace EngineWorks\DBAL\Sqlite;
 
+use EngineWorks\DBAL\AbstractDBAL;
 use EngineWorks\DBAL\CommonTypes;
-use EngineWorks\DBAL\DBAL as AbstractDBAL;
 use EngineWorks\DBAL\Traits\MethodSqlLike;
 use EngineWorks\DBAL\Traits\MethodSqlLimit;
 use Exception;

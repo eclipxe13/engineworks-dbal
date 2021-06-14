@@ -6,8 +6,8 @@ declare(strict_types=1);
 
 namespace EngineWorks\DBAL\Mssql;
 
+use EngineWorks\DBAL\AbstractDBAL;
 use EngineWorks\DBAL\CommonTypes;
-use EngineWorks\DBAL\DBAL as AbstractDBAL;
 use EngineWorks\DBAL\Traits\MethodSqlConcatenate;
 use Exception;
 use InvalidArgumentException;

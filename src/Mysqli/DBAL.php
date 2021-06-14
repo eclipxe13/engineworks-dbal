@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace EngineWorks\DBAL\Mysqli;
 
-use EngineWorks\DBAL\DBAL as AbstractDBAL;
+use EngineWorks\DBAL\AbstractDBAL;
 use EngineWorks\DBAL\Traits\MethodSqlConcatenate;
 use EngineWorks\DBAL\Traits\MethodSqlLike;
 use EngineWorks\DBAL\Traits\MethodSqlLimit;

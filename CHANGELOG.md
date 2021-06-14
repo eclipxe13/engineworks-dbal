@@ -4,6 +4,7 @@
 
 # Version 2.3.0 2021-06-13
 
+- Convert DBAL to an interface
 - Fix bugs and add tests on `DBAL::sqlDatePart()`:
   - Mssql & Sqlsrv did not return leading zeros.
   - Sqlite uses different formats for minutes and second (not ansi).

@@ -65,7 +65,7 @@ class Factory
      */
     public function dbal(Settings $settings, LoggerInterface $logger = null): DBAL
     {
-        $classname = $this->buildClassName($this->dbalName, DBAL::class, '');
+        $classname = $this->buildClassName($this->dbalName, '', DBAL::class);
         return new $classname($settings, $logger);
     }
 
