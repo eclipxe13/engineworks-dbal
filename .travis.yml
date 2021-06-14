@@ -24,18 +24,18 @@ before_script:
   - docker run --name dbal-mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Password-123456' -p 1433:1433 -d microsoft/mssql-server-linux
   - docker ps -a
   # apt setup including microsoft packages
-  - curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
-  - curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list | tee -a /etc/apt/sources.list.d/microsoft.list
-  - apt-get update -q -q
+  - curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+  - curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list | sudo tee -a /etc/apt/sources.list.d/microsoft.list
+  - sudo apt-get update -q -q
   # ms sql server php driver, run before install msodbcsql17
-  - apt install -q -y unixodbc-dev
+  - sudo apt install -q -y unixodbc-dev
   - pecl channel-update pecl.php.net
   - test $TRAVIS_PHP_VERSION == "7.2" && pecl install sqlsrv-5.8.1 pdo_sqlsrv-5.8.1 || pecl install sqlsrv pdo_sqlsrv
   - pecl list
   - php -m
   # install msodbcsql17
   - apt-cache policy msodbcsql17 mssql-tools unixodbc
-  - ACCEPT_EULA=Y apt-get install -q -y msodbcsql17 mssql-tools unixodbc
+  - sudo ACCEPT_EULA=Y apt-get install -q -y msodbcsql17 mssql-tools unixodbc
   # test connections
   - docker exec dbal-mssql /opt/mssql-tools/bin/sqlcmd -U sa -P 'Password-123456' -Q "SELECT @@VERSION"
   - php tests/sqlsrv-direct-connection.php localhost sa 'Password-123456'
