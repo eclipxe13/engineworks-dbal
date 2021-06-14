@@ -7,8 +7,8 @@ declare(strict_types=1);
 namespace EngineWorks\DBAL\Mssql;
 
 use EngineWorks\DBAL\AbstractDBAL;
-use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Traits\MethodSqlConcatenate;
+use EngineWorks\DBAL\Traits\MethodSqlLimit;
 use Exception;
 use InvalidArgumentException;
 use PDO;
@@ -23,6 +23,7 @@ use Throwable;
 class DBAL extends AbstractDBAL
 {
     use MethodSqlConcatenate;
+    use MethodSqlLimit;
 
     /** @var PDO|null */
     protected $pdo = null;
@@ -112,10 +113,11 @@ class DBAL extends AbstractDBAL
      * Executes a query and return an object or resource native to the driver
      * This is the internal function to do the query according to the database functions
      * It's used by queryResult and queryAffectedRows methods
+     *
      * @param string $query
      * @return PDOStatement|false
      */
-    protected function queryDriver($query)
+    protected function queryDriver(string $query)
     {
         $this->logger->debug($query);
         try {
@@ -224,13 +226,7 @@ class DBAL extends AbstractDBAL
 
     public function sqlLimit(string $query, int $requestedPage, int $recordsPerPage = 20): string
     {
-        $requestedPage = max(1, $requestedPage) - 1; // zero indexed
-        $recordsPerPage = max(1, $recordsPerPage);
-        $query = rtrim($query, "; \t\n\r\0\x0B")
-            . ' OFFSET ' . $this->sqlQuote($recordsPerPage * $requestedPage, CommonTypes::TINT) . ' ROWS'
-            . ' FETCH NEXT ' . $this->sqlQuote($recordsPerPage, CommonTypes::TINT) . ' ROWS ONLY'
-            . ';';
-        return $query;
+        return $this->sqlLimitOffsetFetchNext($query, $requestedPage, $recordsPerPage);
     }
 
     public function sqlLike(
@@ -248,6 +244,7 @@ class DBAL extends AbstractDBAL
             . (($wildcardBegin) ? '%' : '') . $this->sqlString($searchString) . (($wildcardEnd) ? '%' : '') . "'";
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     protected function commandSavepoint(string $name): void
     {
         $this->execute(
@@ -256,12 +253,14 @@ class DBAL extends AbstractDBAL
         );
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     protected function commandReleaseSavepoint(string $name): void
     {
         // do not execute, the command commit transaction does not works with save transaction
         $this->logger->debug("-- COMMIT TRANSACTION $name");
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     protected function commandRollbackToSavepoint(string $name): void
     {
         $this->execute(

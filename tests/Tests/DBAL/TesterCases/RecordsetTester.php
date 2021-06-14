@@ -182,10 +182,6 @@ final class RecordsetTester
     {
         $test = $this->test;
         $createdRows = $test->getFixedValuesWithLabels(1, 2);
-        $overrideTypes = [
-            'lastview' => CommonTypes::TDATETIME,
-            'isfree' => CommonTypes::TBOOL,
-        ];
         $sql = 'SELECT * FROM albums WHERE (albumid between 1 and 2);';
         $recordset = $this->test->createRecordset($sql);
 

@@ -137,6 +137,7 @@ class SqliteResultTest extends SqliteWithDatabaseTestCase
 
     public function testGetIterator(): void
     {
+        /** @noinspection PhpUnhandledExceptionInspection */
         $iterator = $this->result->getIterator();
         $this->assertInstanceOf(Iterator::class, $iterator);
         $this->assertInstanceOf(ResultIterator::class, $iterator);

@@ -114,7 +114,7 @@ class DBAL extends AbstractDBAL
      * @param string $query
      * @return mysqli_result<mixed>|bool
      */
-    protected function queryDriver($query)
+    protected function queryDriver(string $query)
     {
         $this->logger->debug($query);
         $result = $this->mysqli()->query($query);
@@ -199,20 +199,23 @@ class DBAL extends AbstractDBAL
         return 'IF(' . $condition . ', ' . $truePart . ', ' . $falsePart . ')';
     }
 
+    public function sqlLimit(string $query, int $requestedPage, int $recordsPerPage = 20): string
+    {
+        return $this->sqlLimitOffset($query, $requestedPage, $recordsPerPage);
+    }
+
     public function sqlRandomFunc(): string
     {
         return 'RAND()';
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     protected function commandTransactionBegin(): void
     {
         $this->execute('START TRANSACTION', 'Cannot start transaction');
     }
 
-    /**
-     * @return mysqli
-     */
-    private function mysqli()
+    private function mysqli(): mysqli
     {
         if (null === $this->mysqli) {
             throw new RuntimeException('The current state of the connection is NULL');

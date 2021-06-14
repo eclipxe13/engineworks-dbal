@@ -14,6 +14,7 @@ use Exception;
 use InvalidArgumentException;
 use RuntimeException;
 use SQLite3;
+use SQLite3Result;
 use Throwable;
 
 class DBAL extends AbstractDBAL
@@ -84,7 +85,7 @@ class DBAL extends AbstractDBAL
          * @noinspection PhpUsageOfSilenceOperatorInspection
          */
         $rslt = @$this->sqlite()->query($query);
-        if (false !== $rslt) {
+        if ($rslt instanceof SQLite3Result) {
             return new Result($rslt, $overrideTypes);
         }
         return false;
@@ -168,15 +169,17 @@ class DBAL extends AbstractDBAL
         return 'CASE WHEN (' . $condition . ') THEN ' . $truePart . ' ELSE ' . $falsePart;
     }
 
+    public function sqlLimit(string $query, int $requestedPage, int $recordsPerPage = 20): string
+    {
+        return $this->sqlLimitOffset($query, $requestedPage, $recordsPerPage);
+    }
+
     public function sqlRandomFunc(): string
     {
         return 'random()';
     }
 
-    /**
-     * @return SQLite3
-     */
-    private function sqlite()
+    private function sqlite(): SQLite3
     {
         if (null === $this->sqlite) {
             throw new RuntimeException('The current state of the connection is NULL');
