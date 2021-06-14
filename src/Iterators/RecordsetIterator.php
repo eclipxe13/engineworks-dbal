@@ -30,7 +30,7 @@ class RecordsetIterator implements Iterator
      * @param string[] $keyFields
      * @param string $keySeparator
      */
-    public function __construct(Recordset $recordset, array $keyFields = [], $keySeparator = '_')
+    public function __construct(Recordset $recordset, array $keyFields = [], string $keySeparator = '_')
     {
         $this->recordset = $recordset;
         $this->index = 0;

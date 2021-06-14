@@ -6,6 +6,7 @@ namespace EngineWorks\DBAL\Tests\DBAL\TesterCases;
 
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\DBAL;
+use EngineWorks\DBAL\Iterators\RecordsetIterator;
 use EngineWorks\DBAL\Recordset;
 use EngineWorks\DBAL\Tests\WithDatabaseTestCase;
 
@@ -29,7 +30,9 @@ final class RecordsetTester
         if (! $this->dbal->isConnected()) {
             $this->test->markTestSkipped('The database is not connected');
         }
-        $this->testIterator();
+        $this->testIteratorValues();
+        $this->testIteratorRewind();
+        $this->testIteratorComposedKeys();
         $this->testQueryRecordsetOnNonExistent();
         $values = [
             'albumid' => 888,
@@ -132,9 +135,8 @@ final class RecordsetTester
         $this->test->assertTrue($recordset->eof());
     }
 
-    public function testIterator(): void
+    public function testIteratorValues(): void
     {
-        /* @var WithDatabaseTestCase $test */
         $test = $this->test;
         $overrideTypes = [
             'lastview' => CommonTypes::TDATETIME,
@@ -153,11 +155,44 @@ final class RecordsetTester
             array_keys($recordset->values)
         );
         $expectedRows = $test->getFixedValuesWithLabels(1, 5);
-        $index = 0;
-        foreach ($recordset as $iteratedValues) {
-            $expectedValues = $expectedRows[$index];
-            $test->assertEquals($expectedValues, $iteratedValues);
-            $index = $index + 1;
-        }
+        $rows = iterator_to_array($recordset);
+        $test->assertEquals($expectedRows, $rows);
+    }
+
+    public function testIteratorRewind(): void
+    {
+        $test = $this->test;
+        $overrideTypes = [
+            'lastview' => CommonTypes::TDATETIME,
+            'isfree' => CommonTypes::TBOOL,
+        ];
+        $sql = 'SELECT * FROM albums WHERE (albumid between 1 and 5);';
+        $recordset = $this->test->createRecordset($sql, 'albums', ['albumid'], $overrideTypes);
+
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $iterator = $recordset->getIterator();
+        $first = $iterator->current();
+        $iterator->next();
+        $test->assertNotEquals($first, $iterator->current());
+        $iterator->rewind();
+        $test->assertEquals($first, $iterator->current());
+    }
+
+    public function testIteratorComposedKeys(): void
+    {
+        $test = $this->test;
+        $createdRows = $test->getFixedValuesWithLabels(1, 2);
+        $overrideTypes = [
+            'lastview' => CommonTypes::TDATETIME,
+            'isfree' => CommonTypes::TBOOL,
+        ];
+        $sql = 'SELECT * FROM albums WHERE (albumid between 1 and 2);';
+        $recordset = $this->test->createRecordset($sql);
+
+        $iterator = new RecordsetIterator($recordset, ['albumid', 'title'], ':');
+        $test->assertTrue($iterator->valid());
+        $test->assertSame($createdRows[0]['albumid'] . ':' . $createdRows[0]['title'], $iterator->key());
+        $iterator->next();
+        $test->assertSame($createdRows[1]['albumid'] . ':' . $createdRows[1]['title'], $iterator->key());
     }
 }
