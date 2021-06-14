@@ -121,7 +121,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
             'votes' => (is_null($values['votes'])) ? null : (int) $values['votes'],
             'lastview' => (is_null($values['lastview'])) ? null : strtotime($values['lastview']),
             'isfree' => (bool) $values['isfree'],
-            'collect' => round($values['collect'], 2),
+            'collect' => round((float) $values['collect'], 2),
         ];
     }
 
