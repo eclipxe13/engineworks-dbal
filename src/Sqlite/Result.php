@@ -91,7 +91,7 @@ class Result implements ResultInterface
              * @noinspection PhpUsageOfSilenceOperatorInspection
              */
             @$this->query->finalize();
-        } catch (Error $exception) {
+        } catch (Error $exception) { // phpcs:ignore
         }
     }
 
