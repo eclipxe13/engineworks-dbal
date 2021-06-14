@@ -10,6 +10,7 @@ use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result as ResultInterface;
 use EngineWorks\DBAL\Traits\ResultImplementsCountable;
 use EngineWorks\DBAL\Traits\ResultImplementsIterator;
+use Error;
 use SQLite3Result;
 
 /**
@@ -82,11 +83,16 @@ class Result implements ResultInterface
     {
         // suppress errors because the query may already been closed
         // see https://bugs.php.net/bug.php?id=72502
-        /**
-         * @scrutinizer ignore-unhandled
-         * @noinspection PhpUsageOfSilenceOperatorInspection
-         */
-        @$this->query->finalize();
+        // since PHP 8.0 the @ operator no longer silences fatal errors
+        // on PHP lower than 8.0 it was just a WARNING
+        try {
+            /**
+             * @scrutinizer ignore-unhandled
+             * @noinspection PhpUsageOfSilenceOperatorInspection
+             */
+            @$this->query->finalize();
+        } catch (Error $exception) {
+        }
     }
 
     /**
