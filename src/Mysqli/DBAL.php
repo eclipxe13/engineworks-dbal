@@ -11,6 +11,7 @@ use EngineWorks\DBAL\Traits\MethodSqlConcatenate;
 use EngineWorks\DBAL\Traits\MethodSqlLike;
 use EngineWorks\DBAL\Traits\MethodSqlLimit;
 use InvalidArgumentException;
+use LogicException;
 use mysqli;
 use mysqli_result;
 use RuntimeException;
@@ -39,7 +40,7 @@ class DBAL extends AbstractDBAL
         $errorLevel = error_reporting(0);
         $mysqli = mysqli_init();
         if (! $mysqli instanceof mysqli) {
-            throw new \LogicException('Unable to create Mysqli empty object');
+            throw new LogicException('Unable to create Mysqli empty object');
         }
         $this->mysqli = $mysqli;
         $this->mysqli->options(MYSQLI_OPT_CONNECT_TIMEOUT, $this->settings->get('connect-timeout'));

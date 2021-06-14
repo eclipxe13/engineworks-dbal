@@ -7,6 +7,7 @@ namespace EngineWorks\DBAL\Tests\DBAL;
 use EngineWorks\DBAL\Pager;
 use EngineWorks\DBAL\Recordset;
 use EngineWorks\DBAL\Tests\SqliteWithDatabaseTestCase;
+use InvalidArgumentException;
 
 class PagerTest extends SqliteWithDatabaseTestCase
 {
@@ -49,7 +50,7 @@ class PagerTest extends SqliteWithDatabaseTestCase
         $pager->setCountMethod(Pager::COUNT_METHOD_SELECT);
         $this->assertSame(Pager::COUNT_METHOD_SELECT, $pager->getCountMethod());
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $pager->setCountMethod(Pager::COUNT_METHOD_QUERY);
     }
 

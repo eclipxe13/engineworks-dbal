@@ -7,6 +7,7 @@ namespace EngineWorks\DBAL\Tests\DBAL;
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Factory;
 use EngineWorks\DBAL\Settings;
+use LogicException;
 use PHPUnit\Framework\TestCase;
 
 class FactoryTest extends TestCase
@@ -28,7 +29,7 @@ class FactoryTest extends TestCase
         $namespace = __NAMESPACE__ . '\Sample';
         $settingsname = 'SettingsClass';
         $factory = new Factory($namespace, 'X', $settingsname);
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
         $this->expectExceptionMessage("Class $namespace\\$settingsname does not exists");
 
         $factory->settings();
@@ -39,7 +40,7 @@ class FactoryTest extends TestCase
         $namespace = __NAMESPACE__ . '\Sample';
         $factory = new Factory($namespace, '', 'EmptyObject');
 
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
         $this->expectExceptionMessage("Class $namespace\\EmptyObject does not implements " . Settings::class);
 
         $factory->settings();
@@ -53,7 +54,7 @@ class FactoryTest extends TestCase
         /** @var Settings $mockSettings */
         $mockSettings = $this->createMock(Settings::class);
 
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
         $this->expectExceptionMessage("Class $namespace\\$dbalname does not exists");
 
         $factory->dbal($mockSettings);
@@ -67,7 +68,7 @@ class FactoryTest extends TestCase
         /** @var Settings $mockSettings */
         $mockSettings = $this->createMock(Settings::class);
 
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
         $this->expectExceptionMessage("Class $namespace\\$dbalname does not implements " . DBAL::class);
 
         $factory->dbal($mockSettings);

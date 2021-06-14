@@ -7,6 +7,8 @@ namespace EngineWorks\DBAL\Tests;
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Recordset;
 use EngineWorks\DBAL\Result;
+use Faker\Factory;
+use LogicException;
 use Psr\Log\LogLevel;
 
 abstract class WithDatabaseTestCase extends WithDbalTestCase
@@ -55,7 +57,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
     {
         $result = $this->dbal->queryResult($query, $types);
         if (! $result instanceof Result) {
-            throw new \LogicException('Unexpected result');
+            throw new LogicException('Unexpected result');
         }
         return $result;
     }
@@ -180,7 +182,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
 
     private function createDatabaseData(): void
     {
-        $faker = \Faker\Factory::create();
+        $faker = Factory::create();
         // create albums
         $data = $this->getFixedValues();
         for ($i = 11; $i <= 45; $i++) {
