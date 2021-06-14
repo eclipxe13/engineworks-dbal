@@ -183,23 +183,44 @@ class DBAL extends AbstractDBAL
             case 'YEAR':
                 return "DATEPART(yyyy, $expression)";
             case 'MONTH':
-                return "DATEPART(mm, $expression)";
-            case 'FDOM':
-                return "CONCAT(DATEPART(yyyy, $expression), '-', DATEPART(mm, $expression), '-01')";
-            case 'FYM':
-                return "CONCAT(DATEPART(yyyy, $expression), '-', DATEPART(mm, $expression))";
-            case 'FYMD':
-                return 'CONCAT('
-                    . "DATEPART(yyyy, $expression), '-', DATEPART(mm, $expression), '-', DATEPART(dd, $expression)"
-                    . ')';
+                return "RIGHT('0' + CAST(DATEPART(mm, $expression) AS VARCHAR(2)), 2)";
             case 'DAY':
-                return "DATEPART(dd, $expression)";
+                return "RIGHT('0' + CAST(DATEPART(dd, $expression) AS VARCHAR(2)), 2)";
             case 'HOUR':
-                return "DATEPART(hh, $expression)";
+                return "RIGHT('0' + CAST(DATEPART(hh, $expression) AS VARCHAR(2)), 2)";
             case 'MINUTE':
-                return "DATEPART(mi, $expression)";
+                return "RIGHT('0' + CAST(DATEPART(mi, $expression) AS VARCHAR(2)), 2)";
             case 'SECOND':
-                return "DATEPART(ss, $expression)";
+                return "RIGHT('0' + CAST(DATEPART(ss, $expression) AS VARCHAR(2)), 2)";
+            case 'FDOM':
+                return 'CONCAT'
+                    . "(DATEPART(yyyy, $expression),"
+                    . " '-',"
+                    . " RIGHT('0' + CAST(DATEPART(mm, $expression) AS VARCHAR(2)), 2),"
+                    . " '-01'"
+                    . ')';
+            case 'FYM':
+                return 'CONCAT'
+                    . "(DATEPART(yyyy, $expression),"
+                    . " '-',"
+                    . " RIGHT('0' + CAST(DATEPART(mm, $expression) AS VARCHAR(2)), 2)"
+                    . ')';
+            case 'FYMD':
+                return 'CONCAT'
+                    . "(DATEPART(yyyy, $expression),"
+                    . " '-',"
+                    . " RIGHT('0' + CAST(DATEPART(mm, $expression) AS VARCHAR(2)), 2),"
+                    . " '-',"
+                    . " RIGHT('0' + CAST(DATEPART(dd, $expression) AS VARCHAR(2)), 2)"
+                    . ')';
+            case 'FHMS':
+                return 'CONCAT'
+                    . "(RIGHT('0' + CAST(DATEPART(hh, $expression) AS VARCHAR(2)), 2),"
+                    . " ':',"
+                    . " RIGHT('0' + CAST(DATEPART(mi, $expression) AS VARCHAR(2)), 2),"
+                    . " ':',"
+                    . " RIGHT('0' + CAST(DATEPART(ss, $expression) AS VARCHAR(2)), 2)"
+                    . ')';
         }
         throw new InvalidArgumentException("Date part $part is not valid");
     }

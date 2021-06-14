@@ -4,6 +4,9 @@
 
 # Version 2.3.0 2021-06-13
 
+- Fix bugs and add tests on `DBAL::sqlDatePart()`:
+  - Mssql & Sqlsrv did not return leading zeros.
+  - Sqlite uses different formats for minutes and second (not ansi).
 - Ensure PHP 8.0 compatibility:
   - `SQLite3Result::finalize()` no longer produces a Warning, it now throws an error.
   - `mysqli_result::data_seek(int $offset)` cannot be called with a negative integer.

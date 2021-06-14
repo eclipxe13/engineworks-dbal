@@ -559,8 +559,9 @@ abstract class DBAL implements CommonTypes, LoggerAwareInterface
 
     /**
      * Function to get a part of a date using sql formatting functions
-     * Valid part are: YEAR, MONTH, FDOM (First Day Of Month), FYM (Format Year Month),
-     * FYMD (Format Year Month Date), DAY, HOUR. MINUTE, SECOND
+     * Valid part are: FHMS (Format Hours Minutes Seconds), FDOM (First Day Of Month), FYM (Format Year Month),
+     * FYMD (Format Year Month Date), YEAR, MONTH, DAY, HOUR, MINUTE & SECOND
+     *
      * @param string $part
      * @param string $expression
      * @return string

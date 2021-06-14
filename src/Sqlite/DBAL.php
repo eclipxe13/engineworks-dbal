@@ -8,10 +8,10 @@ namespace EngineWorks\DBAL\Sqlite;
 
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\DBAL as AbstractDBAL;
-use EngineWorks\DBAL\Traits\MethodSqlDatePartFormatAnsi;
 use EngineWorks\DBAL\Traits\MethodSqlLike;
 use EngineWorks\DBAL\Traits\MethodSqlLimit;
 use Exception;
+use InvalidArgumentException;
 use RuntimeException;
 use SQLite3;
 use Throwable;
@@ -20,7 +20,6 @@ class DBAL extends AbstractDBAL
 {
     use MethodSqlLike;
     use MethodSqlLimit;
-    use MethodSqlDatePartFormatAnsi;
 
     /**
      * Contains the connection resource for SQLite3
@@ -132,8 +131,36 @@ class DBAL extends AbstractDBAL
 
     public function sqlDatePart(string $part, string $expression): string
     {
-        $format = $this->sqlDatePartFormatAnsi($part);
-        return sprintf('STRFTIME(%s, %s)', $expression, $this->sqlQuote($format, self::TTEXT));
+        $format = $this->sqlDatePartFormat($part);
+        return sprintf('STRFTIME(%s, %s)', $this->sqlQuote($format, self::TTEXT), $expression);
+    }
+
+    private function sqlDatePartFormat(string $part): string
+    {
+        switch (strtoupper($part)) {
+            case 'YEAR':
+                return '%Y';
+            case 'MONTH':
+                return '%m';
+            case 'FDOM':
+                return '%Y-%m-01';
+            case 'FYM':
+                return '%Y-%m';
+            case 'FYMD':
+                return '%Y-%m-%d';
+            case 'DAY':
+                return '%d';
+            case 'HOUR':
+                return '%H';
+            case 'MINUTE':
+                return '%M';
+            case 'SECOND':
+                return '%S';
+            case 'FHMS':
+                return '%H:%M:%S';
+            default:
+                throw new InvalidArgumentException("Date part $part is not valid");
+        }
     }
 
     public function sqlIf(string $condition, string $truePart, string $falsePart): string

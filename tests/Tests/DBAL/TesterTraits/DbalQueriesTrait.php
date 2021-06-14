@@ -1,5 +1,7 @@
 <?php
 
+/** @noinspection PhpUnused */
+
 declare(strict_types=1);
 
 namespace EngineWorks\DBAL\Tests\DBAL\TesterTraits;
@@ -342,5 +344,39 @@ trait DbalQueriesTrait
         $this->expectException(QueryException::class);
         $this->expectExceptionMessage('Unable to create a valid Pager');
         $this->getDbal()->createPager($query);
+    }
+
+    /** @return array<string, string[]> */
+    public function providerDateFormat(): array
+    {
+        return [
+            'year' => ['YEAR', '2021'],
+            'month' => ['MONTH', '01'],
+            'day' => ['DAY', '13'],
+            'hour' => ['HOUR', '14'],
+            'minute' => ['MINUTE', '15'],
+            'second' => ['SECOND', '16'],
+            'first day of month' => ['FDOM', '2021-01-01'],
+            'year-month' => ['FYM', '2021-01'],
+            'year-month-day' => ['FYMD', '2021-01-13'],
+            'hour:minute:second' => ['FHMS', '14:15:16'],
+        ];
+    }
+
+    /**
+     * @param string $formatPart
+     * @param string $expected
+     * @dataProvider providerDateFormat
+     */
+    public function testDateFormat(string $formatPart, string $expected): void
+    {
+        $time = strtotime('2021-01-13 14:15:16');
+        $dbal = $this->getDbal();
+        $query = 'SELECT ' . $dbal->sqlDatePart($formatPart, $dbal->sqlQuote($time, $dbal::TDATETIME));
+        $this->assertSame(
+            $expected,
+            (string) $dbal->queryOne($query),
+            "sqlDatePart fail, query: $query"
+        );
     }
 }

@@ -8,9 +8,9 @@ namespace EngineWorks\DBAL\Mysqli;
 
 use EngineWorks\DBAL\DBAL as AbstractDBAL;
 use EngineWorks\DBAL\Traits\MethodSqlConcatenate;
-use EngineWorks\DBAL\Traits\MethodSqlDatePartFormatAnsi;
 use EngineWorks\DBAL\Traits\MethodSqlLike;
 use EngineWorks\DBAL\Traits\MethodSqlLimit;
+use InvalidArgumentException;
 use mysqli;
 use mysqli_result;
 use RuntimeException;
@@ -24,7 +24,6 @@ class DBAL extends AbstractDBAL
     use MethodSqlLike;
     use MethodSqlLimit;
     use MethodSqlConcatenate;
-    use MethodSqlDatePartFormatAnsi;
 
     /**
      * Contains the connection resource for mysqli
@@ -162,8 +161,36 @@ class DBAL extends AbstractDBAL
 
     public function sqlDatePart(string $part, string $expression): string
     {
-        $format = $this->sqlDatePartFormatAnsi($part);
+        $format = $this->sqlDatePartFormat($part);
         return sprintf('DATE_FORMAT(%s, %s)', $expression, $this->sqlQuote($format, self::TTEXT));
+    }
+
+    private function sqlDatePartFormat(string $part): string
+    {
+        switch (strtoupper($part)) {
+            case 'YEAR':
+                return '%Y';
+            case 'MONTH':
+                return '%m';
+            case 'FDOM':
+                return '%Y-%m-01';
+            case 'FYM':
+                return '%Y-%m';
+            case 'FYMD':
+                return '%Y-%m-%d';
+            case 'DAY':
+                return '%d';
+            case 'HOUR':
+                return '%H';
+            case 'MINUTE':
+                return '%i';
+            case 'SECOND':
+                return '%s';
+            case 'FHMS':
+                return '%H:%i:%s';
+            default:
+                throw new InvalidArgumentException("Date part $part is not valid");
+        }
     }
 
     public function sqlIf(string $condition, string $truePart, string $falsePart): string
