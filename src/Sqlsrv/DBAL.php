@@ -62,7 +62,6 @@ class DBAL extends AbstractDBAL
                 $this->settings->get('password'),
                 [
                     PDO::SQLSRV_ATTR_QUERY_TIMEOUT => max(0, (int) $this->settings->get('timeout')),
-                    PDO::ATTR_FETCH_TABLE_NAMES => true,
                 ]
             );
         } catch (Throwable $ex) {
