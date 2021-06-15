@@ -1,5 +1,7 @@
 <?php
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 declare(strict_types=1);
 
 namespace EngineWorks\DBAL\Tests\DBAL\TesterCases;
@@ -9,6 +11,8 @@ use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Iterators\RecordsetIterator;
 use EngineWorks\DBAL\Recordset;
 use EngineWorks\DBAL\Tests\WithDatabaseTestCase;
+use Exception;
+use RuntimeException;
 
 final class RecordsetTester
 {
@@ -48,6 +52,7 @@ final class RecordsetTester
         $this->testUpdate($values);
         $this->testDelete($values);
         $this->testRecordCount();
+        $this->testOriginalValues();
     }
 
     private function queryAlbumAsRecordset(int $albumid): Recordset
@@ -62,6 +67,7 @@ final class RecordsetTester
         $recordset = $this->test->createRecordset($sql, 'albums', ['albumid']);
         $this->test->assertSame($sql, $recordset->getSource());
         $this->test->assertSame(45, $recordset->getRecordCount());
+        $this->test->assertSame(45, count($recordset));
         for ($i = 1; $i <= 45; $i++) {
             $this->test->assertFalse($recordset->eof());
             $this->test->assertSame($i, $recordset->values['albumid']);
@@ -137,31 +143,29 @@ final class RecordsetTester
 
     public function testIteratorValues(): void
     {
-        $test = $this->test;
         $overrideTypes = [
             'lastview' => CommonTypes::TDATETIME,
             'isfree' => CommonTypes::TBOOL,
         ];
         $sql = 'SELECT * FROM albums WHERE (albumid between 1 and 5);';
         $recordset = $this->test->createRecordset($sql, 'albums', ['albumid'], $overrideTypes);
-        $test->assertSame('albums', $recordset->getEntityName());
-        $test->assertSame(['albumid'], $recordset->getIdFields());
-        $test->assertInstanceOf(Recordset::class, $recordset);
-        $test->assertSame(5, $recordset->getRecordCount());
-        $test->assertFalse($recordset->eof());
-        $test->assertIsArray($recordset->values);
-        $test->assertEquals(
+        $this->test->assertSame('albums', $recordset->getEntityName());
+        $this->test->assertSame(['albumid'], $recordset->getIdFields());
+        $this->test->assertInstanceOf(Recordset::class, $recordset);
+        $this->test->assertSame(5, $recordset->getRecordCount());
+        $this->test->assertFalse($recordset->eof());
+        $this->test->assertIsArray($recordset->values);
+        $this->test->assertEquals(
             ['albumid', 'title', 'votes', 'lastview', 'isfree', 'collect'],
             array_keys($recordset->values)
         );
-        $expectedRows = $test->getFixedValuesWithLabels(1, 5);
+        $expectedRows = $this->test->getFixedValuesWithLabels(1, 5);
         $rows = iterator_to_array($recordset);
-        $test->assertEquals($expectedRows, $rows);
+        $this->test->assertEquals($expectedRows, $rows);
     }
 
     public function testIteratorRewind(): void
     {
-        $test = $this->test;
         $overrideTypes = [
             'lastview' => CommonTypes::TDATETIME,
             'isfree' => CommonTypes::TBOOL,
@@ -173,22 +177,50 @@ final class RecordsetTester
         $iterator = $recordset->getIterator();
         $first = $iterator->current();
         $iterator->next();
-        $test->assertNotEquals($first, $iterator->current());
+        $this->test->assertNotEquals($first, $iterator->current());
         $iterator->rewind();
-        $test->assertEquals($first, $iterator->current());
+        $this->test->assertEquals($first, $iterator->current());
     }
 
     public function testIteratorComposedKeys(): void
     {
-        $test = $this->test;
-        $createdRows = $test->getFixedValuesWithLabels(1, 2);
+        $createdRows = $this->test->getFixedValuesWithLabels(1, 2);
         $sql = 'SELECT * FROM albums WHERE (albumid between 1 and 2);';
         $recordset = $this->test->createRecordset($sql);
 
         $iterator = new RecordsetIterator($recordset, ['albumid', 'title'], ':');
-        $test->assertTrue($iterator->valid());
-        $test->assertSame($createdRows[0]['albumid'] . ':' . $createdRows[0]['title'], $iterator->key());
+        $this->test->assertTrue($iterator->valid());
+        $this->test->assertSame($createdRows[0]['albumid'] . ':' . $createdRows[0]['title'], $iterator->key());
         $iterator->next();
-        $test->assertSame($createdRows[1]['albumid'] . ':' . $createdRows[1]['title'], $iterator->key());
+        $this->test->assertSame($createdRows[1]['albumid'] . ':' . $createdRows[1]['title'], $iterator->key());
+    }
+
+    public function testOriginalValues(): void
+    {
+        $createdRow = $this->test->getFixedValuesWithLabels(1, 1)[0];
+
+        $overrideTypes = [
+            'lastview' => CommonTypes::TDATETIME,
+            'isfree' => CommonTypes::TBOOL,
+        ];
+        $sql = 'SELECT * FROM albums WHERE (albumid = 1);';
+        $recordset = $this->test->createRecordset($sql, 'albums', ['albumid'], $overrideTypes);
+
+        $this->test->assertSame(1, $recordset->getOriginalValue('albumid'));
+        $this->test->assertSame('default value', $recordset->getOriginalValue('non-existent-field', 'default value'));
+
+        $originalValues = $recordset->getOriginalValues();
+        $this->test->assertEquals($createdRow, $originalValues);
+
+        $recordset->addNew();
+        try {
+            $recordset->getOriginalValues();
+            throw new Exception('getOriginalValues did not throw expected exception');
+        } catch (RuntimeException $exception) {
+            $this->test->assertStringContainsString(
+                'There are no original values',
+                $exception->getMessage()
+            );
+        }
     }
 }

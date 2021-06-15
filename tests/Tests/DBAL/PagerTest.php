@@ -37,6 +37,7 @@ class PagerTest extends SqliteWithDatabaseTestCase
 
         $pager->setCountMethod(Pager::COUNT_METHOD_RECORDCOUNT);
         $this->assertSame(Pager::COUNT_METHOD_RECORDCOUNT, $pager->getCountMethod());
+        $this->checkPagerStatus($pager);
     }
 
     public function testSetCountMethod(): void

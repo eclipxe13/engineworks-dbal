@@ -11,10 +11,10 @@ use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Exceptions\QueryException;
 use EngineWorks\DBAL\Result;
 use EngineWorks\DBAL\Tests\DBAL\Sample\ArrayLogger;
-use EngineWorks\DBAL\Tests\MssqlWithDatabaseTestCase;
+use EngineWorks\DBAL\Tests\WithDatabaseTestCase;
 use RuntimeException;
 
-/** @var MssqlWithDatabaseTestCase $this */
+/** @var WithDatabaseTestCase $this */
 trait DbalQueriesTrait
 {
     abstract protected function getDbal(): DBAL;
@@ -378,5 +378,27 @@ trait DbalQueriesTrait
             (string) $dbal->queryOne($query),
             "sqlDatePart fail, query: $query"
         );
+    }
+
+    public function testSqlIsNullWithNegationTriggerNotice(): void
+    {
+        $dbal = $this->getDbal();
+        $this->expectNotice();
+        $dbal->sqlIsNull('foo', false);
+    }
+
+    public function testSqlInWithNegationTriggerNotice(): void
+    {
+        $dbal = $this->getDbal();
+        $this->expectNotice();
+        $dbal->sqlIn('foo', ['bar', 'baz'], CommonTypes::TTEXT, false);
+    }
+
+    public function testQueryTriggerDeprecation(): void
+    {
+        $dbal = $this->getDbal();
+        $this->expectDeprecation();
+        /** @noinspection PhpDeprecationInspection */
+        $dbal->query('SELECT 1');
     }
 }

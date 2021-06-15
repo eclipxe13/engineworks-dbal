@@ -11,6 +11,7 @@ use EngineWorks\DBAL\Tests\DBAL\TesterTraits\DbalQueriesTrait;
 use EngineWorks\DBAL\Tests\DBAL\TesterTraits\TransactionsPreventCommitTestTrait;
 use EngineWorks\DBAL\Tests\DBAL\TesterTraits\TransactionsWithExceptionsTestTrait;
 use EngineWorks\DBAL\Tests\MysqliWithDatabaseTestCase;
+use Psr\Log\LogLevel;
 
 class MysqliDbalConnectedTest extends MysqliWithDatabaseTestCase
 {
@@ -46,5 +47,23 @@ class MysqliDbalConnectedTest extends MysqliWithDatabaseTestCase
     public function overrideEntity(): string
     {
         return 'albums';
+    }
+
+    public function testUpdateWhenValuesHadChangedReturnsZero(): void
+    {
+        // This case is exclusive of mysql
+
+        $sql = 'SELECT * FROM albums WHERE (albumid = 1);';
+        $recordset = $this->createRecordset($sql);
+        $recordset->values['isfree'] = (int) $recordset->values['isfree'];
+        $recordset->values['collect'] = $recordset->values['collect'] + 0.00001;
+        $this->assertTrue($recordset->valuesHadChanged());
+        $update = $recordset->update();
+
+        $this->assertSame(0, $update);
+        $this->assertStringContainsString(
+            'return zero affected rows but the values are different',
+            $this->getLogger()->lastMessage(LogLevel::WARNING)
+        );
     }
 }
