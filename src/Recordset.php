@@ -8,8 +8,8 @@ use Countable;
 use InvalidArgumentException;
 use IteratorAggregate;
 use LogicException;
+use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use RuntimeException;
 
 /**
@@ -17,7 +17,7 @@ use RuntimeException;
  * Hint: Use DBAL::queryRecordset() instead of using this class directly
  * @implements IteratorAggregate<int|string, array<string, mixed>>
  */
-class Recordset implements IteratorAggregate, Countable
+class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
 {
     public const RSMODE_NOTCONNECTED = 0;
 
@@ -34,7 +34,12 @@ class Recordset implements IteratorAggregate, Countable
     /** @var DBAL */
     private $dbal;
 
-    /** @var LoggerInterface */
+    /**
+     * Never use this property, use self::getLogger() instead because
+     * when Logger is NULL it uses the DBAL::getLogger().
+     *
+     * @var LoggerInterface|null
+     */
     private $logger;
 
     /**
@@ -84,8 +89,28 @@ class Recordset implements IteratorAggregate, Countable
     public function __construct(DBAL $dbal, LoggerInterface $logger = null)
     {
         $this->dbal = $dbal;
-        $this->logger = $logger ?? new NullLogger();
+        $this->logger = $logger;
         $this->initialize();
+    }
+
+    /**
+     * Return the current logger, uses the DBAL logger when local logger is not set
+     *
+     * @return LoggerInterface
+     */
+    public function getLogger(): LoggerInterface
+    {
+        return $this->logger ?? $this->dbal->getLogger();
+    }
+
+    /**
+     * Define the current logger, if NULL uses the DBAL logger
+     *
+     * @param LoggerInterface|null $logger
+     */
+    public function setLogger(?LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
     }
 
     /**
@@ -350,7 +375,7 @@ class Recordset implements IteratorAggregate, Countable
         }
         $ids = $this->getIdFields();
         if (! count($ids)) {
-            $this->logger->warning('Recordset: cannot get the ids to locate the current the record,'
+            $this->getLogger()->warning('Recordset: cannot get the ids to locate the current the record,'
                 . ' will use all the fields to create the where clause'
                 . "\n"
                 . print_r([
@@ -494,7 +519,7 @@ class Recordset implements IteratorAggregate, Countable
                     $diffs[] = $name;
                 }
             }
-            $this->logger->warning(print_r([
+            $this->getLogger()->warning(print_r([
                 'message' => "Recordset: The statement $sql return zero affected rows but the values are different",
                 'entity' => $this->entity,
                 'extraWhereClause' => $extraWhereClause,
@@ -525,7 +550,7 @@ class Recordset implements IteratorAggregate, Countable
         $sql = $this->sqlDelete($extraWhereClause);
         $altered = $this->dbal->execute($sql);
         if (0 === $altered) {
-            $this->logger->warning(print_r([
+            $this->getLogger()->warning(print_r([
                 'message' => "Recordset: The statement '$sql' return zero affected rows"
                     . ' but it should delete at least one record',
                 'entity' => $this->entity,

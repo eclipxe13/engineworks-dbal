@@ -11,7 +11,6 @@ use EngineWorks\DBAL\Internal\NumericParser;
 use EngineWorks\DBAL\Pager;
 use EngineWorks\DBAL\Recordset;
 use EngineWorks\DBAL\Settings;
-use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
@@ -21,8 +20,6 @@ abstract class BaseDBAL implements DBAL
 {
     /** @var LoggerInterface */
     protected $logger;
-
-    use LoggerAwareTrait;
 
     /**
      * Settings object
@@ -574,5 +571,10 @@ abstract class BaseDBAL implements DBAL
     final public function getLogger(): LoggerInterface
     {
         return $this->logger;
+    }
+
+    final public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
     }
 }

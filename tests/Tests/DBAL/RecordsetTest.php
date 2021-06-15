@@ -24,4 +24,17 @@ class RecordsetTest extends SqliteWithDatabaseTestCase
         $recordset->values['title'] = '0';
         $this->assertTrue($recordset->valuesHadChanged());
     }
+
+    public function testRecordsetUsesDbalLoggerWhenNull(): void
+    {
+        $logger = new NullLogger();
+        $recordset = new Recordset($this->dbal);
+        $this->assertSame($this->dbal->getLogger(), $recordset->getLogger());
+
+        $recordset->setLogger($logger);
+        $this->assertSame($logger, $recordset->getLogger());
+
+        $recordset->setLogger(null);
+        $this->assertSame($this->dbal->getLogger(), $recordset->getLogger());
+    }
 }
