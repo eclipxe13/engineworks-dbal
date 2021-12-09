@@ -1,9 +1,9 @@
 name: build
 on:
   pull_request:
-    branches: [ main, development ]
+    branches: [ main ]
   push:
-    branches: [ main, development ]
+    branches: [ main ]
 #  schedule:
 #    - cron: '0 16 * * 0' # sunday 16:00
 
@@ -110,10 +110,15 @@ jobs:
       - name: Install project dependencies
         run: composer upgrade --no-interaction --no-progress --prefer-dist
       - name: Tests (phpunit)
-        run: vendor/bin/phpunit --testdox --verbose
+        run: vendor/bin/phpunit --testdox --verbose --coverage-clover=build/coverage-clover.xml
         env:
           testMssql_port: ${{ job.services.mssql.ports[1433] }}
           testSqlsrv_port: ${{ job.services.mssql.ports[1433] }}
+      - name: Upload code coverage to scrutinizer
+        uses: sudo-bot/action-scrutinizer@latest # see https://github.com/marketplace/actions/action-scrutinizer
+        with:
+          cli-args: "--format=php-clover build/coverage-clover.xml"
+        continue-on-error: true
 
   phpstan:
     name: Static analysis (phpstan)
