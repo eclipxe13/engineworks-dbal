@@ -65,7 +65,7 @@ class Result implements ResultInterface
 
     /**
      * The place where getFields result is cached
-     * @var array<int, array<string, mixed>>|null
+     * @var array<int, array<string, scalar|null>>|null
      */
     private $cachedGetFields;
 
@@ -150,6 +150,7 @@ class Result implements ResultInterface
 
     public function fetchRow()
     {
+        /** @var array<string, scalar|null>|false $values */
         $values = $this->stmt->fetch(PDO::FETCH_ASSOC);
         if (false === $values) {
             return false;
@@ -158,23 +159,23 @@ class Result implements ResultInterface
     }
 
     /**
-     * @param array<string, mixed> $values
-     * @return array<string, mixed>
+     * @param array<string, scalar|null> $values
+     * @return array<string, scalar|null>
      */
     private function convertToExpectedValues(array $values): array
     {
         $fields = $this->getFields();
         foreach ($fields as $field) {
             $fieldname = strval($field['name']);
-            $values[$fieldname] = $this->convertToExpectedValue($values[$fieldname], $field['commontype']);
+            $values[$fieldname] = $this->convertToExpectedValue($values[$fieldname], (string) $field['commontype']);
         }
         return $values;
     }
 
     /**
-     * @param mixed $value
+     * @param scalar|null $value
      * @param string $type
-     * @return mixed
+     * @return scalar|null
      */
     private function convertToExpectedValue($value, string $type)
     {
@@ -182,10 +183,10 @@ class Result implements ResultInterface
             return null;
         }
         if (CommonTypes::TDATETIME === $type) {
-            return substr($value, 0, 19);
+            return substr((string) $value, 0, 19);
         }
         if (CommonTypes::TTIME === $type) {
-            return substr($value, 0, 8);
+            return substr((string) $value, 0, 8);
         }
         return $value;
     }

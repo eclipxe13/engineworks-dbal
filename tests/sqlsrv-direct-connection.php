@@ -25,7 +25,9 @@ exit(call_user_func(function ($arguments): int {
         if (false === $statement) {
             throw new RuntimeException("Cannot create statement to query: $sql");
         }
-        $version = implode(' ', $statement->fetch(PDO::FETCH_NUM) ?? []);
+        /** @var array<int, scalar> $result */
+        $result = $statement->fetch(PDO::FETCH_NUM) ?: [];
+        $version = implode(' ', $result);
         echo PHP_EOL, $sql, PHP_EOL, $version, PHP_EOL;
     } catch (Throwable $exception) {
         file_put_contents('php://stderr', $exception->getMessage() . PHP_EOL, FILE_APPEND);

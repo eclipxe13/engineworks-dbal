@@ -43,15 +43,18 @@ class DBAL extends BaseDBAL
             throw new LogicException('Unable to create Mysqli empty object');
         }
         $this->mysqli = $mysqli;
-        $this->mysqli->options(MYSQLI_OPT_CONNECT_TIMEOUT, $this->settings->get('connect-timeout'));
+        $connectTimeout = $this->settings->get('connect-timeout');
+        if (null !== $connectTimeout) {
+            $this->mysqli->options(MYSQLI_OPT_CONNECT_TIMEOUT, (int) $connectTimeout);
+        }
         $this->mysqli->real_connect(
-            $this->settings->get('host'),
-            $this->settings->get('user'),
-            $this->settings->get('password'),
-            $this->settings->get('database'),
-            intval($this->settings->get('port')),
-            strval($this->settings->get('socket')),
-            intval($this->settings->get('flags'))
+            (string) $this->settings->get('host'),
+            (string) $this->settings->get('user'),
+            (string) $this->settings->get('password'),
+            (string) $this->settings->get('database'),
+            (int) $this->settings->get('port'),
+            (string) $this->settings->get('socket'),
+            (int) $this->settings->get('flags')
         );
         error_reporting($errorLevel);
         // check there are no connection errors
@@ -65,7 +68,8 @@ class DBAL extends BaseDBAL
         // OK, we are connected
         $this->logger->info('-- Connect and database select OK');
         // set encoding if needed
-        if ('' !== $encoding = $this->settings->get('encoding', '')) {
+        $encoding = (string) $this->settings->get('encoding', '');
+        if ('' !== $encoding) {
             $this->logger->info("-- Setting encoding to $encoding;");
             if (! $this->mysqli->set_charset($encoding)) {
                 $this->logger->warning("-- Unable to set encoding to $encoding");

@@ -11,9 +11,11 @@ use EngineWorks\DBAL\Internal\NumericParser;
 use EngineWorks\DBAL\Pager;
 use EngineWorks\DBAL\Recordset;
 use EngineWorks\DBAL\Settings;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use Stringable;
 use Throwable;
 
 abstract class BaseDBAL implements DBAL
@@ -187,12 +189,26 @@ abstract class BaseDBAL implements DBAL
         string $commonType = CommonTypes::TTEXT,
         bool $includeNull = false
     ): string {
+        if (is_object($variable)) {
+            if (class_exists(Stringable::class) && $variable instanceof Stringable) {
+                $variable = strval($variable);
+            } elseif (is_callable([$variable, '__toString'])) {
+                $variable = strval($variable);
+            } else {
+                throw new InvalidArgumentException(
+                    sprintf('Value of type %s that cannot be parsed as scalar', get_class($variable))
+                );
+            }
+        }
         if ($includeNull && null === $variable) {
             return 'NULL';
         }
+        if (! is_scalar($variable) && ! is_null($variable)) {
+            throw new InvalidArgumentException('Value is something that cannot be parsed as scalar');
+        }
         // CommonTypes::TTEXT is here because is the most common used type
         if (CommonTypes::TTEXT === $commonType) {
-            return "'" . $this->sqlString($variable) . "'";
+            return "'" . $this->sqlString($variable ?? '') . "'";
         }
         if (CommonTypes::TINT === $commonType) {
             return $this->sqlQuoteParseNumber($variable, true);
@@ -212,11 +228,11 @@ abstract class BaseDBAL implements DBAL
         if (CommonTypes::TDATETIME === $commonType) {
             return "'" . date('Y-m-d H:i:s', (int) $variable) . "'";
         }
-        return "'" . $this->sqlString($variable) . "'";
+        return "'" . $this->sqlString((string) $variable) . "'";
     }
 
     /**
-     * @param mixed $value
+     * @param scalar|null $value
      * @param bool $asInteger
      * @return string
      */
@@ -313,11 +329,14 @@ abstract class BaseDBAL implements DBAL
         bool $matchAnyTerm = true,
         string $termsSeparator = ' '
     ): string {
+        if ('' === $termsSeparator) {
+            throw new InvalidArgumentException('Arguments to explode terms must not be an empty string');
+        }
         return implode(
             ($matchAnyTerm) ? ' OR ' : ' AND ',
             array_map(function (string $term) use ($fieldName): string {
                 return '(' . $this->sqlLike($fieldName, $term) . ')';
-            }, array_unique(array_filter(explode($termsSeparator, $searchTerms) ?: [])))
+            }, array_unique(array_filter(explode($termsSeparator, $searchTerms))))
         );
     }
 

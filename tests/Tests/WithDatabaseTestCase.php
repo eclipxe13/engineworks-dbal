@@ -65,7 +65,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
     /**
      * @param int $idFrom
      * @param int $idTo
-     * @return array<int, array<string, mixed>>
+     * @return array<int, array<string, scalar|null>>
      */
     public function getFixedValuesWithLabels(int $idFrom = 1, int $idTo = 10): array
     {
@@ -81,7 +81,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
     /**
      * @param int $idFrom
      * @param int $idTo
-     * @return array<int, mixed[]>
+     * @return array<int, array<scalar|null>>
      */
     protected function getFixedValues(int $idFrom = 1, int $idTo = 10): array
     {
@@ -101,19 +101,17 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
     }
 
     /**
-     * @param mixed[] $values
-     * @return mixed[]
+     * @param array<array<string, scalar|null>> $values
+     * @return array<array<string, scalar|null>>
      */
     protected function convertArrayStringsToFixedValues(array $values): array
     {
-        return array_map(function ($value) {
-            return $this->convertStringsToFixedValues($value);
-        }, $values);
+        return array_map([$this, 'convertStringsToFixedValues'], $values);
     }
 
     /**
-     * @param mixed[] $values
-     * @return array<string, mixed>
+     * @param array<string|null> $values
+     * @return array{albumid: int, title: string, votes: ?int, lastview: ?int, isfree: bool, collect: float}
      */
     protected function convertStringsToFixedValues(array $values): array
     {
@@ -121,15 +119,15 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
             'albumid' => (int) $values['albumid'],
             'title' => (string) $values['title'],
             'votes' => (is_null($values['votes'])) ? null : (int) $values['votes'],
-            'lastview' => (is_null($values['lastview'])) ? null : strtotime($values['lastview']),
+            'lastview' => (is_null($values['lastview'])) ? null : (int) strtotime($values['lastview']),
             'isfree' => (bool) $values['isfree'],
             'collect' => round((float) $values['collect'], 2),
         ];
     }
 
     /**
-     * @param mixed[] $values
-     * @return mixed[]
+     * @param array<array<scalar|null>> $values
+     * @return array<array<scalar|null>>
      */
     protected function convertArrayFixedValuesToStrings(array $values): array
     {
@@ -139,12 +137,12 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
     }
 
     /**
-     * @param mixed[] $values
-     * @return mixed[]
+     * @param array<scalar|null> $values
+     * @return array<scalar|null>
      */
     protected function convertFixedValuesToStrings(array $values): array
     {
-        $values['lastview'] = date('Y-m-d H:i:s', $values['lastview']);
+        $values['lastview'] = date('Y-m-d H:i:s', intval($values['lastview']));
         $values['isfree'] = boolval($values['isfree']);
         return $values;
     }

@@ -27,7 +27,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
 
     /**
      * Associative array of the current record
-     * @var array<string, mixed>
+     * @var array<string, scalar|null>
      */
     public $values;
 
@@ -70,7 +70,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
 
     /**
      * This array is a local copy of $this->result->getFields()
-     * @var array<string, array<string, mixed>>
+     * @var array<string, array{name: string, table: string, commontype: string}>
      */
     private $datafields;
 
@@ -141,16 +141,16 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
         $this->source = $sql;
         $this->datafields = [];
         // get fields into a temporary array
+        /** @var array<array{name: string, table: string, commontype: string}> $tmpfields */
         $tmpfields = $this->result()->getFields();
-        $tmpfieldsCount = count($tmpfields);
-        for ($i = 0; $i < $tmpfieldsCount; $i++) {
-            $this->datafields[$tmpfields[$i]['name']] = $tmpfields[$i];
+        foreach ($tmpfields as $tmpfield) {
+            $this->datafields[$tmpfield['name']] = $tmpfield;
         }
         // set the entity name, remove if more than one table exists
         if (count(array_unique(array_column($tmpfields, 'table'))) > 1) {
             $this->entity = '';
         } else {
-            $this->entity = $tmpfields[0]['table'];
+            $this->entity = (string) $tmpfields[0]['table'];
         }
         if ('' !== $overrideEntity) {
             $this->entity = $overrideEntity;
@@ -244,6 +244,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
 
     /**
      * Return if the recordset is placed in a valid record
+     * @phpstan-impure
      * @return bool
      */
     final public function eof(): bool
@@ -590,10 +591,10 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
 
     /**
      * Internal function that returns an array with the content of all datafields
-     * filled with the values casted
+     * filled with the values cast
      *
-     * @param array<string, mixed> $source
-     * @return array<string, mixed>
+     * @param array<string, scalar|null> $source
+     * @return array<string, scalar|null>
      */
     private function setValuesFromDatafields(array $source): array
     {
@@ -610,7 +611,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
     /**
      * Cast a generic value from the source to a typed value, if null return null
      *
-     * @param mixed $value
+     * @param scalar|null $value
      * @param string $commonType
      * @return bool|float|int|string|null
      */
@@ -630,10 +631,10 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
             return floatval($value);
         }
         if (CommonTypes::TBOOL === $commonType) {
-            return (bool) $value;
+            return boolval($value);
         }
         if (in_array($commonType, [CommonTypes::TDATE, CommonTypes::TTIME, CommonTypes::TDATETIME], true)) {
-            return strtotime($value);
+            return strtotime((string) $value);
         }
         return strval($value);
     }

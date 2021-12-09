@@ -41,7 +41,7 @@ final class SqlQuoteTester
     public function execute(): void
     {
         foreach ($this->providerSqlQuote() as $label => $arguments) {
-            $this->testSqlQuote(...array_merge([$label], $arguments));
+            $this->testSqlQuote($label, ...$arguments);
         }
         foreach ($this->providerSqlQuoteWithLocale() as $arguments) {
             $this->testSqlQuoteWithLocale(...$arguments);
@@ -49,7 +49,7 @@ final class SqlQuoteTester
         $this->testWithInvalidCommonType();
     }
 
-    /** @return array<string, array> */
+    /** @return array<string, array{string, scalar|object|null, string, bool}> */
     public function providerSqlQuote(): array
     {
         $timestamp = mktime(23, 31, 59, 12, 31, 2016);
@@ -138,7 +138,7 @@ final class SqlQuoteTester
         );
     }
 
-    /** @return array<string, array> */
+    /** @return array<string, array{string, string, string}> */
     public function providerSqlQuoteWithLocale(): array
     {
         return [
@@ -163,7 +163,7 @@ final class SqlQuoteTester
         // the test
         $this->test->assertSame($expected, $this->dbal->sqlQuote($value, DBAL::TNUMBER, false));
 
-        // anyhow restore the previous locale
+        // anyhow, restore the previous locale
         setlocale(LC_NUMERIC, $currentNumeric);
         setlocale(LC_MONETARY, $currentMonetary);
     }

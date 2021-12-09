@@ -8,7 +8,7 @@ class MssqlWithDatabaseTestCase extends WithDatabaseTestCase
 {
     protected function checkIsAvailable(): void
     {
-        if ('yes' !== getenv('testMssql')) {
+        if ('yes' !== $this->getenv('testMssql')) {
             $this->markTestSkipped('Environment does not include mssql tests');
         }
         if (! function_exists('pdo_drivers')) {
@@ -27,13 +27,13 @@ class MssqlWithDatabaseTestCase extends WithDatabaseTestCase
     protected function getSettingsArray(): array
     {
         return [
-            'host' => getenv('testMssql_server'),
-            'port' => getenv('testMssql_port'),
+            'host' => $this->getenv('testMssql_server'),
+            'port' => $this->getenv('testMssql_port'),
             'database' => '',
-            'user' => getenv('testMssql_username'),
-            'password' => getenv('testMssql_password'),
-            'connect-timeout' => getenv('testMssql_connect_timeout'),
-            'freetds-version' => getenv('testMssql_freetds_version'),
+            'user' => $this->getenv('testMssql_username'),
+            'password' => $this->getenv('testMssql_password'),
+            'connect-timeout' => $this->getenv('testMssql_connect_timeout'),
+            'freetds-version' => $this->getenv('testMssql_freetds_version'),
         ];
     }
 

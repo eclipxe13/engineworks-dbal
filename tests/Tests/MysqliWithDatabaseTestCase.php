@@ -8,7 +8,7 @@ class MysqliWithDatabaseTestCase extends WithDatabaseTestCase
 {
     protected function checkIsAvailable(): void
     {
-        if ('yes' !== getenv('testMysqli')) {
+        if ('yes' !== $this->getenv('testMysqli')) {
             $this->markTestSkipped('Environment does not include mysqli tests');
         }
         if (! function_exists('mysqli_init')) {
@@ -24,11 +24,11 @@ class MysqliWithDatabaseTestCase extends WithDatabaseTestCase
     protected function getSettingsArray(): array
     {
         return [
-            'host' => getenv('testMysqli_server'),
-            'port' => getenv('testMysqli_port'),
+            'host' => $this->getenv('testMysqli_server'),
+            'port' => $this->getenv('testMysqli_port'),
             'database' => '',
-            'user' => getenv('testMysqli_username'),
-            'password' => getenv('testMysqli_password'),
+            'user' => $this->getenv('testMysqli_username'),
+            'password' => $this->getenv('testMysqli_password'),
         ];
     }
 

@@ -7,7 +7,6 @@ namespace EngineWorks\DBAL\Tests;
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Factory;
 use EngineWorks\DBAL\Tests\DBAL\Sample\ArrayLogger;
-use PHPUnit\Framework\TestCase;
 
 abstract class WithDbalTestCase extends TestCase
 {

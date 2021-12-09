@@ -4,6 +4,9 @@
 
 # Version 2.3.0 2021-06-14
 
+Notice: If you are just using this library then it does not introduce any breaking change.
+If you are hacking or extending the objects of this library then this can ce a backwards incompatible change.  
+
 - Convert `DBAL` to an interface, previous DBAL has been moved to `Abstracts\BaseDBAL`
 - Fix bugs and add tests on `DBAL::sqlDatePart()`:
   - Mssql & Sqlsrv did not return leading zeros.
@@ -15,7 +18,7 @@
     with message `Cannot create PDO object for SqlSrv SQLSTATE[IMSSP]: An unsupported attribute was designated on the PDO object.`.
 - Upgrade codebase to fix all PHPStan 0.12 issues, minimal refactory.
 - Moved parameters and return types from documentation to code.
-- Upgrade to PHPStan 0.12.
+- Upgrade to PHPStan 1.2.
 - Update License file.
 - Update build commands, utilities, config files, etc.
 - Upgrade Travis config file.

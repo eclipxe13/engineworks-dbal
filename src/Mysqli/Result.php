@@ -56,7 +56,7 @@ class Result implements ResultInterface
 
     /**
      * The place where getFields result is cached
-     * @var array<int, array<string, mixed>>|null
+     * @var array<int, array<string, scalar|null>>|null
      */
     private $cachedGetFields;
 
@@ -135,7 +135,7 @@ class Result implements ResultInterface
         $fieldsPrimaryKeys = [];
         $fieldsUniqueKeys = [];
         foreach ($this->getFields() as $field) {
-            $flags = $field['flags'];
+            $flags = (int) $field['flags'];
             if (MYSQLI_AUTO_INCREMENT_FLAG & $flags) {
                 $fieldsAutoIncrement[] = (string) $field['name'];
                 break;

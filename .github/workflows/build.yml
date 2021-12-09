@@ -1,0 +1,144 @@
+name: build
+on:
+  pull_request:
+    branches: [ main, development ]
+  push:
+    branches: [ main, development ]
+#  schedule:
+#    - cron: '0 16 * * 0' # sunday 16:00
+
+jobs:
+  phpcs:
+    name: Coding standards (phpcs)
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2 # https://github.com/marketplace/actions/setup-php-action
+        with:
+          php-version: '8.0'
+          coverage: none
+          tools: composer:v2, cs2pr, phpcs
+        env:
+          fail-fast: true
+      - name: Coding standards (phpcs)
+        run: phpcs -q --report=checkstyle | cs2pr
+
+  php-cs-fixer:
+    name: Coding standards (php-cs-fixer)
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2 # https://github.com/marketplace/actions/setup-php-action
+        with:
+          php-version: '8.0'
+          coverage: none
+          tools: composer:v2, cs2pr, php-cs-fixer
+        env:
+          fail-fast: true
+      - name: Coding standards (php-cs-fixer)
+        run: php-cs-fixer fix --dry-run --format=checkstyle | cs2pr
+
+  phpunit:
+    name: Tests on PHP ${{ matrix.php-versions }} (phpunit)
+    runs-on: "ubuntu-latest"
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server
+        ports:
+          - 1433/tcp
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: Password-123456
+        options: >-
+          --health-cmd "/opt/mssql-tools/bin/sqlcmd -U sa -P $SA_PASSWORD -Q 'SELECT 1' -b -o /dev/null"
+          --health-interval 60s
+          --health-timeout 30s
+          --health-start-period 20s
+          --health-retries 3
+    strategy:
+      matrix:
+        php-versions: ['7.2', '7.3', '7.4', '8.0']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Start MySQL # mysql is already installed on virtual-environments
+        run: |
+          sudo systemctl start mysql.service
+          mysql --host=localhost --user=root --password=root -e \
+            "CREATE USER 'admin'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Password-123456' ; GRANT ALL PRIVILEGES ON *.* TO 'admin'@'localhost' ;"
+      # - name: Set up APT
+      #   run: |
+      #     sudo apt-get update -y -qq
+      #     sudo apt-get install -y -qq gnupg2
+      #     sudo curl --no-progress-meter https://packages.microsoft.com/keys/microsoft.asc -o /etc/apt/trusted.gpg.d/microsoft.asc
+      #     sudo curl --no-progress-meter https://packages.microsoft.com/config/ubuntu/$(lsb_release -sr)/prod.list -o /etc/apt/sources.list.d/microsoft.list
+      #     sudo apt-get update -y -qq
+      - name: Install locales
+        run: |
+          sudo apt-get install -y -qq tzdata locales
+          sudo locale-gen en_US.UTF-8 en_US pt_BR
+      - name: Install unixodbc-dev
+        run: |
+          sudo apt-get install -y -qq msodbcsql17 mssql-tools unixodbc unixodbc-dev
+        env:
+          ACCEPT_EULA: Y
+      - name: Set up environment file
+        run: |
+          test -e tests/.env || cp -v tests/.env.github tests/.env
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2 # https://github.com/marketplace/actions/setup-php-action
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: pdo, sqlite3, mysqli, pdo_sqlsrv, pdo_dblib
+          coverage: none
+          tools: composer:v2
+        env:
+          fail-fast: true
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
+      - name: Install project dependencies
+        run: composer upgrade --no-interaction --no-progress --prefer-dist
+      - name: Tests (phpunit)
+        run: vendor/bin/phpunit --testdox --verbose
+        env:
+          testMssql_port: ${{ job.services.mssql.ports[1433] }}
+          testSqlsrv_port: ${{ job.services.mssql.ports[1433] }}
+
+  phpstan:
+    name: Static analysis (phpstan)
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2 # https://github.com/marketplace/actions/setup-php-action
+        with:
+          php-version: '8.0'
+          coverage: none
+          tools: composer:v2, phpstan
+        env:
+          fail-fast: true
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
+      - name: Install project dependencies
+        run: composer upgrade --no-interaction --no-progress --prefer-dist
+      - name: Static analysis (phpstan)
+        run: phpstan analyse --no-progress --verbose

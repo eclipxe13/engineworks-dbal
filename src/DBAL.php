@@ -32,7 +32,7 @@ interface DBAL extends CommonTypes, LoggerAwareInterface
 
     /**
      * Return the state of the connection
-     *
+     * @phpstan-impure
      * @return bool
      */
     public function isConnected(): bool;
@@ -71,7 +71,7 @@ interface DBAL extends CommonTypes, LoggerAwareInterface
      * In case of commit the transCommitMehod will trigger an error and return without commit
      *
      * If argument $preventCommit is null then this function will return the current prevent commit state
-     * Otherwise, It will set the prevent commit state to the argument value and return the previous value
+     * Otherwise, It will set the prevention commit state to the argument value and return the previous value
      *
      * @param bool|null $preventCommit
      * @return bool
@@ -155,7 +155,7 @@ interface DBAL extends CommonTypes, LoggerAwareInterface
      * @param string $field
      * @param mixed[] $values
      * @param string $commonType
-     * @param bool $positive Set to FALSE to perform a NOT IN comparison
+     * @param bool $positive Set FALSE to perform a NOT IN comparison
      * @param bool $includeNull
      *
      * @return string
@@ -209,7 +209,7 @@ interface DBAL extends CommonTypes, LoggerAwareInterface
      * Return a comparison condition against null
      *
      * @param string $field
-     * @param bool $positive Set to FALSE to perform a IS NOT NULL comparison
+     * @param bool $positive Set FALSE to perform an IS NOT NULL comparison
      * @return string
      */
     public function sqlIsNull(string $field, bool $positive = true): string;
@@ -353,8 +353,8 @@ interface DBAL extends CommonTypes, LoggerAwareInterface
      * Get the first field in row of a query
      *
      * @param string $query
-     * @param mixed $default
-     * @return mixed
+     * @param scalar|null $default
+     * @return scalar|null
      */
     public function queryOne(string $query, $default = false);
 
@@ -362,7 +362,7 @@ interface DBAL extends CommonTypes, LoggerAwareInterface
      * Get the first row of a query
      *
      * @param string $query
-     * @return array<string, mixed>|false
+     * @return array<string, scalar|null>|false
      */
     public function queryRow(string $query);
 
@@ -371,7 +371,7 @@ interface DBAL extends CommonTypes, LoggerAwareInterface
      *
      * @param string $query
      * @param array<string, string> $overrideTypes
-     * @return array<string, mixed>|false
+     * @return array<string, scalar|null>|false
      */
     public function queryValues(string $query, array $overrideTypes = []);
 
@@ -379,7 +379,7 @@ interface DBAL extends CommonTypes, LoggerAwareInterface
      * Get an array of rows of a query
      *
      * @param string $query
-     * @return array<int, array<string, mixed>>|false
+     * @return array<int, array<string, scalar|null>>|false
      */
     public function queryArray(string $query);
 
@@ -388,7 +388,7 @@ interface DBAL extends CommonTypes, LoggerAwareInterface
      *
      * @param string $query
      * @param array<string, string> $overrideTypes
-     * @return array<int, array<string, mixed>>|false
+     * @return array<int, array<string, scalar|null>>|false
      */
     public function queryArrayValues(string $query, array $overrideTypes = []);
 
@@ -399,7 +399,7 @@ interface DBAL extends CommonTypes, LoggerAwareInterface
      * @param string $query
      * @param string $keyField
      * @param string $keyPrefix
-     * @return array<array<string, mixed>>|false
+     * @return array<array<string, scalar|null>>|false
      */
     public function queryArrayKey(string $query, string $keyField, string $keyPrefix = '');
 
@@ -413,8 +413,8 @@ interface DBAL extends CommonTypes, LoggerAwareInterface
      * @param string $keyField
      * @param string $valueField
      * @param string $keyPrefix
-     * @param mixed $default
-     * @return mixed[]
+     * @param scalar|null $default
+     * @return array<scalar|null>
      */
     public function queryPairs(
         string $query,
@@ -430,12 +430,12 @@ interface DBAL extends CommonTypes, LoggerAwareInterface
      *
      * @param string $query
      * @param string $field
-     * @return array<int, mixed>|false
+     * @return array<int, scalar|null>|false
      */
     public function queryArrayOne(string $query, string $field = '');
 
     /**
-     * Return the result of the query as a imploded string with all the values of the first column
+     * Return the result of the query as an imploded string with all the values of the first column
      *
      * @param string $query
      * @param string $default
@@ -461,7 +461,7 @@ interface DBAL extends CommonTypes, LoggerAwareInterface
     );
 
     /**
-     * This is an strict mode of queryRecordset but throws an exception instead of return FALSE
+     * This is a strict mode of queryRecordset but throws an exception instead of return FALSE
      *
      * @param string $query
      * @param string $overrideEntity
@@ -491,7 +491,7 @@ interface DBAL extends CommonTypes, LoggerAwareInterface
     public function queryPager(string $querySelect, string $queryCount = '', int $page = 1, int $recordsPerPage = 20);
 
     /**
-     * This is an strict mode of queryPager but throws an exception instead of return FALSE
+     * This is a strict mode of queryPager but throws an exception instead of return FALSE
      *
      * @param string $querySelect
      * @param string $queryCount

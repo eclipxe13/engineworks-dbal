@@ -4,36 +4,38 @@ declare(strict_types=1);
 
 namespace EngineWorks\DBAL\Tests\DBAL\Sample;
 
+use InvalidArgumentException;
 use Psr\Log\AbstractLogger;
 
 class ArrayLogger extends AbstractLogger
 {
-    /** @var array<string, array<int, array>> */
+    /** @var array<string, string[]> */
     private $logs = [];
 
     public function log($level, $message, array $context = []): void
     {
-        $this->logs[$level][] = [
-            'message' => $message,
-            'context' => $context,
-        ];
+        if (! is_string($level)) {
+            throw new InvalidArgumentException('Invalid argument level, expected string');
+        }
+        $this->logs[$level][] = $message;
     }
 
-    /** @return array<int, mixed> */
+    /** @return string[] */
     public function retrieve(string $level): array
     {
-        return (array_key_exists($level, $this->logs)) ? $this->logs[$level] : [];
+        return $this->logs[$level] ?? [];
     }
 
     /** @return string[] */
     public function messages(string $level, bool $addLevelPrefix = false): array
     {
         $list = $this->retrieve($level);
-        $return = [];
-        foreach ($list as $element) {
-            $return[] = ($addLevelPrefix ? $level . ': ' : '') . $element['message'];
+        if (! $addLevelPrefix) {
+            return $list;
         }
-        return $return;
+        return array_map(function (string $message) use ($level): string {
+            return $level . ': ' . $message;
+        }, $list);
     }
 
     /** @return string[] */
@@ -41,10 +43,7 @@ class ArrayLogger extends AbstractLogger
     {
         $return = [];
         foreach (array_keys($this->logs) as $level) {
-            $list = $this->messages($level);
-            foreach ($list as $message) {
-                $return[] = $level . ': ' . $message;
-            }
+            $return = array_merge($return, $this->messages($level, true));
         }
         return $return;
     }
@@ -57,10 +56,9 @@ class ArrayLogger extends AbstractLogger
     public function lastMessage(string $level): string
     {
         $list = $this->retrieve($level);
-        $lastIndex = array_key_last($list);
-        if (null === $lastIndex) {
+        if ([] === $list) {
             return '';
         }
-        return $list[$lastIndex]['message'];
+        return $list[count($list) - 1];
     }
 }

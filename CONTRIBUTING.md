@@ -62,9 +62,9 @@ This project include a `phpcs.xml` file that extends the PSR-2 rules.
 
 ```bash
 # find issues
-vendor/bin/phpcs -sp --colors
+tools/phpcs -sp --colors
 # fix sources and tests
-vendor/bin/phpcbf -sp --colors
+tools/phpcbf -sp --colors
 ```
 
 Or simply execute:
@@ -79,9 +79,9 @@ The following tests must pass before we will accept a pull request. If any of th
 it will result in a complete build failure. Before you can run these, be sure to `composer install`.
 
 ```
-./vendor/bin/phpcs --colors -sp
+./tools/phpcs --colors -sp
 ./vendor/bin/phpunit --testdox
-./vendor/bin/phpstan analyse
+./tools/phpstan analyse
 ```
 
 Or simply execute:
@@ -99,10 +99,10 @@ If you don't have one you can use Docker with the image `microsoft/mssql-server-
 
 ```bash
 # install/update the microsoft image
-docker pull microsoft/mssql-server-linux
+docker pull mcr.microsoft.com/mssql/server
 
 # run an instance of mssql
-docker run --name dbal-mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Password-123456' -p 1433:1433 -d microsoft/mssql-server-linux
+docker run --name dbal-mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Password-123456' -p 1433:1433 -d mcr.microsoft.com/mssql/server
 
 # access the instance and run mssql
 docker exec -it dbal-mssql /bin/bash
@@ -119,3 +119,13 @@ docker rm dbal-mssql
 
 Ensure that you have a file with the configuration on `tests/.env`, you can use `tests/.env.example` as start point.
 In the configuration file set up your Mysql instance. Installation instructions depends on your OS.
+
+## Running GitHub Actions locally
+
+You can use [`act`](https://github.com/nektos/act) to run your GitHub Actions locally.
+As documented in [`actions/setup-php-action`](https://github.com/marketplace/actions/setup-php-action#local-testing-setup)
+you will need to execute the command as:
+
+```shell
+act -P ubuntu-latest=shivammathur/node:latest
+```

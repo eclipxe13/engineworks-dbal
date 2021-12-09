@@ -8,7 +8,7 @@ class SqlsrvWithDatabaseTestCase extends WithDatabaseTestCase
 {
     protected function checkIsAvailable(): void
     {
-        if ('yes' !== getenv('testSqlsrv')) {
+        if ('yes' !== $this->getenv('testSqlsrv')) {
             $this->markTestSkipped('Environment does not include mssql tests');
         }
         if (! function_exists('pdo_drivers')) {
@@ -27,13 +27,13 @@ class SqlsrvWithDatabaseTestCase extends WithDatabaseTestCase
     protected function getSettingsArray(): array
     {
         return [
-            'host' => getenv('testSqlsrv_server'),
-            'port' => getenv('testSqlsrv_port'),
+            'host' => $this->getenv('testSqlsrv_server'),
+            'port' => $this->getenv('testSqlsrv_port'),
             'database' => '',
-            'user' => getenv('testSqlsrv_username'),
-            'password' => getenv('testSqlsrv_password'),
-            'connect-timeout' => getenv('testSqlsrv_connect_timeout'),
-            'timeout' => getenv('testSqlsrv_timeout'),
+            'user' => $this->getenv('testSqlsrv_username'),
+            'password' => $this->getenv('testSqlsrv_password'),
+            'connect-timeout' => $this->getenv('testSqlsrv_connect_timeout'),
+            'timeout' => $this->getenv('testSqlsrv_timeout'),
         ];
     }
 

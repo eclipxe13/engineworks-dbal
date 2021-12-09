@@ -17,14 +17,14 @@ interface Result extends IteratorAggregate, Countable
 {
     /**
      * Get one row from the resource, the result is an associative array
-     * @return array<string, mixed>|false Return FALSE on error
+     * @return array<string, scalar|null>|false Return FALSE on error
      */
     public function fetchRow();
 
     /**
-     * Return an array with the fields information
+     * Return an array with the information of the fields
      * Each row must contain the keys: [name, commontype, table]
-     * @return array<int, array<string, mixed>>
+     * @return array<int, array<string, scalar|null>>
      */
     public function getFields(): array;
 

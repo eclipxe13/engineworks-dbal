@@ -7,11 +7,14 @@ namespace EngineWorks\DBAL\Internal;
 /**
  * This class parses a string expression as a number or as in plain english (as need to put inside a sql statement)
  *
- * @internal Is not intented to be used outside the application
+ * @internal
  */
 class NumericParser
 {
-    /** @var array<string, mixed>|null Contains the running locale information */
+    /**
+     * Contains the running locale information
+     * @var array{decimal_point: string, thousands_sep: string, currency_symbol: string}|null
+     */
     private $localeConv = null;
 
     /**
@@ -49,32 +52,36 @@ class NumericParser
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{decimal_point: string, thousands_sep: string, currency_symbol: string}
      */
     protected function getLocaleInfo(): array
     {
-        if (! is_array($this->localeConv)) {
+        if (null === $this->localeConv) {
             $this->localeConv = $this->obtainLocaleInfo();
         }
         return $this->localeConv;
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{decimal_point: string, thousands_sep: string, currency_symbol: string}
      */
     protected function obtainLocaleInfo(): array
     {
         if ('C' === setlocale(LC_NUMERIC, '0')) {
             // override to us_EN
-            $localeConv = ['decimal_point' => '.', 'thousands_sep' => ',', 'currency_symbol' => '$'];
-        } else {
-            $localeConv = localeconv();
+            return ['decimal_point' => '.', 'thousands_sep' => ',', 'currency_symbol' => '$'];
         }
-        return $localeConv;
+
+        $locale = localeconv();
+        return [
+            'decimal_point' => strval($locale['decimal_point'] ?? '.'),
+            'thousands_sep' => strval($locale['thousands_sep'] ?? ','),
+            'currency_symbol' => strval($locale['currency_symbol'] ?? '$'),
+        ];
     }
 
     /**
-     * Remove the thousands separator, currency symbol and white spaces.
+     * Remove the thousand separator, currency symbol and white spaces.
      * Returns the resulting string if is numeric,  otherwise returns '0'
      *
      * @param string $value
@@ -106,6 +113,6 @@ class NumericParser
 
     protected function getDecimalPoint(): string
     {
-        return $this->getLocaleInfo()['decimal_point'] ?? '';
+        return $this->getLocaleInfo()['decimal_point'];
     }
 }

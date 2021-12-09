@@ -62,8 +62,8 @@ class DBAL extends BaseDBAL
         try {
             $this->pdo = new PDO(
                 $this->getPDOConnectionString(),
-                $this->settings->get('user'),
-                $this->settings->get('password'),
+                (string) $this->settings->get('user'),
+                (string) $this->settings->get('password'),
                 [
                     PDO::ATTR_TIMEOUT => $this->settings->get('connect-timeout'),
                 ]

@@ -19,7 +19,7 @@ class Factory
     private $settingsName;
 
     /**
-     * @param string $namespace by example EngineWorks\DBAL\Mysqli
+     * @param string $namespace in example EngineWorks\DBAL\Mysqli
      * @param string $dbalName
      * @param string $settingsName
      */
@@ -66,7 +66,11 @@ class Factory
     public function dbal(Settings $settings, LoggerInterface $logger = null): DBAL
     {
         $classname = $this->buildClassName($this->dbalName, '', DBAL::class);
-        return new $classname($settings, $logger);
+        $dbal = new $classname($settings, $logger);
+        if (! $dbal instanceof DBAL) {
+            throw new LogicException(sprintf('The object with class %s was created but is not a DBAL', $classname));
+        }
+        return $dbal;
     }
 
     /**
@@ -76,6 +80,10 @@ class Factory
     public function settings(array $settings = []): Settings
     {
         $classname = $this->buildClassName($this->settingsName, '', Settings::class);
-        return new $classname($settings);
+        $settings = new $classname($settings);
+        if (! $settings instanceof Settings) {
+            throw new LogicException(sprintf('The object with class %s was created but is not a Settings', $classname));
+        }
+        return $settings;
     }
 }

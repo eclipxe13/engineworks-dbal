@@ -55,7 +55,8 @@ final class RecordsetTester
         $this->testOriginalValues();
     }
 
-    private function queryAlbumAsRecordset(int $albumid): Recordset
+    /** @param scalar|null $albumid */
+    private function queryAlbumAsRecordset($albumid): Recordset
     {
         $sql = 'SELECT * FROM albums WHERE (albumid = ' . $this->dbal->sqlQuote($albumid, CommonTypes::TINT) . ');';
         return $this->test->createRecordset($sql, 'albums', ['albumid']);
@@ -88,7 +89,7 @@ final class RecordsetTester
     }
 
     /**
-     * @param array<string, mixed> $values
+     * @param array<string, scalar|null> $values
      */
     public function testAddNew(array $values): void
     {
@@ -102,7 +103,7 @@ final class RecordsetTester
     }
 
     /**
-     * @param array<string, mixed> $values
+     * @param array<string, scalar|null> $values
      */
     public function testInsertedData(array $values): void
     {
@@ -114,7 +115,7 @@ final class RecordsetTester
     }
 
     /**
-     * @param array<string, mixed> $values
+     * @param array<string, scalar|null> $values
      */
     public function testUpdate(array $values): void
     {
@@ -129,7 +130,7 @@ final class RecordsetTester
     }
 
     /**
-     * @param array<string, mixed> $values
+     * @param array<string, scalar|null> $values
      */
     public function testDelete(array $values): void
     {
