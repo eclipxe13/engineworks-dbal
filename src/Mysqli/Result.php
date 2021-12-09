@@ -1,4 +1,9 @@
 <?php
+
+/** @noinspection PhpComposerExtensionStubsInspection */
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Mysqli;
 
 use EngineWorks\DBAL\CommonTypes;
@@ -9,32 +14,63 @@ use mysqli_result;
 
 class Result implements ResultInterface
 {
+    private const TYPES = [
+        // MYSQLI_TYPE_BIT => CommonTypes::T,
+        MYSQLI_TYPE_BLOB => CommonTypes::TTEXT,
+        // MYSQLI_TYPE_CHAR => CommonTypes::TINT, // MYSQLI_TYPE_TINY is the same as MYSQLI_TYPE_CHAR
+        MYSQLI_TYPE_DATE => CommonTypes::TDATE,
+        MYSQLI_TYPE_DATETIME => CommonTypes::TDATETIME,
+        MYSQLI_TYPE_DECIMAL => CommonTypes::TNUMBER,
+        MYSQLI_TYPE_DOUBLE => CommonTypes::TNUMBER,
+        // MYSQLI_TYPE_ENUM => CommonTypes::T,
+        MYSQLI_TYPE_FLOAT => CommonTypes::TNUMBER,
+        // MYSQLI_TYPE_GEOMETRY => CommonTypes::T,
+        MYSQLI_TYPE_INT24 => CommonTypes::TINT,
+        // MYSQLI_TYPE_INTERVAL => CommonTypes::T,
+        MYSQLI_TYPE_LONG => CommonTypes::TINT,
+        MYSQLI_TYPE_LONGLONG => CommonTypes::TINT,
+        MYSQLI_TYPE_LONG_BLOB => CommonTypes::TTEXT,
+        MYSQLI_TYPE_MEDIUM_BLOB => CommonTypes::TTEXT,
+        MYSQLI_TYPE_NEWDATE => CommonTypes::TDATE,
+        MYSQLI_TYPE_NEWDECIMAL => CommonTypes::TNUMBER,
+        // MYSQLI_TYPE_NULL => CommonTypes::T,
+        // MYSQLI_TYPE_SET => CommonTypes::T,
+        MYSQLI_TYPE_SHORT => CommonTypes::TINT,
+        MYSQLI_TYPE_STRING => CommonTypes::TTEXT,
+        MYSQLI_TYPE_TIME => CommonTypes::TTIME,
+        MYSQLI_TYPE_TIMESTAMP => CommonTypes::TINT,
+        MYSQLI_TYPE_TINY => CommonTypes::TINT,
+        MYSQLI_TYPE_TINY_BLOB => CommonTypes::TTEXT,
+        MYSQLI_TYPE_VAR_STRING => CommonTypes::TTEXT,
+        MYSQLI_TYPE_YEAR => CommonTypes::TINT,
+    ];
+
     use ResultImplementsCountable;
     use ResultImplementsIterator;
 
     /**
      * Mysqli element
-     * @var mysqli_result
+     * @var mysqli_result<mixed>
      */
     private $query;
 
     /**
      * The place where getFields result is cached
-     * @var array
+     * @var array<int, array<string, scalar|null>>|null
      */
     private $cachedGetFields;
 
     /**
      * Set of fieldname and commontype to use instead of detectedTypes
-     * @var array
+     * @var array<string, string>
      */
     private $overrideTypes;
 
     /**
      * Result based on Mysqli
      *
-     * @param mysqli_result $result
-     * @param array $overrideTypes
+     * @param mysqli_result<mixed> $result
+     * @param array<string, string> $overrideTypes
      */
     public function __construct(mysqli_result $result, array $overrideTypes = [])
     {
@@ -58,9 +94,15 @@ class Result implements ResultInterface
         $fields = [];
         $fetchedFields = $this->query->fetch_fields() ?: [];
         foreach ($fetchedFields as $fetched) {
+            $commonType = $this->getCommonType(
+                $fetched->{'name'},
+                $fetched->{'type'},
+                $fetched->{'length'},
+                $fetched->{'decimals'}
+            );
             $fields[] = [
                 'name' => $fetched->name,
-                'commontype' => $this->getCommonType($fetched),
+                'commontype' => $commonType,
                 'table' => $fetched->table,
                 'flags' => $fetched->flags,  // extra: used for getting the ids in the query
             ];
@@ -69,73 +111,38 @@ class Result implements ResultInterface
         return $fields;
     }
 
-    /**
-     * Private function to get the common type from the information of the field
-     * @param object $field
-     * @return string
-     */
-    private function getCommonType($field)
+    private function getCommonType(string $fieldname, int $fieldtype, int $fieldlength, int $fielddecimals): string
     {
-        static $types = [
-            // MYSQLI_TYPE_BIT => CommonTypes::T,
-            MYSQLI_TYPE_BLOB => CommonTypes::TTEXT,
-            // MYSQLI_TYPE_CHAR => CommonTypes::TINT, // MYSQLI_TYPE_TINY is the same as MYSQLI_TYPE_CHAR
-            MYSQLI_TYPE_DATE => CommonTypes::TDATE,
-            MYSQLI_TYPE_DATETIME => CommonTypes::TDATETIME,
-            MYSQLI_TYPE_DECIMAL => CommonTypes::TNUMBER,
-            MYSQLI_TYPE_DOUBLE => CommonTypes::TNUMBER,
-            // MYSQLI_TYPE_ENUM => CommonTypes::T,
-            MYSQLI_TYPE_FLOAT => CommonTypes::TNUMBER,
-            // MYSQLI_TYPE_GEOMETRY => CommonTypes::T,
-            MYSQLI_TYPE_INT24 => CommonTypes::TINT,
-            // MYSQLI_TYPE_INTERVAL => CommonTypes::T,
-            MYSQLI_TYPE_LONG => CommonTypes::TINT,
-            MYSQLI_TYPE_LONGLONG => CommonTypes::TINT,
-            MYSQLI_TYPE_LONG_BLOB => CommonTypes::TTEXT,
-            MYSQLI_TYPE_MEDIUM_BLOB => CommonTypes::TTEXT,
-            MYSQLI_TYPE_NEWDATE => CommonTypes::TDATE,
-            MYSQLI_TYPE_NEWDECIMAL => CommonTypes::TNUMBER,
-            // MYSQLI_TYPE_NULL => CommonTypes::T,
-            // MYSQLI_TYPE_SET => CommonTypes::T,
-            MYSQLI_TYPE_SHORT => CommonTypes::TINT,
-            MYSQLI_TYPE_STRING => CommonTypes::TTEXT,
-            MYSQLI_TYPE_TIME => CommonTypes::TTIME,
-            MYSQLI_TYPE_TIMESTAMP => CommonTypes::TINT,
-            MYSQLI_TYPE_TINY => CommonTypes::TINT,
-            MYSQLI_TYPE_TINY_BLOB => CommonTypes::TTEXT,
-            MYSQLI_TYPE_VAR_STRING => CommonTypes::TTEXT,
-            MYSQLI_TYPE_YEAR => CommonTypes::TINT,
-        ];
-        if (isset($this->overrideTypes[$field->{'name'}])) {
-            return $this->overrideTypes[$field->{'name'}];
+        if (isset($this->overrideTypes[$fieldname])) {
+            return $this->overrideTypes[$fieldname];
         }
-        $type = CommonTypes::TTEXT;
-        if (array_key_exists($field->{'type'}, $types)) {
-            $type = $types[$field->{'type'}];
-            if (1 == $field->{'length'} && ($type == CommonTypes::TINT || $type == CommonTypes::TNUMBER)) {
+        if (isset(self::TYPES[$fieldtype])) {
+            $type = self::TYPES[$fieldtype];
+            if (1 === $fieldlength && (CommonTypes::TINT === $type || CommonTypes::TNUMBER === $type)) {
                 $type = CommonTypes::TBOOL;
-            } elseif ($type == CommonTypes::TNUMBER && $field->{'decimals'} == 0) {
+            } elseif (CommonTypes::TNUMBER === $type && 0 === $fielddecimals) {
                 $type = CommonTypes::TINT;
             }
+        } else {
+            $type = CommonTypes::TTEXT;
         }
         return $type;
     }
 
     public function getIdFields()
     {
-        $return = false;
         $fieldsAutoIncrement = [];
         $fieldsPrimaryKeys = [];
         $fieldsUniqueKeys = [];
         foreach ($this->getFields() as $field) {
-            $flags = $field['flags'];
+            $flags = (int) $field['flags'];
             if (MYSQLI_AUTO_INCREMENT_FLAG & $flags) {
-                $fieldsAutoIncrement[] = $field['name'];
+                $fieldsAutoIncrement[] = (string) $field['name'];
                 break;
             } elseif (MYSQLI_PRI_KEY_FLAG & $flags) {
-                $fieldsPrimaryKeys[] = $field['name'];
+                $fieldsPrimaryKeys[] = (string) $field['name'];
             } elseif (MYSQLI_UNIQUE_KEY_FLAG & $flags) {
-                $fieldsUniqueKeys[] = $field['name'];
+                $fieldsUniqueKeys[] = (string) $field['name'];
             }
         }
         if (count($fieldsAutoIncrement)) {
@@ -147,7 +154,7 @@ class Result implements ResultInterface
         if (count($fieldsUniqueKeys)) {
             return $fieldsUniqueKeys;
         }
-        return $return;
+        return false;
     }
 
     public function resultCount(): int
@@ -163,6 +170,9 @@ class Result implements ResultInterface
 
     public function moveTo(int $offset): bool
     {
+        if ($offset < 0) {
+            return false;
+        }
         return $this->query->data_seek($offset);
     }
 

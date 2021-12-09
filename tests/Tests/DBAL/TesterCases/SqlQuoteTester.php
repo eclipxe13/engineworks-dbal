@@ -1,11 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\DBAL\TesterCases;
 
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Tests\WithDbalTestCase;
 use PHPUnit\Framework\TestCase;
+use SimpleXMLElement;
 
-class SqlQuoteTester
+final class SqlQuoteTester
 {
     /** @var TestCase */
     private $test;
@@ -13,7 +17,10 @@ class SqlQuoteTester
     /** @var DBAL */
     private $dbal;
 
+    /** @var string */
     private $expectedSingleQuote = "''''";
+
+    /** @var string */
     private $expectedDoubleQuote = "'\"'";
 
     public function __construct(
@@ -31,10 +38,10 @@ class SqlQuoteTester
         }
     }
 
-    public function execute()
+    public function execute(): void
     {
         foreach ($this->providerSqlQuote() as $label => $arguments) {
-            $this->testSqlQuote(...array_merge([$label], $arguments));
+            $this->testSqlQuote($label, ...$arguments);
         }
         foreach ($this->providerSqlQuoteWithLocale() as $arguments) {
             $this->testSqlQuoteWithLocale(...$arguments);
@@ -42,13 +49,14 @@ class SqlQuoteTester
         $this->testWithInvalidCommonType();
     }
 
-    public function providerSqlQuote()
+    /** @return array<string, array{string, scalar|object|null, string, bool}> */
+    public function providerSqlQuote(): array
     {
         $timestamp = mktime(23, 31, 59, 12, 31, 2016);
         $date = '2016-12-31';
         $time = '23:31:59';
         $datetime = "$date $time";
-        $xmlValue = (new \SimpleXMLElement('<' . 'd v="55.1"/>'))['v'];
+        $xmlValue = (new SimpleXMLElement(/** @lang xml */ '<d v="55.1"/>'))['v'];
         return [
             // texts
             'text normal' => ["'foo'", 'foo', DBAL::TTEXT, false],
@@ -114,7 +122,14 @@ class SqlQuoteTester
         ];
     }
 
-    public function testSqlQuote(string $label, string $expected, $value, string $type, bool $includeNull)
+    /**
+     * @param string $label
+     * @param string $expected
+     * @param mixed $value
+     * @param string $type
+     * @param bool $includeNull
+     */
+    public function testSqlQuote(string $label, string $expected, $value, string $type, bool $includeNull): void
     {
         $this->test->assertSame(
             $expected,
@@ -123,16 +138,17 @@ class SqlQuoteTester
         );
     }
 
-    public function providerSqlQuoteWithLocale()
+    /** @return array<string, array{string, string, string}> */
+    public function providerSqlQuoteWithLocale(): array
     {
         return [
-            ['en_US', '-1234.56789', "- $\t1,234.567,89 "],
-            ['en_US.utf-8', '-1234.56789', "- $\t1,234.567,89 "],
-            ['pt_BR', '-1234.56789', "- R$\t1.234,567.89 "],
+            'en_US' => ['en_US', '-1234.56789', "- $\t1,234.567,89 "],
+            'en_US.utf-8' => ['en_US.utf-8', '-1234.56789', "- $\t1,234.567,89 "],
+            'pt_BR' => ['pt_BR', '-1234.56789', "- R$\t1.234,567.89 "],
         ];
     }
 
-    public function testSqlQuoteWithLocale(string $locale, string $expected, string $value)
+    public function testSqlQuoteWithLocale(string $locale, string $expected, string $value): void
     {
         $currentNumeric = strval(setlocale(LC_NUMERIC, '0'));
         $currentMonetary = strval(setlocale(LC_MONETARY, '0'));
@@ -147,12 +163,12 @@ class SqlQuoteTester
         // the test
         $this->test->assertSame($expected, $this->dbal->sqlQuote($value, DBAL::TNUMBER, false));
 
-        // anyhow restore the previous locale
+        // anyhow, restore the previous locale
         setlocale(LC_NUMERIC, $currentNumeric);
         setlocale(LC_MONETARY, $currentMonetary);
     }
 
-    public function testWithInvalidCommonType()
+    public function testWithInvalidCommonType(): void
     {
         $this->test->assertSame("'Ñu'", $this->dbal->sqlQuote('Ñu', 'NON-EXISTENT-COMMONTYPE'));
     }

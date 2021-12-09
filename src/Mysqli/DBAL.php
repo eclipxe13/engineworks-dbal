@@ -1,21 +1,27 @@
 <?php
+
+/** @noinspection PhpComposerExtensionStubsInspection */
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Mysqli;
 
-use EngineWorks\DBAL\DBAL as AbstractDBAL;
+use EngineWorks\DBAL\Abstracts\BaseDBAL;
 use EngineWorks\DBAL\Traits\MethodSqlConcatenate;
 use EngineWorks\DBAL\Traits\MethodSqlLike;
 use EngineWorks\DBAL\Traits\MethodSqlLimit;
-use EngineWorks\DBAL\Traits\MethodSqlQuote;
+use InvalidArgumentException;
+use LogicException;
 use mysqli;
 use mysqli_result;
+use RuntimeException;
 
 /**
  * Mysqli implementation
  * @package EngineWorks\DBAL\Mysqli
  */
-class DBAL extends AbstractDBAL
+class DBAL extends BaseDBAL
 {
-    use MethodSqlQuote;
     use MethodSqlLike;
     use MethodSqlLimit;
     use MethodSqlConcatenate;
@@ -32,16 +38,23 @@ class DBAL extends AbstractDBAL
         $this->disconnect();
         // create the mysqli object without error reporting
         $errorLevel = error_reporting(0);
-        $this->mysqli = mysqli_init();
-        $this->mysqli->options(MYSQLI_OPT_CONNECT_TIMEOUT, $this->settings->get('connect-timeout'));
+        $mysqli = mysqli_init();
+        if (! $mysqli instanceof mysqli) {
+            throw new LogicException('Unable to create Mysqli empty object');
+        }
+        $this->mysqli = $mysqli;
+        $connectTimeout = $this->settings->get('connect-timeout');
+        if (null !== $connectTimeout) {
+            $this->mysqli->options(MYSQLI_OPT_CONNECT_TIMEOUT, (int) $connectTimeout);
+        }
         $this->mysqli->real_connect(
-            $this->settings->get('host'),
-            $this->settings->get('user'),
-            $this->settings->get('password'),
-            $this->settings->get('database'),
-            $this->settings->get('port'),
-            $this->settings->get('socket'),
-            $this->settings->get('flags')
+            (string) $this->settings->get('host'),
+            (string) $this->settings->get('user'),
+            (string) $this->settings->get('password'),
+            (string) $this->settings->get('database'),
+            (int) $this->settings->get('port'),
+            (string) $this->settings->get('socket'),
+            (int) $this->settings->get('flags')
         );
         error_reporting($errorLevel);
         // check there are no connection errors
@@ -55,7 +68,8 @@ class DBAL extends AbstractDBAL
         // OK, we are connected
         $this->logger->info('-- Connect and database select OK');
         // set encoding if needed
-        if ('' !== $encoding = $this->settings->get('encoding', '')) {
+        $encoding = (string) $this->settings->get('encoding', '');
+        if ('' !== $encoding) {
             $this->logger->info("-- Setting encoding to $encoding;");
             if (! $this->mysqli->set_charset($encoding)) {
                 $this->logger->warning("-- Unable to set encoding to $encoding");
@@ -64,7 +78,7 @@ class DBAL extends AbstractDBAL
         return true;
     }
 
-    public function disconnect()
+    public function disconnect(): void
     {
         if ($this->isConnected()) {
             $this->logger->info('-- Disconnection');
@@ -87,13 +101,13 @@ class DBAL extends AbstractDBAL
     public function sqlString($variable): string
     {
         if ($this->isConnected()) {
-            return $this->mysqli()->escape_string($variable);
+            return $this->mysqli()->escape_string(strval($variable));
         }
         // there are no function to escape without a link
         return str_replace(
             ['\\', "\0", "\n", "\r", "'", '"', "\x1a"],
             ['\\\\', '\\0', '\\n', '\\r', "\\'", '\\"', '\\Z'],
-            $variable
+            (string) $variable
         );
     }
 
@@ -102,9 +116,9 @@ class DBAL extends AbstractDBAL
      * This is the internal function to do the query according to the database functions
      * It's used by queryResult and queryAffectedRows methods
      * @param string $query
-     * @return mysqli_result|bool
+     * @return mysqli_result<mixed>|bool
      */
-    protected function queryDriver($query)
+    protected function queryDriver(string $query)
     {
         $this->logger->debug($query);
         $result = $this->mysqli()->query($query);
@@ -152,38 +166,36 @@ class DBAL extends AbstractDBAL
 
     public function sqlDatePart(string $part, string $expression): string
     {
+        $format = $this->sqlDatePartFormat($part);
+        return sprintf('DATE_FORMAT(%s, %s)', $expression, $this->sqlQuote($format, self::TTEXT));
+    }
+
+    private function sqlDatePartFormat(string $part): string
+    {
         switch (strtoupper($part)) {
             case 'YEAR':
-                $format = '%Y';
-                break;
+                return '%Y';
             case 'MONTH':
-                $format = '%m';
-                break;
+                return '%m';
             case 'FDOM':
-                $format = '%Y-%m-01';
-                break;
+                return '%Y-%m-01';
             case 'FYM':
-                $format = '%Y-%m';
-                break;
+                return '%Y-%m';
             case 'FYMD':
-                $format = '%Y-%m-%d';
-                break;
+                return '%Y-%m-%d';
             case 'DAY':
-                $format = '%d';
-                break;
+                return '%d';
             case 'HOUR':
-                $format = '%H';
-                break;
+                return '%H';
             case 'MINUTE':
-                $format = '%i';
-                break;
+                return '%i';
             case 'SECOND':
-                $format = '%s';
-                break;
+                return '%s';
+            case 'FHMS':
+                return '%H:%i:%s';
             default:
-                throw new \InvalidArgumentException("Date part $part is not valid");
+                throw new InvalidArgumentException("Date part $part is not valid");
         }
-        return 'DATE_FORMAT(' . $expression . ", '" . $format . "')";
     }
 
     public function sqlIf(string $condition, string $truePart, string $falsePart): string
@@ -191,23 +203,26 @@ class DBAL extends AbstractDBAL
         return 'IF(' . $condition . ', ' . $truePart . ', ' . $falsePart . ')';
     }
 
+    public function sqlLimit(string $query, int $requestedPage, int $recordsPerPage = 20): string
+    {
+        return $this->sqlLimitOffset($query, $requestedPage, $recordsPerPage);
+    }
+
     public function sqlRandomFunc(): string
     {
         return 'RAND()';
     }
 
-    protected function commandTransactionBegin()
+    /** @noinspection PhpMissingParentCallCommonInspection */
+    protected function commandTransactionBegin(): void
     {
         $this->execute('START TRANSACTION', 'Cannot start transaction');
     }
 
-    /**
-     * @return mysqli
-     */
-    private function mysqli()
+    private function mysqli(): mysqli
     {
         if (null === $this->mysqli) {
-            throw new \RuntimeException('The current state of the connection is NULL');
+            throw new RuntimeException('The current state of the connection is NULL');
         }
         return $this->mysqli;
     }

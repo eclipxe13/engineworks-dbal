@@ -1,10 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests;
 
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Factory;
 use EngineWorks\DBAL\Tests\DBAL\Sample\ArrayLogger;
-use PHPUnit\Framework\TestCase;
 
 abstract class WithDbalTestCase extends TestCase
 {
@@ -17,9 +19,9 @@ abstract class WithDbalTestCase extends TestCase
     /** @var ArrayLogger */
     protected $logger;
 
-    abstract protected function getFactoryNamespace();
+    abstract protected function getFactoryNamespace(): string;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->factory = new Factory($this->getFactoryNamespace());
@@ -40,6 +42,10 @@ abstract class WithDbalTestCase extends TestCase
         return $this->logger;
     }
 
+    /**
+     * @param mixed[] $settingsArray
+     * @return DBAL
+     */
     protected function createDbalWithSettings(array $settingsArray = []): DBAL
     {
         $dbal = $this->factory->dbal($this->factory->settings($settingsArray));
@@ -49,8 +55,10 @@ abstract class WithDbalTestCase extends TestCase
         return $dbal;
     }
 
-    /** @return void */
-    protected function setupDbalWithSettings(array $settingsArray = [])
+    /**
+     * @param mixed[] $settingsArray
+     */
+    protected function setupDbalWithSettings(array $settingsArray = []): void
     {
         $this->dbal = $this->createDbalWithSettings($settingsArray);
         $this->logger = new ArrayLogger();

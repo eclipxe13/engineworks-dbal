@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\Utils;
 
 class Timer
@@ -21,7 +24,7 @@ class Timer
         return $this->start;
     }
 
-    public function setStart(float $start)
+    public function setStart(float $start): void
     {
         $this->start = $start;
     }

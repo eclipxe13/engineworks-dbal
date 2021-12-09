@@ -1,25 +1,34 @@
 <?php
+
+/** @noinspection PhpComposerExtensionStubsInspection */
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Mssql;
 
-use EngineWorks\DBAL\CommonTypes;
-use EngineWorks\DBAL\DBAL as AbstractDBAL;
+use EngineWorks\DBAL\Abstracts\BaseDBAL;
 use EngineWorks\DBAL\Traits\MethodSqlConcatenate;
-use EngineWorks\DBAL\Traits\MethodSqlQuote;
+use EngineWorks\DBAL\Traits\MethodSqlLimit;
+use Exception;
+use InvalidArgumentException;
 use PDO;
+use PDOStatement;
+use RuntimeException;
+use Throwable;
 
 /**
  * Mssql implementation
  * @package EngineWorks\DBAL\Mssql
  */
-class DBAL extends AbstractDBAL
+class DBAL extends BaseDBAL
 {
-    use MethodSqlQuote;
     use MethodSqlConcatenate;
+    use MethodSqlLimit;
 
     /** @var PDO|null */
     protected $pdo = null;
 
-    protected function getPDOConnectionString()
+    protected function getPDOConnectionString(): string
     {
         $vars = [];
         if ($this->settings->exists('freetds-version')) {
@@ -36,6 +45,7 @@ class DBAL extends AbstractDBAL
         if ($this->settings->exists('encoding')) {
             $vars['charset'] = $this->settings->get('encoding');
         }
+
         $return = 'dblib:';
         foreach ($vars as $key => $value) {
             $return .= $key . '=' . $value . ';';
@@ -52,14 +62,13 @@ class DBAL extends AbstractDBAL
         try {
             $this->pdo = new PDO(
                 $this->getPDOConnectionString(),
-                $this->settings->get('user'),
-                $this->settings->get('password'),
+                (string) $this->settings->get('user'),
+                (string) $this->settings->get('password'),
                 [
                     PDO::ATTR_TIMEOUT => $this->settings->get('connect-timeout'),
-                    PDO::ATTR_FETCH_TABLE_NAMES => true,
                 ]
             );
-        } catch (\Throwable $ex) {
+        } catch (Throwable $ex) {
             $this->logger->info('-- Connection fail ' . $ex->getMessage());
             $this->logger->error('Cannot create PDO object for MS SQL ' . $ex->getMessage());
             return false;
@@ -71,7 +80,7 @@ class DBAL extends AbstractDBAL
         return true;
     }
 
-    public function disconnect()
+    public function disconnect(): void
     {
         if ($this->isConnected()) {
             $this->logger->info('-- Disconnection');
@@ -97,25 +106,26 @@ class DBAL extends AbstractDBAL
         //    $quoted = $this->pdo()->quote($variable);
         //    return substr($quoted, 1, strlen($quoted) - 2);
         //}
-        return str_replace(["\0", "'"], ['', "''"], $variable);
+        return str_replace(["\0", "'"], ['', "''"], (string) $variable);
     }
 
     /**
      * Executes a query and return an object or resource native to the driver
      * This is the internal function to do the query according to the database functions
      * It's used by queryResult and queryAffectedRows methods
+     *
      * @param string $query
-     * @return \PDOStatement|false
+     * @return PDOStatement|false
      */
-    protected function queryDriver($query)
+    protected function queryDriver(string $query)
     {
         $this->logger->debug($query);
         try {
             if (false === $stmt = $this->pdo()->query($query)) {
-                throw new \RuntimeException("Unable to prepare statement $query");
+                throw new RuntimeException("Unable to prepare statement $query");
             }
             return $stmt;
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $this->logger->info("-- Query fail with SQL: $query");
             $this->logger->error("FAIL: $query\nLast message:" . $this->getLastMessage());
             return false;
@@ -162,25 +172,46 @@ class DBAL extends AbstractDBAL
             case 'YEAR':
                 return "DATEPART(yyyy, $expression)";
             case 'MONTH':
-                return "DATEPART(mm, $expression)";
-            case 'FDOM':
-                return "CONCAT(DATEPART(yyyy, $expression), '-', DATEPART(mm, $expression), '-01')";
-            case 'FYM':
-                return "CONCAT(DATEPART(yyyy, $expression), '-', DATEPART(mm, $expression))";
-            case 'FYMD':
-                return 'CONCAT('
-                    . "DATEPART(yyyy, $expression), '-', DATEPART(mm, $expression), '-', DATEPART(dd, $expression)"
-                    . ')';
+                return "RIGHT('0' + CAST(DATEPART(mm, $expression) AS VARCHAR(2)), 2)";
             case 'DAY':
-                return "DATEPART(dd, $expression)";
+                return "RIGHT('0' + CAST(DATEPART(dd, $expression) AS VARCHAR(2)), 2)";
             case 'HOUR':
-                return "DATEPART(hh, $expression)";
+                return "RIGHT('0' + CAST(DATEPART(hh, $expression) AS VARCHAR(2)), 2)";
             case 'MINUTE':
-                return "DATEPART(mi, $expression)";
+                return "RIGHT('0' + CAST(DATEPART(mi, $expression) AS VARCHAR(2)), 2)";
             case 'SECOND':
-                return "DATEPART(ss, $expression)";
+                return "RIGHT('0' + CAST(DATEPART(ss, $expression) AS VARCHAR(2)), 2)";
+            case 'FDOM':
+                return 'CONCAT'
+                    . "(DATEPART(yyyy, $expression),"
+                    . " '-',"
+                    . " RIGHT('0' + CAST(DATEPART(mm, $expression) AS VARCHAR(2)), 2),"
+                    . " '-01'"
+                    . ')';
+            case 'FYM':
+                return 'CONCAT'
+                    . "(DATEPART(yyyy, $expression),"
+                    . " '-',"
+                    . " RIGHT('0' + CAST(DATEPART(mm, $expression) AS VARCHAR(2)), 2)"
+                    . ')';
+            case 'FYMD':
+                return 'CONCAT'
+                    . "(DATEPART(yyyy, $expression),"
+                    . " '-',"
+                    . " RIGHT('0' + CAST(DATEPART(mm, $expression) AS VARCHAR(2)), 2),"
+                    . " '-',"
+                    . " RIGHT('0' + CAST(DATEPART(dd, $expression) AS VARCHAR(2)), 2)"
+                    . ')';
+            case 'FHMS':
+                return 'CONCAT'
+                    . "(RIGHT('0' + CAST(DATEPART(hh, $expression) AS VARCHAR(2)), 2),"
+                    . " ':',"
+                    . " RIGHT('0' + CAST(DATEPART(mi, $expression) AS VARCHAR(2)), 2),"
+                    . " ':',"
+                    . " RIGHT('0' + CAST(DATEPART(ss, $expression) AS VARCHAR(2)), 2)"
+                    . ')';
         }
-        throw new \InvalidArgumentException("Date part $part is not valid");
+        throw new InvalidArgumentException("Date part $part is not valid");
     }
 
     public function sqlIf(string $condition, string $truePart, string $falsePart): string
@@ -195,13 +226,7 @@ class DBAL extends AbstractDBAL
 
     public function sqlLimit(string $query, int $requestedPage, int $recordsPerPage = 20): string
     {
-        $requestedPage = max(1, $requestedPage) - 1; // zero indexed
-        $recordsPerPage = max(1, $recordsPerPage);
-        $query = rtrim($query, "; \t\n\r\0\x0B")
-            . ' OFFSET ' . $this->sqlQuote($recordsPerPage * $requestedPage, CommonTypes::TINT) . ' ROWS'
-            . ' FETCH NEXT ' . $this->sqlQuote($recordsPerPage, CommonTypes::TINT) . ' ROWS ONLY'
-            . ';';
-        return $query;
+        return $this->sqlLimitOffsetFetchNext($query, $requestedPage, $recordsPerPage);
     }
 
     public function sqlLike(
@@ -219,7 +244,8 @@ class DBAL extends AbstractDBAL
             . (($wildcardBegin) ? '%' : '') . $this->sqlString($searchString) . (($wildcardEnd) ? '%' : '') . "'";
     }
 
-    protected function commandSavepoint(string $name)
+    /** @noinspection PhpMissingParentCallCommonInspection */
+    protected function commandSavepoint(string $name): void
     {
         $this->execute(
             'SAVE TRANSACTION ' . $this->sqlFieldEscape($name) . ';',
@@ -227,13 +253,15 @@ class DBAL extends AbstractDBAL
         );
     }
 
-    protected function commandReleaseSavepoint(string $name)
+    /** @noinspection PhpMissingParentCallCommonInspection */
+    protected function commandReleaseSavepoint(string $name): void
     {
         // do not execute, the command commit transaction does not works with save transaction
         $this->logger->debug("-- COMMIT TRANSACTION $name");
     }
 
-    protected function commandRollbackToSavepoint(string $name)
+    /** @noinspection PhpMissingParentCallCommonInspection */
+    protected function commandRollbackToSavepoint(string $name): void
     {
         $this->execute(
             'ROLLBACK TRANSACTION ' . $this->sqlFieldEscape($name) . ';',
@@ -244,7 +272,7 @@ class DBAL extends AbstractDBAL
     private function pdo(): PDO
     {
         if (null === $this->pdo) {
-            throw new \RuntimeException('The current state of the connection is NULL');
+            throw new RuntimeException('The current state of the connection is NULL');
         }
         return $this->pdo;
     }

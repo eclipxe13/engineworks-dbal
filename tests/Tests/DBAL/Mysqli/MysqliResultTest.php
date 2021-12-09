@@ -1,36 +1,42 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\DBAL\Mysqli;
 
+use Countable;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Iterators\ResultIterator;
 use EngineWorks\DBAL\Result;
 use EngineWorks\DBAL\Tests\MysqliWithDatabaseTestCase;
+use Iterator;
+use Traversable;
 
 class MysqliResultTest extends MysqliWithDatabaseTestCase
 {
     /** @var Result */
     private $result;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->result = $this->queryResult('SELECT * FROM albums WHERE (albumid between 1 and 3);');
     }
 
-    public function testResultCount()
+    public function testResultCount(): void
     {
         $this->assertSame(3, $this->result->resultCount());
     }
 
-    public function testQueryResult()
+    public function testQueryResult(): void
     {
         $this->assertInstanceOf(Result::class, $this->result);
-        $this->assertInstanceOf(\Countable::class, $this->result);
-        $this->assertInstanceOf(\Traversable::class, $this->result);
+        $this->assertInstanceOf(Countable::class, $this->result);
+        $this->assertInstanceOf(Traversable::class, $this->result);
         $this->assertCount(3, $this->result);
     }
 
-    public function testIterator()
+    public function testIterator(): void
     {
         $fist = $this->getForEach();
         $this->assertCount(3, $fist);
@@ -39,20 +45,20 @@ class MysqliResultTest extends MysqliWithDatabaseTestCase
         $this->assertEquals($fist, $second);
     }
 
-    public function testIteratorAfterMovingTheFirstRecord()
+    public function testIteratorAfterMovingTheFirstRecord(): void
     {
         $this->result->fetchRow();
         $contents = $this->getForEach();
         $this->assertCount(3, $contents);
     }
 
-    public function testMoveToOutOfBounds()
+    public function testMoveToOutOfBounds(): void
     {
         $this->assertFalse($this->result->moveTo(-10));
         $this->assertFalse($this->result->moveTo(10000));
     }
 
-    public function testMoveOffSet()
+    public function testMoveOffSet(): void
     {
         $current = $this->getForEach();
         $this->assertSame(false, $this->result->fetchRow(), 'After for each fetch must return FALSE');
@@ -66,16 +72,16 @@ class MysqliResultTest extends MysqliWithDatabaseTestCase
         $this->assertSame($current[1], $this->result->fetchRow(), 'After move to index 1 fetch must return second row');
     }
 
-    public function testFetchRowSequence()
+    public function testFetchRowSequence(): void
     {
-        $this->assertInternalType('array', $this->result->fetchRow());
-        $this->assertInternalType('array', $this->result->fetchRow());
-        $this->assertInternalType('array', $this->result->fetchRow());
+        $this->assertIsArray($this->result->fetchRow());
+        $this->assertIsArray($this->result->fetchRow());
+        $this->assertIsArray($this->result->fetchRow());
         $this->assertSame(false, $this->result->fetchRow());
         $this->assertSame(false, $this->result->fetchRow());
     }
 
-    public function testGetFields()
+    public function testGetFields(): void
     {
         // cannot get (yet) the table from a query
         $expected = [
@@ -122,26 +128,27 @@ class MysqliResultTest extends MysqliWithDatabaseTestCase
         $this->assertEquals($expected, $actualFields);
     }
 
-    public function testGetFieldsWithNoContents()
+    public function testGetFieldsWithNoContents(): void
     {
         $result = $this->queryResult('SELECT albumid FROM albums WHERE (albumid = -1);');
         $fields = $result->getFields();
         $this->assertEquals(CommonTypes::TINT, $fields[0]['commontype']);
     }
 
-    public function testGetIdFields()
+    public function testGetIdFields(): void
     {
         $this->assertEquals(['albumid'], $this->result->getIdFields(), 'Cannot get (yet) the Id Fields from a query');
     }
 
-    public function testGetIterator()
+    public function testGetIterator(): void
     {
+        /** @noinspection PhpUnhandledExceptionInspection */
         $iterator = $this->result->getIterator();
-        $this->assertInstanceOf(\Iterator::class, $iterator);
+        $this->assertInstanceOf(Iterator::class, $iterator);
         $this->assertInstanceOf(ResultIterator::class, $iterator);
     }
 
-    public function testMoveFirstAndMoveReturnFalseOnEmptyResultset()
+    public function testMoveFirstAndMoveReturnFalseOnEmptyResultset(): void
     {
         $result = $this->queryResult('SELECT * FROM albums WHERE (albumid < 0);');
         $this->assertFalse($result->moveFirst());
@@ -149,18 +156,23 @@ class MysqliResultTest extends MysqliWithDatabaseTestCase
         $this->assertFalse($result->moveTo(10));
     }
 
-    public function testWithNoContents()
+    public function testWithNoContents(): void
     {
         $result = $this->queryResult('SELECT albumid FROM albums WHERE (albumid = -1);');
         $fields = $result->getFields();
         $this->assertEquals(CommonTypes::TINT, $fields[0]['commontype']);
     }
 
-    private function getForEach()
+    /**
+     * Iterates the result and assert that each item is an array
+     *
+     * @return array<int, mixed[]>
+     */
+    private function getForEach(): array
     {
         $array = [];
         foreach ($this->result as $key => $values) {
-            $this->assertInternalType('array', $values);
+            $this->assertIsArray($values);
             $array[$key] = $values;
         }
         return $array;

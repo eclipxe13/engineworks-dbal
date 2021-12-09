@@ -1,21 +1,25 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\DBAL\Sqlite;
 
-use EngineWorks\DBAL\Tests\DBAL\Sample\ArrayLogger;
 use EngineWorks\DBAL\Tests\DBAL\TesterCases\SqlQuoteTester;
 use EngineWorks\DBAL\Tests\DBAL\TesterTraits\DbalCommonSqlTrait;
+use EngineWorks\DBAL\Tests\DBAL\TesterTraits\DbalLoggerTrait;
 use EngineWorks\DBAL\Tests\WithDbalTestCase;
 
 class SqliteDisconnectedTest extends WithDbalTestCase
 {
     use DbalCommonSqlTrait;
+    use DbalLoggerTrait;
 
-    protected function getFactoryNamespace()
+    protected function getFactoryNamespace(): string
     {
         return 'EngineWorks\DBAL\Sqlite';
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->setupDbalWithSettings([
@@ -24,16 +28,14 @@ class SqliteDisconnectedTest extends WithDbalTestCase
         ]);
     }
 
-    public function testConnectReturnFalseWhenCannotConnect()
+    public function testConnectReturnFalseWhenCannotConnect(): void
     {
-        $logger = new ArrayLogger();
-        $this->dbal->setLogger($logger);
         $this->assertFalse($this->dbal->connect());
         $expectedLogs = [
             'info: -- Connection fail',
             'error: Cannot create SQLite3 object: Unable to open database: ',
         ];
-        $messages = $logger->allMessages();
+        $messages = $this->logger->allMessages();
         $this->assertCount(count($expectedLogs), $messages);
         foreach ($messages as $index => $message) {
             $this->assertStringStartsWith($expectedLogs[$index], $message);
@@ -46,19 +48,19 @@ class SqliteDisconnectedTest extends WithDbalTestCase
      *
      */
 
-    public function testSqlField()
+    public function testSqlField(): void
     {
         $expectedName = 'some-field AS "some - label"';
         $this->assertSame($expectedName, $this->dbal->sqlField('some-field', 'some - label'));
     }
 
-    public function testSqlFieldEscape()
+    public function testSqlFieldEscape(): void
     {
         $expectedName = '"some-field" AS "some - label"';
         $this->assertSame($expectedName, $this->dbal->sqlFieldEscape('some-field', 'some - label'));
     }
 
-    public function testSqlTable()
+    public function testSqlTable(): void
     {
         $this->setupDbalWithSettings([
             'prefix' => 'foo_',
@@ -69,7 +71,7 @@ class SqliteDisconnectedTest extends WithDbalTestCase
         $this->assertSame($expectedNoSuffix, $this->dbal->sqlTableEscape('bar', 'x'));
     }
 
-    public function testSqlString()
+    public function testSqlString(): void
     {
         $this->assertSame("  foo\tbar  \n", $this->dbal->sqlString("  foo\tbar  \n"));
         $this->assertSame("''", $this->dbal->sqlString("'"));
@@ -78,12 +80,12 @@ class SqliteDisconnectedTest extends WithDbalTestCase
         $this->assertSame("''''''", $this->dbal->sqlString("'''"));
     }
 
-    public function testSqlRandomFunc()
+    public function testSqlRandomFunc(): void
     {
         $this->assertSame('random()', $this->dbal->sqlRandomFunc());
     }
 
-    public function testSqlIf()
+    public function testSqlIf(): void
     {
         $this->assertSame(
             'CASE WHEN (condition) THEN true ELSE false',
@@ -91,21 +93,21 @@ class SqliteDisconnectedTest extends WithDbalTestCase
         );
     }
 
-    public function testSqlLimit()
+    public function testSqlLimit(): void
     {
         $expected = 'SELECT a LIMIT 20 OFFSET 80;';
         $this->assertSame($expected, $this->dbal->sqlLimit('SELECT a ', 5, 20));
         $this->assertSame($expected, $this->dbal->sqlLimit('SELECT a;', 5, 20));
     }
 
-    public function testSqlConcatenate()
+    public function testSqlConcatenate(): void
     {
         $this->assertSame('9 || 8 || 7', $this->dbal->sqlConcatenate(...['9', '8', '7']));
         $this->assertSame('a || b || c', $this->dbal->sqlConcatenate('a', 'b', 'c'));
         $this->assertSame("''", $this->dbal->sqlConcatenate());
     }
 
-    public function testSqlQuoteUsingTester()
+    public function testSqlQuoteUsingTester(): void
     {
         $tester = new SqlQuoteTester($this);
         $tester->execute();

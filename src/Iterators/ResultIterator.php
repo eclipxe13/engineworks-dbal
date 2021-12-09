@@ -1,9 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Iterators;
 
 use EngineWorks\DBAL\Result;
+use Iterator;
 
-class ResultIterator implements \Iterator
+/**
+ * @implements Iterator<int, mixed[]>
+ */
+class ResultIterator implements Iterator
 {
     /** @var Result */
     private $result;
@@ -11,7 +18,7 @@ class ResultIterator implements \Iterator
     /** @var int autonumeric index */
     private $index;
 
-    /** @var array|false Store of current values */
+    /** @var array<string, mixed>|false Store of current values */
     private $currentValues;
 
     /**
@@ -23,7 +30,7 @@ class ResultIterator implements \Iterator
         $this->result = $result;
     }
 
-    /** @return array|false */
+    /** @return array<string, mixed>|false */
     public function current()
     {
         return $this->currentValues;
@@ -39,15 +46,13 @@ class ResultIterator implements \Iterator
         return is_array($this->currentValues);
     }
 
-    /** @return void */
-    public function next()
+    public function next(): void
     {
         $this->currentValues = $this->result->fetchRow();
         $this->index = $this->index + 1;
     }
 
-    /** @return void */
-    public function rewind()
+    public function rewind(): void
     {
         $this->result->moveFirst();
         $this->currentValues = $this->result->fetchRow();

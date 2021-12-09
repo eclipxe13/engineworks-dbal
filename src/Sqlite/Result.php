@@ -1,10 +1,16 @@
 <?php
+
+/** @noinspection PhpComposerExtensionStubsInspection */
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Sqlite;
 
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\Result as ResultInterface;
 use EngineWorks\DBAL\Traits\ResultImplementsCountable;
 use EngineWorks\DBAL\Traits\ResultImplementsIterator;
+use Error;
 use SQLite3Result;
 
 /**
@@ -12,6 +18,12 @@ use SQLite3Result;
  */
 class Result implements ResultInterface
 {
+    private const TYPES = [
+        SQLITE3_INTEGER => CommonTypes::TINT,
+        SQLITE3_FLOAT => CommonTypes::TNUMBER,
+        SQLITE3_TEXT => CommonTypes::TTEXT,
+    ];
+
     use ResultImplementsCountable;
     use ResultImplementsIterator;
 
@@ -29,13 +41,13 @@ class Result implements ResultInterface
 
     /**
      * Set of fieldname and commontype to use instead of detectedTypes
-     * @var array
+     * @var array<string, string>
      */
     private $overrideTypes;
 
     /**
      * The place where getFields result is cached
-     * @var array
+     * @var array<int, array<string, scalar|null>>|null
      */
     private $cachedGetFields;
 
@@ -55,7 +67,7 @@ class Result implements ResultInterface
     /**
      * Result based on Sqlite3
      * @param SQLite3Result $result
-     * @param array $overrideTypes
+     * @param array<string, string> $overrideTypes
      */
     public function __construct(SQLite3Result $result, array $overrideTypes = [])
     {
@@ -71,15 +83,23 @@ class Result implements ResultInterface
     {
         // suppress errors because the query may already been closed
         // see https://bugs.php.net/bug.php?id=72502
-        /** @scrutinizer ignore-unhandled */
-        @$this->query->finalize();
+        // since PHP 8.0 the @ operator no longer silences fatal errors
+        // on PHP lower than 8.0 it was just a WARNING
+        try {
+            /**
+             * @scrutinizer ignore-unhandled
+             * @noinspection PhpUsageOfSilenceOperatorInspection
+             */
+            @$this->query->finalize();
+        } catch (Error $exception) { // phpcs:ignore
+        }
     }
 
     /**
      * @param int $mode one constant value of SQLITE3 Modes
-     * @return array|false
+     * @return mixed[]|false
      */
-    private function internalFetch($mode)
+    private function internalFetch(int $mode)
     {
         if ($this->hasReachEOL) {
             return false;
@@ -91,7 +111,7 @@ class Result implements ResultInterface
         return $values;
     }
 
-    private function internalReset()
+    private function internalReset(): bool
     {
         if (! $this->hasReachEOL) {
             return $this->query->reset();
@@ -105,7 +125,7 @@ class Result implements ResultInterface
      *
      * @return int
      */
-    private function obtainNumRows()
+    private function obtainNumRows(): int
     {
         $count = 0;
         if (false !== $this->internalFetch(SQLITE3_NUM)) {
@@ -142,28 +162,21 @@ class Result implements ResultInterface
      * Private function to get the CommonType from the information of the field
      *
      * @param string $columnName
-     * @param int|false $field
+     * @param int|false $fieldIndex
      * @return string
      */
-    private function getCommonType($columnName, $field)
+    private function getCommonType(string $columnName, $fieldIndex): string
     {
-        static $types = [
-            SQLITE3_INTEGER => CommonTypes::TINT,
-            SQLITE3_FLOAT => CommonTypes::TNUMBER,
-            SQLITE3_TEXT => CommonTypes::TTEXT,
-            // static::SQLITE3_BLOB => CommonTypes::TTEXT,
-            // static::SQLITE3_NULL => CommonTypes::TTEXT,
-        ];
         if (isset($this->overrideTypes[$columnName])) {
             return $this->overrideTypes[$columnName];
         }
-        if (false !== $field && array_key_exists($field, $types)) {
-            return $types[$field];
+        if (false === $fieldIndex) {
+            return CommonTypes::TTEXT;
         }
-        return CommonTypes::TTEXT;
+        return self::TYPES[$fieldIndex] ?? CommonTypes::TTEXT;
     }
 
-    public function getIdFields()
+    public function getIdFields(): bool
     {
         return false;
     }
@@ -175,6 +188,7 @@ class Result implements ResultInterface
 
     public function fetchRow()
     {
+        /** @var array<string, scalar|null> $return */
         $return = $this->internalFetch(SQLITE3_ASSOC);
         return (! is_array($return)) ? false : $return;
     }

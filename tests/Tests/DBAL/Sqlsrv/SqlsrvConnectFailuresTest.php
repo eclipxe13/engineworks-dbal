@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\DBAL\Sqlsrv;
 
 use EngineWorks\DBAL\Tests\Utils\Timer;
@@ -6,23 +9,18 @@ use EngineWorks\DBAL\Tests\WithDbalTestCase;
 
 class SqlsrvConnectFailuresTest extends WithDbalTestCase
 {
-    protected function getFactoryNamespace()
+    protected function getFactoryNamespace(): string
     {
         return 'EngineWorks\DBAL\Sqlsrv';
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->setupDbalWithSettings(['connect-timeout' => 1]);
     }
 
-    protected function getDefaultDbalSettingsArray(): array
-    {
-        return [];
-    }
-
-    public function testConnectReturnFalseWhenCannotConnect()
+    public function testConnectReturnFalseWhenCannotConnect(): void
     {
         $this->assertFalse($this->dbal->connect());
 
@@ -44,7 +42,7 @@ class SqlsrvConnectFailuresTest extends WithDbalTestCase
      * @testWith [1]
      *           [2]
      */
-    public function testConnectToInvalidPort(int $expectedTimeout)
+    public function testConnectToInvalidPort(int $expectedTimeout): void
     {
         $this->setupDbalWithSettings(['connect-timeout' => $expectedTimeout, 'host' => '127.0.0.1', 'port' => 1999]);
         $timer = new Timer();

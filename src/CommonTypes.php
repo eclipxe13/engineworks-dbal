@@ -1,13 +1,22 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL;
 
 interface CommonTypes
 {
-    const TDATE = 'DATE';
-    const TTIME = 'TIME';
-    const TDATETIME = 'DATETIME';
-    const TTEXT = 'TEXT';
-    const TNUMBER = 'NUMBER';
-    const TINT = 'INT';
-    const TBOOL = 'BOOL';
+    public const TDATE = 'DATE';
+
+    public const TTIME = 'TIME';
+
+    public const TDATETIME = 'DATETIME';
+
+    public const TTEXT = 'TEXT';
+
+    public const TNUMBER = 'NUMBER';
+
+    public const TINT = 'INT';
+
+    public const TBOOL = 'BOOL';
 }

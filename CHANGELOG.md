@@ -2,6 +2,28 @@
 
 - See [Version 3](VERSION_3.md) for major changes
 
+# Version 2.3.0 2021-06-14
+
+Notice: If you are just using this library then it does not introduce any breaking change.
+If you are hacking or extending the objects of this library then this can be a backwards incompatible change.  
+
+- Convert `DBAL` to an interface, previous DBAL has been moved to `Abstracts\BaseDBAL`
+- Fix bugs and add tests on `DBAL::sqlDatePart()`:
+  - Mssql & Sqlsrv did not return leading zeros.
+  - Sqlite uses different formats for minutes and second (not ansi).
+- Ensure PHP 8.0 compatibility:
+  - `SQLite3Result::finalize()` no longer produces a Warning, it now throws an error.
+  - `mysqli_result::data_seek(int $offset)` cannot be called with a negative integer.
+  - Since `pdo_sqlsrv:5.9.0` if create the `PDO` object using `PDO::ATTR_FETCH_TABLE_NAMES` throws an error on statement execution
+    with message `Cannot create PDO object for SqlSrv SQLSTATE[IMSSP]: An unsupported attribute was designated on the PDO object.`.
+- Moved parameters and return types from documentation to code.
+- Upgrade to PHPStan 1.2.
+- Update License file.
+- Update build commands, utilities, config files, etc.
+- Migrate from Travis-CI to GitHub Workflows. Thanks Travis-CI.
+- Upgrade Scrutinizer config file, Coverage is uploaded by build process.
+- Remove configuration for unused phpdox.
+
 # Version (no new release) 2019-08-05
 
 - Not released since it did not change but build & travis

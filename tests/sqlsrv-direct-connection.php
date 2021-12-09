@@ -1,17 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 //
 // This script does not depends on anything, it only check connection to ms sql server
 //
 
 exit(call_user_func(function ($arguments): int {
-    $host = $arguments[1] ?? '';
+    $host = $arguments[1] ?? 'localhost';
     $user = $arguments[2] ?? '';
     $pass = $arguments[3] ?? '';
+    $name = $arguments[4] ?? 'master';
 
     try {
         $pdo = new PDO(
-            sprintf('sqlsrv:Server=%s;Database=%s', $host, 'master'),
+            sprintf('sqlsrv:Server=%s;Database=%s', $host, $name),
             $user,
             $pass,
             [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
@@ -20,11 +23,13 @@ exit(call_user_func(function ($arguments): int {
         $sql = 'SELECT @@VERSION;';
         $statement = $pdo->query($sql);
         if (false === $statement) {
-            throw new \RuntimeException("Cannot create statement to query: $sql");
+            throw new RuntimeException("Cannot create statement to query: $sql");
         }
-        $version = implode(' ', $statement->fetch(PDO::FETCH_NUM) ?? []);
+        /** @var array<int, scalar> $result */
+        $result = $statement->fetch(PDO::FETCH_NUM) ?: [];
+        $version = implode(' ', $result);
         echo PHP_EOL, $sql, PHP_EOL, $version, PHP_EOL;
-    } catch (\Throwable $exception) {
+    } catch (Throwable $exception) {
         file_put_contents('php://stderr', $exception->getMessage() . PHP_EOL, FILE_APPEND);
         return 1;
     }

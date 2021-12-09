@@ -1,7 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL;
 
 use EngineWorks\DBAL\Exceptions\QueryException;
+use InvalidArgumentException;
+use LogicException;
+use RuntimeException;
 
 /**
  * Pagination
@@ -12,17 +18,17 @@ class Pager
     /**
      * This count method is used when another query to retrieve the total records is provided
      */
-    const COUNT_METHOD_QUERY = 0;
+    public const COUNT_METHOD_QUERY = 0;
 
     /**
      * This count method is used to create a select count(*) with the data query as subquery
      */
-    const COUNT_METHOD_SELECT = 1;
+    public const COUNT_METHOD_SELECT = 1;
 
     /**
      * This count method is used to retrieve the total records by
      */
-    const COUNT_METHOD_RECORDCOUNT = 2;
+    public const COUNT_METHOD_RECORDCOUNT = 2;
 
     /** @var DBAL */
     private $dbal;
@@ -133,7 +139,7 @@ class Pager
     public function getRecordset(): Recordset
     {
         if (! $this->recordset instanceof Recordset) {
-            throw new \RuntimeException('The pager does not have a current page');
+            throw new RuntimeException('The pager does not have a current page');
         }
         return $this->recordset;
     }
@@ -160,12 +166,11 @@ class Pager
      * Set the SQL to query the count of records
      * This set the countMethod to COUNT_METHOD_QUERY
      * @param string $query
-     * @return void
      */
-    protected function setQueryCount(string $query)
+    protected function setQueryCount(string $query): void
     {
         if ('' === $query) {
-            throw new \InvalidArgumentException('setQueryCount require a valid string argument');
+            throw new InvalidArgumentException('setQueryCount require a valid string argument');
         }
         $this->queryCount = $query;
         $this->countMethod = self::COUNT_METHOD_QUERY;
@@ -187,14 +192,14 @@ class Pager
     public function getTotalCount(): int
     {
         if (null === $this->totalRecords) {
-            if ($this->getCountMethod() === self::COUNT_METHOD_QUERY) {
+            if (self::COUNT_METHOD_QUERY === $this->getCountMethod()) {
                 $this->totalRecords = $this->getTotalRecordsByQueryCount();
-            } elseif ($this->getCountMethod() === self::COUNT_METHOD_SELECT) {
+            } elseif (self::COUNT_METHOD_SELECT === $this->getCountMethod()) {
                 $this->totalRecords = $this->getTotalRecordsBySelectCount();
-            } elseif ($this->getCountMethod() === self::COUNT_METHOD_RECORDCOUNT) {
+            } elseif (self::COUNT_METHOD_RECORDCOUNT === $this->getCountMethod()) {
                 $this->totalRecords = $this->getTotalRecordsByRecordCount();
             } else {
-                throw new \LogicException('Cannot get a method to obtain the total count');
+                throw new LogicException('Cannot get a method to obtain the total count');
             }
         }
         return $this->totalRecords;
@@ -219,7 +224,7 @@ class Pager
     public function setCountMethod(int $method): int
     {
         if (! in_array($method, [self::COUNT_METHOD_SELECT, self::COUNT_METHOD_RECORDCOUNT])) {
-            throw new \InvalidArgumentException('Invalid count method');
+            throw new InvalidArgumentException('Invalid count method');
         }
         $previous = $this->countMethod;
         $this->countMethod = $method;
@@ -231,7 +236,7 @@ class Pager
         $query = $this->getQueryData();
         $result = $this->dbal->queryResult($query);
         if (false === $result) {
-            throw new \RuntimeException("Unable to query the record count by getting all the results: $query");
+            throw new RuntimeException("Unable to query the record count by getting all the results: $query");
         }
         return $result->resultCount();
     }
@@ -271,9 +276,8 @@ class Pager
     /**
      * Set the page size, this is fixes to a minimum value of 1
      * @param int $pageSize
-     * @return void
      */
-    public function setPageSize(int $pageSize)
+    public function setPageSize(int $pageSize): void
     {
         $this->pageSize = max(1, $pageSize);
     }

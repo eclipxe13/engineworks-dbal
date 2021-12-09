@@ -1,20 +1,26 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests;
 
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Recordset;
 use EngineWorks\DBAL\Result;
+use Faker\Factory;
+use LogicException;
 use Psr\Log\LogLevel;
 
 abstract class WithDatabaseTestCase extends WithDbalTestCase
 {
-    abstract protected function getSettingsArray();
+    /** @return mixed[] */
+    abstract protected function getSettingsArray(): array;
 
-    abstract protected function createDatabaseStructure();
+    abstract protected function createDatabaseStructure(): void;
 
-    abstract protected function checkIsAvailable();
+    abstract protected function checkIsAvailable(): void;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->checkIsAvailable();
@@ -24,41 +30,59 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         }
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
         $this->dbal->disconnect();
     }
 
-    public function queryRecordset(string $query, string $entity = '', array $keys = [], array $types = []): Recordset
+    /**
+     * @param string $query
+     * @param string $entity
+     * @param string[] $keys
+     * @param array<string, string> $types
+     * @return Recordset
+     */
+    public function createRecordset(string $query, string $entity = '', array $keys = [], array $types = []): Recordset
     {
-        $recordset = $this->dbal->queryRecordset($query, $entity, $keys, $types);
-        if ($recordset instanceof $recordset) {
-            return $recordset;
-        }
-        throw new \LogicException("Cannot get recordset from query: $query");
+        return $this->dbal->createRecordset($query, $entity, $keys, $types);
     }
 
+    /**
+     * @param string $query
+     * @param array<string, string> $types
+     * @return Result
+     */
     public function queryResult(string $query, array $types = []): Result
     {
         $result = $this->dbal->queryResult($query, $types);
         if (! $result instanceof Result) {
-            throw new \LogicException('Unexpected result');
+            throw new LogicException('Unexpected result');
         }
         return $result;
     }
 
+    /**
+     * @param int $idFrom
+     * @param int $idTo
+     * @return array<int, array<string, scalar|null>>
+     */
     public function getFixedValuesWithLabels(int $idFrom = 1, int $idTo = 10): array
     {
         $array = $this->getFixedValues($idFrom, $idTo);
         $keys = ['albumid', 'title', 'votes', 'lastview', 'isfree', 'collect'];
         $count = count($array);
         for ($i = 0; $i < $count; $i++) {
-            $array[$i] = array_combine($keys, $array[$i]);
+            $array[$i] = array_combine($keys, $array[$i]) ?: [];
         }
         return $array;
     }
 
+    /**
+     * @param int $idFrom
+     * @param int $idTo
+     * @return array<int, array<scalar|null>>
+     */
     protected function getFixedValues(int $idFrom = 1, int $idTo = 10): array
     {
         $values = [
@@ -76,25 +100,35 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         return array_slice($values, $idFrom - 1, $idTo - $idFrom + 1);
     }
 
+    /**
+     * @param array<array<string, scalar|null>> $values
+     * @return array<array<string, scalar|null>>
+     */
     protected function convertArrayStringsToFixedValues(array $values): array
     {
-        return array_map(function ($value) {
-            return $this->convertStringsToFixedValues($value);
-        }, $values);
+        return array_map([$this, 'convertStringsToFixedValues'], $values);
     }
 
+    /**
+     * @param array<string|null> $values
+     * @return array{albumid: int, title: string, votes: ?int, lastview: ?int, isfree: bool, collect: float}
+     */
     protected function convertStringsToFixedValues(array $values): array
     {
         return [
             'albumid' => (int) $values['albumid'],
             'title' => (string) $values['title'],
             'votes' => (is_null($values['votes'])) ? null : (int) $values['votes'],
-            'lastview' => (is_null($values['lastview'])) ? null : strtotime($values['lastview']),
+            'lastview' => (is_null($values['lastview'])) ? null : (int) strtotime($values['lastview']),
             'isfree' => (bool) $values['isfree'],
-            'collect' => round($values['collect'], 2),
+            'collect' => round((float) $values['collect'], 2),
         ];
     }
 
+    /**
+     * @param array<array<scalar|null>> $values
+     * @return array<array<scalar|null>>
+     */
     protected function convertArrayFixedValuesToStrings(array $values): array
     {
         return array_map(function ($value) {
@@ -102,21 +136,26 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         }, $values);
     }
 
+    /**
+     * @param array<scalar|null> $values
+     * @return array<scalar|null>
+     */
     protected function convertFixedValuesToStrings(array $values): array
     {
-        $values['lastview'] = date('Y-m-d H:i:s', $values['lastview']);
+        $values['lastview'] = date('Y-m-d H:i:s', intval($values['lastview']));
         $values['isfree'] = boolval($values['isfree']);
         return $values;
     }
 
-    protected function executeStatements(array $statements)
+    /** @param string[] $statements */
+    protected function executeStatements(array $statements): void
     {
         foreach ($statements as $statement) {
             $this->executeStatement($statement);
         }
     }
 
-    public function executeStatement(string $statement)
+    public function executeStatement(string $statement): void
     {
         $execute = $this->dbal->execute($statement);
         if (false === $execute) {
@@ -125,7 +164,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         }
     }
 
-    private function createDatabase()
+    private function createDatabase(): void
     {
         if (! $this->dbal->connect()) {
             $this->fail(
@@ -139,9 +178,9 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         $this->logger->clear();
     }
 
-    private function createDatabaseData()
+    private function createDatabaseData(): void
     {
-        $faker = \Faker\Factory::create();
+        $faker = Factory::create();
         // create albums
         $data = $this->getFixedValues();
         for ($i = 11; $i <= 45; $i++) {

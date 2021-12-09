@@ -1,13 +1,17 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\DBAL;
 
 use EngineWorks\DBAL\Pager;
 use EngineWorks\DBAL\Recordset;
 use EngineWorks\DBAL\Tests\SqliteWithDatabaseTestCase;
+use InvalidArgumentException;
 
 class PagerTest extends SqliteWithDatabaseTestCase
 {
-    public function testPagerWithCountQuery()
+    public function testPagerWithCountQuery(): void
     {
         $sql = 'SELECT * FROM albums;';
         $sqlCount = 'SELECT COUNT(*) FROM albums;';
@@ -17,7 +21,7 @@ class PagerTest extends SqliteWithDatabaseTestCase
         $this->checkPagerStatus($pager);
     }
 
-    public function testPagerWithSelect()
+    public function testPagerWithSelect(): void
     {
         $sql = 'SELECT * FROM albums;';
         $pager = new Pager($this->dbal, $sql);
@@ -26,15 +30,17 @@ class PagerTest extends SqliteWithDatabaseTestCase
         $this->checkPagerStatus($pager);
     }
 
-    public function testPagerWithRecordcount()
+    public function testPagerWithRecordcount(): void
     {
         $sql = 'SELECT * FROM albums;';
         $pager = new Pager($this->dbal, $sql);
 
         $pager->setCountMethod(Pager::COUNT_METHOD_RECORDCOUNT);
         $this->assertSame(Pager::COUNT_METHOD_RECORDCOUNT, $pager->getCountMethod());
+        $this->checkPagerStatus($pager);
     }
-    public function testSetCountMethod()
+
+    public function testSetCountMethod(): void
     {
         $sql = 'SELECT * FROM albums;';
         $pager = new Pager($this->dbal, $sql);
@@ -45,11 +51,11 @@ class PagerTest extends SqliteWithDatabaseTestCase
         $pager->setCountMethod(Pager::COUNT_METHOD_SELECT);
         $this->assertSame(Pager::COUNT_METHOD_SELECT, $pager->getCountMethod());
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $pager->setCountMethod(Pager::COUNT_METHOD_QUERY);
     }
 
-    public function testSetPageSize()
+    public function testSetPageSize(): void
     {
         $sql = 'SELECT * FROM albums;';
         $pager = new Pager($this->dbal, $sql);
@@ -67,7 +73,7 @@ class PagerTest extends SqliteWithDatabaseTestCase
         $this->assertSame(1, $pager->getPageSize());
     }
 
-    public function checkPagerStatus(Pager $pager)
+    public function checkPagerStatus(Pager $pager): void
     {
         $this->assertEquals(20, $pager->getPageSize());
         $this->assertSame(45, $pager->getTotalCount());

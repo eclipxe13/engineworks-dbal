@@ -1,9 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Exceptions;
 
+use RuntimeException;
 use Throwable;
 
-class QueryException extends \RuntimeException
+class QueryException extends RuntimeException
 {
     /** @var string */
     private $query;

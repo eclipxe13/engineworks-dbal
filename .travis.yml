@@ -1,71 +1,74 @@
 language: php
 
 # php compatibility
-php:
-  - 7.0
-  - 7.1
-  - 7.2
-  - 7.3
+php: ["7.2", "7.3", "7.4", "8.0"]
+
+dist: bionic
 
 services:
   - mysql
   - docker
 
 env:
-  - COVERAGE_PHP_VERSION: 7.3
+  - PHP_VERSION_FULL_BUILD="7.4"
 
-# Needed for docker support and dist other than trusty
-sudo: required
-
-dist: xenial
+cache:
+  - directories:
+      - $HOME/.composer
 
 before_script:
+  # disable xdebug
+  - phpenv config-rm xdebug.ini || true
   # ms sql server, run first to allow server run while install other things
   - docker pull microsoft/mssql-server-linux
   - docker run --name dbal-mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Password-123456' -p 1433:1433 -d microsoft/mssql-server-linux
   - docker ps -a
   # apt setup including microsoft packages
   - curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-  - curl https://packages.microsoft.com/config/ubuntu/16.04/prod.list | sudo tee -a /etc/apt/sources.list.d/microsoft.list
+  - curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list | sudo tee -a /etc/apt/sources.list.d/microsoft.list
   - sudo apt-get update -q -q
   # ms sql server php driver, run before install msodbcsql17
   - sudo apt install -q -y unixodbc-dev
   - pecl channel-update pecl.php.net
-  - export SQLSRV_VERSION=$(test $(php --version | head -n 1 | grep 7.0 -c) -eq 1 && echo 5.3.0 || echo 5.6.1)
-  - pecl search sqlsrv-${SQLSRV_VERSION}
-  - pecl install sqlsrv-${SQLSRV_VERSION} pdo_sqlsrv-${SQLSRV_VERSION}
-  - 'php -i | grep -i sqlsrv'
+  - test $TRAVIS_PHP_VERSION == "7.2" && pecl install sqlsrv-5.8.1 pdo_sqlsrv-5.8.1 || pecl install sqlsrv pdo_sqlsrv
+  - pecl list
+  - php -m
   # install msodbcsql17
-  - apt-cache policy msodbcsql17 mssql-tools unixodbc libssl1.0.0 libsybdb5
-  - sudo ACCEPT_EULA=Y apt-get install -q -y msodbcsql17 mssql-tools unixodbc libssl1.0.0 libsybdb5
+  - apt-cache policy msodbcsql17 mssql-tools unixodbc
+  - sudo ACCEPT_EULA=Y apt-get install -q -y msodbcsql17 mssql-tools unixodbc
   # test connections
   - docker exec dbal-mssql /opt/mssql-tools/bin/sqlcmd -U sa -P 'Password-123456' -Q "SELECT @@VERSION"
   - php tests/sqlsrv-direct-connection.php localhost sa 'Password-123456'
   # project
-  - phpenv config-rm xdebug.ini
-  - travis_retry composer install --no-interaction --prefer-dist
+  - phpenv config-rm xdebug.ini || true
+  - composer update --no-interaction --prefer-dist
 
 script:
   - cp tests/.env.travis tests/.env
-  - mkdir -p build/tests/
-  - vendor/bin/phplint
-  - vendor/bin/phpcs -sp src/ tests/
-  - vendor/bin/php-cs-fixer fix --using-cache=no --dry-run --verbose
   - |
-    if [[ $TRAVIS_PHP_VERSION == $COVERAGE_PHP_VERSION ]]; then
-      php -dzend_extension=xdebug.so vendor/bin/phpunit --coverage-text --coverage-clover=build/tests/coverage.xml
+    if [[ $TRAVIS_PHP_VERSION == $PHP_VERSION_FULL_BUILD ]]; then
+      (
+        set -e
+        vendor/bin/phpcs -sp
+        vendor/bin/php-cs-fixer fix --using-cache=no --dry-run --verbose
+        php -dzend_extension=xdebug.so -dxdebug.mode=coverage vendor/bin/phpunit --coverage-clover=coverage.xml --verbose
+        php vendor/bin/phpstan analyse --no-interaction --no-progress
+      )
     else
-      php vendor/bin/phpunit
+      php vendor/bin/phpunit --testdox --verbose
     fi
-  - ./vendor/bin/phpstan analyse --no-interaction --no-progress --level max src/ tests/
 
 after_script:
   # upload to scrutinizer
   - |
-    if [[ $TRAVIS_PHP_VERSION == $COVERAGE_PHP_VERSION ]]; then
-      wget https://scrutinizer-ci.com/ocular.phar
-      php ocular.phar code-coverage:upload --format=php-clover build/tests/coverage.xml
+    if [[ $TRAVIS_PHP_VERSION == $PHP_VERSION_FULL_BUILD ]]; then
+      (
+        set -e
+        wget -q https://scrutinizer-ci.com/ocular.phar
+        php ocular.phar code-coverage:upload --format=php-clover coverage.xml
+      )
     fi
 
 notifications:
-  email: false
+  email:
+    if: branch = master

@@ -2,14 +2,12 @@
 
 ## Urgent!
 
-- Since now is using PHP 7.0 use type declarations in all project
 - Move Sqlite3 to PDO
 - Deprecate (or remove in branch 2) Mssql driver (pdo_dblib)
+- Bumb PHP 7.2 and upgrade to PHP 7.3 & PHPUnit 9.
 
 ## To do
 
-- Travis: bionic does not have support for PHP 7.0, upgrade to bionic when minimal version is higher
-- DBAL::sqlQuote could be a final public method
 - Include prepared (or simulated prepared) statements
 - ~~Include Generic PDO Driver (is not a good idea)~~
 - Evolve Recordset to allow PDO or DBAL

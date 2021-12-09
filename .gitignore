@@ -1,7 +1,5 @@
 # do not include this files on git
+/tools/
 /vendor/
-/composer.lock
-/build/
-/phpdox.xml
-/phpunit.xml
 /tests/.env
+/composer.lock

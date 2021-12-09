@@ -1,16 +1,17 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Traits;
 
 use EngineWorks\DBAL\Iterators\ResultIterator;
+use EngineWorks\DBAL\Result;
 
 trait ResultImplementsIterator
 {
-    /**
-     * @return \Iterator
-     */
-    public function getIterator()
+    public function getIterator(): ResultIterator
     {
-        /* @var $this \EngineWorks\DBAL\Result */
+        /* @var Result $this */
         return new ResultIterator($this);
     }
 }

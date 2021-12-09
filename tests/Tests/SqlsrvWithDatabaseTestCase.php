@@ -1,40 +1,43 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests;
 
 class SqlsrvWithDatabaseTestCase extends WithDatabaseTestCase
 {
-    protected function checkIsAvailable()
+    protected function checkIsAvailable(): void
     {
-        if (getenv('testSqlsrv') !== 'yes') {
+        if ('yes' !== $this->getenv('testSqlsrv')) {
             $this->markTestSkipped('Environment does not include mssql tests');
         }
         if (! function_exists('pdo_drivers')) {
             $this->markTestSkipped('Environment does not have the extension pdo');
         }
         if (! in_array('sqlsrv', pdo_drivers())) {
-            $this->markTestSkipped('Environment does not have the extension pdo-dblib');
+            $this->markTestSkipped('Environment does not have the PDO driver sqlsrv');
         }
     }
 
-    protected function getFactoryNamespace()
+    protected function getFactoryNamespace(): string
     {
         return 'EngineWorks\DBAL\Sqlsrv';
     }
 
-    protected function getSettingsArray()
+    protected function getSettingsArray(): array
     {
         return [
-            'host' => getenv('testSqlsrv_server'),
-            'port' => getenv('testSqlsrv_port'),
+            'host' => $this->getenv('testSqlsrv_server'),
+            'port' => $this->getenv('testSqlsrv_port'),
             'database' => '',
-            'user' => getenv('testSqlsrv_username'),
-            'password' => getenv('testSqlsrv_password'),
-            'connect-timeout' => getenv('testSqlsrv_connect_timeout'),
-            'timeout' => getenv('testSqlsrv_timeout'),
+            'user' => $this->getenv('testSqlsrv_username'),
+            'password' => $this->getenv('testSqlsrv_password'),
+            'connect-timeout' => $this->getenv('testSqlsrv_connect_timeout'),
+            'timeout' => $this->getenv('testSqlsrv_timeout'),
         ];
     }
 
-    protected function createDatabaseStructure()
+    protected function createDatabaseStructure(): void
     {
         /*
          * These statements were used to drop the database but in new version is very expensive,

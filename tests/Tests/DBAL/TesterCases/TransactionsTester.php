@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EngineWorks\DBAL\Tests\DBAL\TesterCases;
 
 use EngineWorks\DBAL\CommonTypes;
@@ -7,9 +10,9 @@ use EngineWorks\DBAL\Tests\DBAL\Sample\ArrayLogger;
 use EngineWorks\DBAL\Tests\WithDatabaseTestCase;
 use Psr\Log\LogLevel;
 
-class TransactionsTester
+final class TransactionsTester
 {
-    /** @var \EngineWorks\DBAL\Tests\WithDatabaseTestCase */
+    /** @var WithDatabaseTestCase */
     private $test;
 
     /** @var DBAL */
@@ -29,7 +32,7 @@ class TransactionsTester
         $this->count = $this->getRecordCount();
     }
 
-    public function execute()
+    public function execute(): void
     {
         $this->testTransactionLevelBeginRollbackCommit();
         $this->testTransactionRollback();
@@ -40,23 +43,23 @@ class TransactionsTester
         $this->testNestedCommitRollbackCommit();
     }
 
-    public function testTransactionLevelBeginRollbackCommit()
+    public function testTransactionLevelBeginRollbackCommit(): void
     {
         $this->test->assertSame(0, $this->dbal->getTransactionLevel());
         $this->dbal->transBegin();
-        $this->test->assertContains('TRANSACTION', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('TRANSACTION', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(1, $this->dbal->getTransactionLevel());
         $this->dbal->transRollback();
-        $this->test->assertContains('ROLLBACK', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('ROLLBACK', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(0, $this->dbal->getTransactionLevel());
         $this->dbal->transBegin();
         $this->test->assertSame(1, $this->dbal->getTransactionLevel());
         $this->dbal->transCommit();
-        $this->test->assertContains('COMMIT', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('COMMIT', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(0, $this->dbal->getTransactionLevel());
     }
 
-    public function testTransactionRollback()
+    public function testTransactionRollback(): void
     {
         $this->dbal->transBegin();
         $this->insertRecord(1000);
@@ -65,7 +68,7 @@ class TransactionsTester
         $this->test->assertEquals($this->count, $this->getRecordCount());
     }
 
-    public function testTransactionCommit()
+    public function testTransactionCommit(): void
     {
         $this->dbal->transBegin();
         $this->insertRecord(1000);
@@ -76,7 +79,7 @@ class TransactionsTester
         $this->test->assertEquals($this->count, $this->getRecordCount());
     }
 
-    public function testNestedCommit()
+    public function testNestedCommit(): void
     {
         $this->dbal->transBegin();
         $this->insertRecord(1000);
@@ -84,33 +87,33 @@ class TransactionsTester
 
         $this->dbal->transBegin();
         $this->test->assertSame(2, $this->dbal->getTransactionLevel());
-        $this->test->assertContains('LEVEL_1', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('LEVEL_1', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->insertRecord(1001);
         $this->test->assertEquals($this->count + 2, $this->getRecordCount());
 
         $this->dbal->transBegin();
-        $this->test->assertContains('LEVEL_2', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('LEVEL_2', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(3, $this->dbal->getTransactionLevel());
         $this->insertRecord(1002);
         $this->test->assertEquals($this->count + 3, $this->getRecordCount());
 
         $this->dbal->transCommit();
-        $this->test->assertContains('LEVEL_2', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('LEVEL_2', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(2, $this->dbal->getTransactionLevel());
 
         $this->dbal->transCommit();
-        $this->test->assertContains('LEVEL_1', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('LEVEL_1', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(1, $this->dbal->getTransactionLevel());
 
         $this->dbal->transCommit();
-        $this->test->assertContains('COMMIT', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('COMMIT', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(0, $this->dbal->getTransactionLevel());
 
         $this->test->assertEquals($this->count + 3, $this->getRecordCount());
-        $this->deleteRecords([1000, 1001, 1002]);
+        $this->deleteRecords(1000, 1001, 1002);
     }
 
-    public function testNestedRollback()
+    public function testNestedRollback(): void
     {
         $this->dbal->transBegin();
         $this->insertRecord(1000);
@@ -122,22 +125,22 @@ class TransactionsTester
         $this->test->assertEquals($this->count + 3, $this->getRecordCount());
 
         $this->dbal->transRollback();
-        $this->test->assertContains('LEVEL_2', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('LEVEL_2', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(2, $this->dbal->getTransactionLevel());
         $this->test->assertEquals($this->count + 2, $this->getRecordCount());
 
         $this->dbal->transRollback();
-        $this->test->assertContains('LEVEL_1', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('LEVEL_1', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(1, $this->dbal->getTransactionLevel());
         $this->test->assertEquals($this->count + 1, $this->getRecordCount());
 
         $this->dbal->transRollback();
-        $this->test->assertContains('ROLLBACK', $this->logger->lastMessage(LogLevel::DEBUG));
+        $this->test->assertStringContainsString('ROLLBACK', $this->logger->lastMessage(LogLevel::DEBUG));
         $this->test->assertSame(0, $this->dbal->getTransactionLevel());
         $this->test->assertEquals($this->count, $this->getRecordCount());
     }
 
-    public function testNestedRollbackCommitRollback()
+    public function testNestedRollbackCommitRollback(): void
     {
         $this->dbal->transBegin();
         $this->insertRecord(1000);
@@ -156,7 +159,7 @@ class TransactionsTester
         $this->test->assertEquals($this->count, $this->getRecordCount());
     }
 
-    public function testNestedCommitRollbackCommit()
+    public function testNestedCommitRollbackCommit(): void
     {
         $this->dbal->transBegin();
         $this->insertRecord(1000);
@@ -178,15 +181,15 @@ class TransactionsTester
         $this->test->assertEquals($this->count, $this->getRecordCount());
     }
 
-    private function getRecordCount()
+    private function getRecordCount(): int
     {
-        return $this->dbal->queryOne('SELECT COUNT(*) FROM albums', 0);
+        return (int) $this->dbal->queryOne('SELECT COUNT(*) FROM albums', 0);
     }
 
-    private function insertRecord($albumid)
+    private function insertRecord(int $albumid): void
     {
         $sql = 'SELECT * FROM albums WHERE (albumid IS NULL);';
-        $recordset = $this->test->queryRecordset($sql, 'albums', ['albumid']);
+        $recordset = $this->test->createRecordset($sql, 'albums', ['albumid']);
         $recordset->addNew();
         $recordset->values = [
             'albumid' => $albumid,
@@ -199,13 +202,13 @@ class TransactionsTester
         $recordset->update();
     }
 
-    private function deleteRecord($albumid)
+    private function deleteRecord(int $albumid): void
     {
         $sql = 'DELETE FROM albums WHERE (albumid = ' . $this->dbal->sqlQuote($albumid, CommonTypes::TINT) . ');';
         $this->dbal->execute($sql, "Cannot remove record $albumid");
     }
 
-    private function deleteRecords(array $albumids)
+    private function deleteRecords(int ...$albumids): void
     {
         foreach ($albumids as $albumid) {
             $this->deleteRecord($albumid);
