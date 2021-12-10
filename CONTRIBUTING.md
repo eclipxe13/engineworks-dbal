@@ -70,7 +70,7 @@ tools/phpcbf -sp --colors
 Or simply execute:
 
 ```
-composer dev:style
+composer dev:fix-style
 ```
 
 ## Running Tests
@@ -93,7 +93,7 @@ composer dev:build
 ### Testing MS Sql Server
 
 Ensure that you have a file with the configuration on `tests/.env`, you can use `tests/.env.example` as start point.
-In the configuration file setup your MS Sql Server instance.
+In the configuration file set up your MS Sql Server instance.
 
 If you don't have one you can use Docker with the image `microsoft/mssql-server-linux` of Microsoft SQL Server vNext.
 
