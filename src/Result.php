@@ -11,7 +11,7 @@ use IteratorAggregate;
  * Interface Result, this interface must be implemented by the Drivers
  *
  * @package EngineWorks\DBAL
- * @extends IteratorAggregate<int, mixed[]>
+ * @extends IteratorAggregate<int, array<scalar|null>>
  */
 interface Result extends IteratorAggregate, Countable
 {
@@ -31,7 +31,7 @@ interface Result extends IteratorAggregate, Countable
     /**
      * Get an array with the names of the ids elements
      * @todo do not return false, return an empty array
-     * @return string[]|false array of primary keys, false if not found
+     * @return array<string>|false array of primary keys, false if not found
      */
     public function getIdFields();
 

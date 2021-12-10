@@ -114,7 +114,6 @@ class DBAL extends BaseDBAL
      * This is the internal function to do the query according to the database functions
      * It's used by queryResult and queryAffectedRows methods
      *
-     * @param string $query
      * @return PDOStatement|false
      */
     protected function queryDriver(string $query)
@@ -132,6 +131,7 @@ class DBAL extends BaseDBAL
         }
     }
 
+    /** @return Result|false */
     public function queryResult(string $query, array $overrideTypes = [])
     {
         $stmt = $this->queryDriver($query);
@@ -256,7 +256,7 @@ class DBAL extends BaseDBAL
     /** @noinspection PhpMissingParentCallCommonInspection */
     protected function commandReleaseSavepoint(string $name): void
     {
-        // do not execute, the command commit transaction does not works with save transaction
+        // do not execute, the command commit transaction does not work with save transaction
         $this->logger->debug("-- COMMIT TRANSACTION $name");
     }
 

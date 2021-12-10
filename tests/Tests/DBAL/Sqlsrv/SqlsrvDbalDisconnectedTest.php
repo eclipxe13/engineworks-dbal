@@ -85,7 +85,7 @@ class SqlsrvDbalDisconnectedTest extends WithDbalTestCase
 
     public function testSqlConcatenate(): void
     {
-        $this->assertSame('CONCAT(9, 8, 7)', $this->dbal->sqlConcatenate(...['9', '8', '7']));
+        $this->assertSame('CONCAT(9, 8, 7)', $this->dbal->sqlConcatenate('9', '8', '7'));
         $this->assertSame('CONCAT(a, b, c)', $this->dbal->sqlConcatenate('a', 'b', 'c'));
         $this->assertSame("''", $this->dbal->sqlConcatenate());
     }

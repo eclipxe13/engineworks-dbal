@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace EngineWorks\DBAL\Tests;
 
+use SQLite3;
+
 abstract class SqliteWithDatabaseTestCase extends WithDatabaseTestCase
 {
     protected function checkIsAvailable(): void
     {
-        if (! class_exists('\SQLite3')) {
+        if (! class_exists(SQLite3::class)) {
             $this->markTestSkipped('Environment does not have the extension sqlite3');
         }
     }

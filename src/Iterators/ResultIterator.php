@@ -8,7 +8,7 @@ use EngineWorks\DBAL\Result;
 use Iterator;
 
 /**
- * @implements Iterator<int, mixed[]>
+ * @implements Iterator<int, array<string, scalar|null>>
  */
 class ResultIterator implements Iterator
 {
@@ -18,7 +18,7 @@ class ResultIterator implements Iterator
     /** @var int autonumeric index */
     private $index;
 
-    /** @var array<string, mixed>|false Store of current values */
+    /** @var array<string, scalar|null>|false Store of current values */
     private $currentValues;
 
     /**
@@ -30,7 +30,7 @@ class ResultIterator implements Iterator
         $this->result = $result;
     }
 
-    /** @return array<string, mixed>|false */
+    /** @return array<string, scalar|null>|false */
     public function current()
     {
         return $this->currentValues;

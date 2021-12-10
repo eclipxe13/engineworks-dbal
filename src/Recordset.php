@@ -49,7 +49,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
 
     /**
      * Array of original values
-     * @var array<string, mixed>|null
+     * @var array<string, scalar|null>|null
      */
     private $originalValues;
 
@@ -127,7 +127,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
         string $overrideEntity = '',
         array $overrideKeys = [],
         array $overrideTypes = []
-    ) {
+    ): bool {
         $this->initialize();
         if (! $this->hasDBAL()) {
             throw new LogicException('Recordset: object does not have a connected DBAL');
@@ -175,7 +175,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
             }
             $this->idFields = $overrideKeys;
         }
-        // if has records then load first
+        // if it has records then load first
         if ($this->getRecordCount() > 0) {
             $this->moveNext();
         }
@@ -207,7 +207,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
     }
 
     /**
-     * Check if the DBAL is is connected (if not try to connect again)
+     * Check if the DBAL instance is connected (if not try to connect again)
      * @return bool
      */
     final public function hasDBAL(): bool
@@ -254,9 +254,8 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
 
     /**
      * Return the original value of a field
-     * @param string $fieldName
-     * @param mixed $defaultValue
-     * @return mixed
+     * @param scalar|null $defaultValue
+     * @return scalar|null
      */
     final public function getOriginalValue(string $fieldName, $defaultValue = '')
     {
@@ -269,7 +268,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
     /**
      * Return an array with the original values.
      *
-     * @return array<string, mixed>
+     * @return array<string, scalar|null>
      * @throws RuntimeException There are no original values
      */
     final public function getOriginalValues(): array
@@ -292,7 +291,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
     }
 
     /**
-     * Get the last inserted id by asking to the DBAL object.
+     * Get the last inserted id by asking the DBAL object.
      * This means that if an insertion happends between Update and LastInsertedID then the result
      * will not be related to the Update
      * @return int
@@ -315,7 +314,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
         }
         foreach ($this->originalValues as $field => $value) {
             $current = array_key_exists($field, $this->values) ? $this->values[$field] : null;
-            if ($this->valueIsDifferent($value, $current)) {
+            if (static::valueIsDifferent($value, $current)) {
                 return true;
             }
         }
@@ -323,9 +322,9 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
     }
 
     /**
-     * Compare to values in order to see if they need to be updated
-     * @param mixed $original
-     * @param mixed $current
+     * Compare values in order to see if they need to be updated
+     * @param object|scalar|null $original
+     * @param object|scalar|null $current
      * @return bool
      */
     final protected static function valueIsDifferent($original, $current): bool
@@ -444,7 +443,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
             if (! array_key_exists($fieldname, $this->values)) {
                 $this->values[$fieldname] = null;
             }
-            if ($this->valueIsDifferent($this->getOriginalValue($fieldname, null), $this->values[$fieldname])) {
+            if (static::valueIsDifferent($this->getOriginalValue($fieldname, null), $this->values[$fieldname])) {
                 $updates[] = $this->dbal->sqlFieldEscape($fieldname) . ' = '
                     . $this->dbal->sqlQuote($this->values[$fieldname], $field['commontype'], true);
             }
@@ -482,10 +481,10 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
 
     /**
      * Build and execute an SQL UPDATE or INSERT sentence
-     * Return how many rows where altered, if an update does not change any value then it return zero
+     * Return how many rows where altered, if an update does not change any value then it returns zero
      * Return false in case of error execution
      *
-     * @param string $extraWhereClause where clause to be append into sql on UPDATE (not insert)
+     * @param string $extraWhereClause where clause to be appended into sql on UPDATE (not insert)
      * @return int|false
      */
     final public function update(string $extraWhereClause = '')
@@ -514,7 +513,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
             $diffs = [];
             if (is_array($this->originalValues)) {
                 foreach ($this->originalValues as $name => $value) {
-                    if (! $this->valueIsDifferent($value, $this->values[$name])) {
+                    if (! static::valueIsDifferent($value, $this->values[$name])) {
                         continue;
                     }
                     $diffs[] = $name;
@@ -536,7 +535,6 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
      * Build and execute the SQL DELETE sentence
      * Return how many rows where altered
      *
-     * @param string $extraWhereClause
      * @return int|false
      */
     final public function delete(string $extraWhereClause = '')
@@ -613,7 +611,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
      *
      * @param scalar|null $value
      * @param string $commonType
-     * @return bool|float|int|string|null
+     * @return scalar|null
      */
     protected function castValueWithCommonType($value, string $commonType)
     {
