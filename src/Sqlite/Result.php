@@ -104,10 +104,13 @@ class Result implements ResultInterface
         if ($this->hasReachEOL) {
             return false;
         }
+
         $values = $this->query->fetchArray($mode);
         if (! is_array($values)) {
             $this->hasReachEOL = true;
+            return false;
         }
+
         return $values;
     }
 

@@ -36,7 +36,7 @@ abstract class BaseDBAL implements DBAL
     protected $transactionLevel = 0;
 
     /**
-     * Contains the prevent commit state of transactions
+     * Contains the "prevent commit state" of transactions
      * @var bool
      */
     protected $preventCommit = false;
@@ -52,7 +52,7 @@ abstract class BaseDBAL implements DBAL
     }
 
     /**
-     * Destructor - force to call disconnect
+     * Destructor - force call disconnect
      */
     public function __destruct()
     {
@@ -249,9 +249,8 @@ abstract class BaseDBAL implements DBAL
         if (0 === count($values)) {
             throw new RuntimeException('The array of values passed to DBAL::sqlQuoteIn is empty');
         }
-        return ''
-            . '('
-            . implode(', ', array_map(function ($value) use ($commonType, $includeNull) {
+        return '('
+            . implode(', ', array_map(function ($value) use ($commonType, $includeNull): string {
                 return $this->sqlQuote($value, $commonType, $includeNull);
             }, array_unique($values)))
             . ')';

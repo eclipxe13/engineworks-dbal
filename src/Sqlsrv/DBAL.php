@@ -145,6 +145,7 @@ class DBAL extends BaseDBAL
         }
     }
 
+    /** @return Result|false */
     public function queryResult(string $query, array $overrideTypes = [])
     {
         $stmt = $this->queryDriver($query, false);
@@ -290,7 +291,7 @@ class DBAL extends BaseDBAL
     /** @noinspection PhpMissingParentCallCommonInspection */
     protected function commandReleaseSavepoint(string $name): void
     {
-        // do not execute, the command commit transaction does not works with save transaction
+        // do not execute, the command commit transaction does not work with save transaction
         $this->logger->debug("-- PDO TRANSACTION COMMIT $name"); // send message because it didn't run execute command
     }
 

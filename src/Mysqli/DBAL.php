@@ -129,6 +129,7 @@ class DBAL extends BaseDBAL
         return $result;
     }
 
+    /** @return Result|false */
     public function queryResult(string $query, array $overrideTypes = [])
     {
         $result = $this->queryDriver($query);

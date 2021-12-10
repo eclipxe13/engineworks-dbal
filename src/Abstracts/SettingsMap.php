@@ -18,7 +18,7 @@ class SettingsMap implements SettingsInterface
 {
     /**
      * map of settings with default values
-     * @var array<string, mixed>
+     * @var array<string, scalar|null>
      */
     protected $map = [];
 
@@ -41,8 +41,8 @@ class SettingsMap implements SettingsInterface
      * Set a setting, if it does dot exists then throws an exception
      *
      * @param string $name
-     * @param mixed $value
-     * @throws InvalidArgumentException if setting does not exists
+     * @param scalar|null $value
+     * @throws InvalidArgumentException if setting does not exist
      */
     public function set(string $name, $value): void
     {
@@ -53,9 +53,9 @@ class SettingsMap implements SettingsInterface
     }
 
     /**
-     * Set an array of settings, ignores non existent or non-string-key elements
+     * Set an array of settings, ignores non-existent or non-string-key elements
      *
-     * @param mixed[] $settings
+     * @param array<string, scalar|null> $settings
      */
     public function setAll(array $settings): void
     {

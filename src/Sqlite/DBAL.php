@@ -78,6 +78,7 @@ class DBAL extends BaseDBAL
         return str_replace(["\0", "'"], ['', "''"], (string) $variable);
     }
 
+    /** @return Result|false */
     public function queryResult(string $query, array $overrideTypes = [])
     {
         /**
