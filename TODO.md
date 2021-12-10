@@ -4,7 +4,7 @@
 
 - Move Sqlite3 to PDO
 - Deprecate (or remove in branch 2) Mssql driver (pdo_dblib)
-- Bumb PHP 7.2 and upgrade to PHP 7.3 & PHPUnit 9.
+- ~~Bumb PHP 7.2 and upgrade to PHP 7.3 & PHPUnit 9.~~
 
 ## To do
 
@@ -21,9 +21,9 @@
 Method `EngineWorks\DBAL\Sqlite\Result::getIdFields` always return false since there is no way
 to get the ID Fields from the `SQLite3Result` object.
 It would be great if we can figure it out how to get this information.
-In the mean time use recordset override keys parameter.
+In the meantime use recordset override keys parameter.
 
 Method `EngineWorks\DBAL\Mssql\Result::getIdFields` always return false since there is no way
 to get the ID Fields from the `PDOStatement` object. This affects `Mssql` and `Sqlsrv`
 It would be great if we can figure it out how to get this information.  
-In the mean time use recordset override keys parameter.
+In the meantime use recordset override keys parameter.
