@@ -91,29 +91,29 @@ This class will be compatible according to [PHP Supported versions](http://php.n
 ## Contributing
 
 Contributions are welcome! Please read [CONTRIBUTING][] for details
-and don't forget to take a look in the [TODO][] and [CHANGELOG][] files.
+and don't forget to take a look in the files [TODO][] and [CHANGELOG][].
 
 ## License
 
 The `eclipxe/engineworks-dbal` library is copyright © [Carlos C Soto](https://eclipxe.com.mx/)
 and licensed for use under the MIT License (MIT). Please see [LICENSE][] for more information.
 
-[contributing]: https://github.com/eclipxe13/engineworks-dbal/blob/master/CONTRIBUTING.md
-[changelog]: https://github.com/eclipxe13/engineworks-dbal/blob/master/CHANGELOG.md
-[todo]: https://github.com/eclipxe13/engineworks-dbal/blob/master/TODO.md
+[contributing]: https://github.com/eclipxe13/engineworks-dbal/blob/main/CONTRIBUTING.md
+[changelog]: https://github.com/eclipxe13/engineworks-dbal/blob/main/CHANGELOG.md
+[todo]: https://github.com/eclipxe13/engineworks-dbal/blob/main/TODO.md
 
 [source]: https://github.com/eclipxe13/engineworks-dbal
 [release]: https://github.com/eclipxe13/engineworks-dbal/releases
-[license]: https://github.com/eclipxe13/engineworks-dbal/blob/master/LICENSE
-[build]: https://travis-ci.com/eclipxe13/engineworks-dbal?branch=master
-[quality]: https://scrutinizer-ci.com/g/eclipxe13/engineworks-dbal/?branch=master
-[coverage]: https://scrutinizer-ci.com/g/eclipxe13/engineworks-dbal/code-structure/master/code-coverage/src/
+[license]: https://github.com/eclipxe13/engineworks-dbal/blob/main/LICENSE
+[build]: https://github.com/eclipxe13/enum/actions/workflows/build.yml?query=branch:main
+[quality]: https://scrutinizer-ci.com/g/eclipxe13/engineworks-dbal/?branch=main
+[coverage]: https://scrutinizer-ci.com/g/eclipxe13/engineworks-dbal/code-structure/main/code-coverage/src/
 [downloads]: https://packagist.org/packages/eclipxe/engineworks-dbal
 
 [badge-source]: https://img.shields.io/badge/source-eclipxe13/engineworks--dbal-blue?style=flat-square
 [badge-release]: https://img.shields.io/github/release/eclipxe13/engineworks-dbal?style=flat-square
 [badge-license]: https://img.shields.io/github/license/eclipxe13/engineworks-dbal?style=flat-square
-[badge-build]: https://img.shields.io/travis/com/eclipxe13/engineworks-dbal/master?style=flat-square
-[badge-quality]: https://img.shields.io/scrutinizer/quality/g/eclipxe13/engineworks-dbal/master?style=flat-square
-[badge-coverage]: https://img.shields.io/scrutinizer/coverage/g/eclipxe13/engineworks-dbal/master?style=flat-square
+[badge-build]: https://img.shields.io/github/workflow/status/eclipxe13/enum/build/main?style=flat-square
+[badge-quality]: https://img.shields.io/scrutinizer/quality/g/eclipxe13/engineworks-dbal/main?style=flat-square
+[badge-coverage]: https://img.shields.io/scrutinizer/coverage/g/eclipxe13/engineworks-dbal/main?style=flat-square
 [badge-downloads]: https://img.shields.io/packagist/dt/eclipxe/engineworks-dbal?style=flat-square
