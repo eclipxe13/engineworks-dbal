@@ -94,7 +94,7 @@ jobs:
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: pdo, sqlite3, mysqli, pdo_sqlsrv, pdo_dblib
-          coverage: none
+          coverage: xdebug
           tools: composer:v2
         env:
           fail-fast: true
