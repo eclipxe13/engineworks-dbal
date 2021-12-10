@@ -315,7 +315,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
         }
         foreach ($this->originalValues as $field => $value) {
             $current = array_key_exists($field, $this->values) ? $this->values[$field] : null;
-            if ($this->valueIsDifferent($value, $current)) {
+            if (static::valueIsDifferent($value, $current)) {
                 return true;
             }
         }
@@ -444,7 +444,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
             if (! array_key_exists($fieldname, $this->values)) {
                 $this->values[$fieldname] = null;
             }
-            if ($this->valueIsDifferent($this->getOriginalValue($fieldname, null), $this->values[$fieldname])) {
+            if (static::valueIsDifferent($this->getOriginalValue($fieldname, null), $this->values[$fieldname])) {
                 $updates[] = $this->dbal->sqlFieldEscape($fieldname) . ' = '
                     . $this->dbal->sqlQuote($this->values[$fieldname], $field['commontype'], true);
             }
@@ -514,7 +514,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
             $diffs = [];
             if (is_array($this->originalValues)) {
                 foreach ($this->originalValues as $name => $value) {
-                    if (! $this->valueIsDifferent($value, $this->values[$name])) {
+                    if (! static::valueIsDifferent($value, $this->values[$name])) {
                         continue;
                     }
                     $diffs[] = $name;

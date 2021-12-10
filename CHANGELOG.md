@@ -7,6 +7,7 @@
 Notice: If you are just using this library then it does not introduce any breaking change.
 If you are hacking or extending the objects of this library then this can be a backwards incompatible change.  
 
+- Minimal support for PHP is now 7.3.
 - Convert `DBAL` to an interface, previous DBAL has been moved to `Abstracts\BaseDBAL`
 - Fix bugs and add tests on `DBAL::sqlDatePart()`:
   - Mssql & Sqlsrv did not return leading zeros.
@@ -23,6 +24,8 @@ If you are hacking or extending the objects of this library then this can be a b
 - Migrate from Travis-CI to GitHub Workflows. Thanks Travis-CI.
 - Upgrade Scrutinizer config file, Coverage is uploaded by build process.
 - Remove configuration for unused phpdox.
+- Upgrade to PHPUnit 9
+
 
 # Version (no new release) 2019-08-05
 

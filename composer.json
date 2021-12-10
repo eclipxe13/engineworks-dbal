@@ -21,7 +21,7 @@
         }
     ],
     "require": {
-        "php": ">=7.2",
+        "php": ">=7.3",
         "ext-ctype": "*",
         "psr/log": "^1.1"
     },
@@ -32,7 +32,7 @@
         "ext-simplexml": "*",
         "vlucas/phpdotenv": "^3.6",
         "fakerphp/faker": "^1.14",
-        "phpunit/phpunit": "^8.5"
+        "phpunit/phpunit": "^9.5"
     },
     "suggest": {
         "ext-PDO": "Needed to run drivers that depends on PDO (pdo_sqlsrv & pdo_dblib)",
