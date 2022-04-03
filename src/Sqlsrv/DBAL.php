@@ -251,7 +251,7 @@ class DBAL extends BaseDBAL
     ): string {
         $searchString = str_replace(
             ['[', '_', '%'],
-            ['[[]' . '[_]', '[%]'],
+            ['[[]', '[_]', '[%]'],
             $searchString
         );
         return $fieldName . " LIKE '"
