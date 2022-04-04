@@ -2,6 +2,14 @@
 
 - See [Version 3](VERSION_3.md) for major changes
 
+# Version 2.3.1 2022-04-04
+
+- Fix bug when escaping chars on method `Mssql\DBAL::sqlLike()` and `Sqlsrv\DBAL::sqlLike()`.
+- Update license year to 2022. Happy new year on April.
+- Add PHP 8.1 to test matrix.
+- Upgrade development tools and issues found.
+
+
 # Version 2.3.0 2021-06-14
 
 Notice: If you are just using this library then it does not introduce any breaking change.
