@@ -186,10 +186,10 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         for ($i = 11; $i <= 45; $i++) {
             $data[] = [
                 $i,
-                $faker->name,
+                $faker->name(),
                 $faker->numberBetween(0, 20),
                 $faker->numberBetween(strtotime('2016-01-01'), strtotime('2017-01-01') - 1),
-                $faker->boolean,
+                $faker->boolean(),
                 round($faker->numberBetween(0, 99999999) / 100, 2),
             ];
         }
