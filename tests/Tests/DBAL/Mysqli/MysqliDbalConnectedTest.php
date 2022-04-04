@@ -56,7 +56,7 @@ class MysqliDbalConnectedTest extends MysqliWithDatabaseTestCase
         $sql = 'SELECT * FROM albums WHERE (albumid = 1);';
         $recordset = $this->createRecordset($sql);
         $recordset->values['isfree'] = (int) $recordset->values['isfree'];
-        $recordset->values['collect'] = $recordset->values['collect'] + 0.00001;
+        $recordset->values['collect'] = (float) $recordset->values['collect'] + 0.00001;
         $this->assertTrue($recordset->valuesHadChanged());
         $update = $recordset->update();
 
