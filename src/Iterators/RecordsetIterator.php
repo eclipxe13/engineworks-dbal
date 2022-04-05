@@ -38,9 +38,8 @@ class RecordsetIterator implements Iterator
         $this->keySeparator = $keySeparator;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, scalar|null> */
+    #[\ReturnTypeWillChange]
     public function current(): array
     {
         return $this->recordset->values;
@@ -58,6 +57,7 @@ class RecordsetIterator implements Iterator
      *
      * @return int|string
      */
+    #[\ReturnTypeWillChange]
     public function key()
     {
         if (! count($this->keyFields)) {

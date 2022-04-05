@@ -304,7 +304,6 @@ trait DbalQueriesTrait
     {
         $expectedTablename = $this->overrideEntity();
         $sql = 'SELECT * FROM albums WHERE (albumid = 5);';
-        /** @var Result $result */
         $result = $this->queryResult($sql, $this->overrideTypes());
         $this->assertInstanceOf(Result::class, $result);
         $this->assertSame(1, $result->resultCount());
@@ -398,7 +397,6 @@ trait DbalQueriesTrait
     {
         $dbal = $this->getDbal();
         $this->expectDeprecation();
-        /** @noinspection PhpDeprecationInspection */
         $dbal->query('SELECT 1');
     }
 }

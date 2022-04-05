@@ -159,7 +159,7 @@ class Result implements ResultInterface
 
     public function resultCount(): int
     {
-        return $this->query->num_rows;
+        return (int) $this->query->num_rows;
     }
 
     public function fetchRow()
