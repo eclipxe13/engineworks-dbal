@@ -77,6 +77,7 @@ class Result implements ResultInterface
      */
     public function __construct(PDOStatement $result, array $overrideTypes = [])
     {
+        /** @phpstan-var int<-1, max> $numRows Sqlsrv returns -1 */
         $numRows = $result->rowCount();
         if (-1 === $numRows) {
             throw new RuntimeException('Must use cursor PDO::CURSOR_SCROLL');

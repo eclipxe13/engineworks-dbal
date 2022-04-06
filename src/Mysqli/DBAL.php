@@ -13,6 +13,7 @@ use EngineWorks\DBAL\Traits\MethodSqlLimit;
 use InvalidArgumentException;
 use LogicException;
 use mysqli;
+use mysqli_driver;
 use mysqli_result;
 use RuntimeException;
 
@@ -40,7 +41,11 @@ class DBAL extends BaseDBAL
         $errorLevel = error_reporting(0);
         $mysqli = mysqli_init();
         if (! $mysqli instanceof mysqli) {
+            error_reporting($errorLevel);
             throw new LogicException('Unable to create Mysqli empty object');
+        }
+        if (MYSQLI_REPORT_OFF !== (new mysqli_driver())->report_mode) {
+            throw new RuntimeException('Mysqli error report mode should be MYSQLI_REPORT_OFF');
         }
         $this->mysqli = $mysqli;
         $connectTimeout = $this->settings->get('connect-timeout');
@@ -145,7 +150,7 @@ class DBAL extends BaseDBAL
     protected function queryAffectedRows(string $query)
     {
         if (false !== $this->queryDriver($query)) {
-            return max(0, $this->mysqli()->affected_rows);
+            return max(0, (int) $this->mysqli()->affected_rows);
         }
         return false;
     }

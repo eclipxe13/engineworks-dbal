@@ -31,11 +31,13 @@ class ResultIterator implements Iterator
     }
 
     /** @return array<string, scalar|null>|false */
+    #[\ReturnTypeWillChange]
     public function current()
     {
         return $this->currentValues;
     }
 
+    #[\ReturnTypeWillChange]
     public function key(): int
     {
         return $this->index;

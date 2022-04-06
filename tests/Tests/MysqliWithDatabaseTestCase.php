@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace EngineWorks\DBAL\Tests;
 
+use mysqli_driver;
+
 class MysqliWithDatabaseTestCase extends WithDatabaseTestCase
 {
     protected function checkIsAvailable(): void
@@ -13,6 +15,11 @@ class MysqliWithDatabaseTestCase extends WithDatabaseTestCase
         }
         if (! function_exists('mysqli_init')) {
             $this->markTestSkipped('Environment does not have the extension mysqli');
+        }
+        if (MYSQLI_REPORT_OFF !== (new mysqli_driver())->report_mode) {
+            if (! mysqli_report(MYSQLI_REPORT_OFF)) {
+                $this->markTestSkipped('Cannot set Mysqli error report mode to MYSQLI_REPORT_OFF');
+            }
         }
     }
 
