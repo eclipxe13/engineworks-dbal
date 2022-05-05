@@ -7,15 +7,19 @@ on:
 #  schedule:
 #    - cron: '0 16 * * 0' # sunday 16:00
 
+# Actions
+# shivammathur/setup-php - https://github.com/marketplace/actions/setup-php-action
+# sudo-bot/action-scrutinizer - https://github.com/marketplace/actions/action-scrutinizer
+
 jobs:
   phpcs:
     name: Coding standards (phpcs)
     runs-on: "ubuntu-latest"
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2 # https://github.com/marketplace/actions/setup-php-action
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '8.0'
           coverage: none
@@ -30,9 +34,9 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2 # https://github.com/marketplace/actions/setup-php-action
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '8.0'
           coverage: none
@@ -64,7 +68,7 @@ jobs:
         php-versions: ['7.3', '7.4', '8.0', '8.1']
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Start MySQL # mysql is already installed on virtual-environments
         run: |
           sudo systemctl start mysql.service
@@ -90,7 +94,7 @@ jobs:
         run: |
           test -e tests/.env || cp -v tests/.env.github tests/.env
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2 # https://github.com/marketplace/actions/setup-php-action
+        uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: pdo, sqlite3, mysqli, pdo_sqlsrv, pdo_dblib
@@ -102,7 +106,7 @@ jobs:
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
@@ -115,7 +119,7 @@ jobs:
           testMssql_port: ${{ job.services.mssql.ports[1433] }}
           testSqlsrv_port: ${{ job.services.mssql.ports[1433] }}
       - name: Upload code coverage to scrutinizer
-        uses: sudo-bot/action-scrutinizer@latest # see https://github.com/marketplace/actions/action-scrutinizer
+        uses: sudo-bot/action-scrutinizer@latest
         with:
           cli-args: "--format=php-clover build/coverage-clover.xml"
         continue-on-error: true
@@ -125,9 +129,9 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2 # https://github.com/marketplace/actions/setup-php-action
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '8.0'
           coverage: none
@@ -138,7 +142,7 @@ jobs:
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
