@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace EngineWorks\DBAL\Mssql;
 
-use EngineWorks\DBAL\CommonTypes;
+use EngineWorks\DBAL\Internal\SqlServerResultFields;
 use EngineWorks\DBAL\Result as ResultInterface;
 use EngineWorks\DBAL\Traits\ResultImplementsCountable;
 use EngineWorks\DBAL\Traits\ResultImplementsIterator;
@@ -17,32 +17,6 @@ class Result implements ResultInterface
 {
     use ResultImplementsCountable;
     use ResultImplementsIterator;
-
-    private const TYPES = [
-        // integers
-        'int' => CommonTypes::TINT,
-        'tinyint' => CommonTypes::TINT,
-        'smallint' => CommonTypes::TINT,
-        'bigint' => CommonTypes::TINT,
-        // floats
-        'float' => CommonTypes::TNUMBER,
-        'real' => CommonTypes::TNUMBER,
-        'decimal' => CommonTypes::TNUMBER,
-        'numeric' => CommonTypes::TNUMBER,
-        'money' => CommonTypes::TNUMBER,
-        'smallmoney' => CommonTypes::TNUMBER,
-        // dates
-        'date' => CommonTypes::TDATE,
-        'time' => CommonTypes::TTIME,
-        'datetime' => CommonTypes::TDATETIME,
-        'smalldatetime' => CommonTypes::TDATETIME,
-        // bool
-        'bit' => CommonTypes::TBOOL,
-        // text
-        'char' => CommonTypes::TTEXT,
-        'varchar' => CommonTypes::TTEXT,
-        'text' => CommonTypes::TTEXT,
-    ];
 
     /**
      * PDO element
@@ -106,39 +80,12 @@ class Result implements ResultInterface
 
     public function getFields(): array
     {
-        if (null !== $this->cachedGetFields) {
-            return $this->cachedGetFields;
+        if (null === $this->cachedGetFields) {
+            $typeChecker = new SqlServerResultFields($this->overrideTypes, 'native_type');
+            $this->cachedGetFields = $typeChecker->obtainFields($this->stmt);
         }
-        $columnsCount = $this->stmt->columnCount();
-        $columns = [];
-        for ($column = 0; $column < $columnsCount; $column++) {
-            $columnMeta = $this->stmt->getColumnMeta($column);
-            if (is_array($columnMeta)) {
-                $columns[] = $columnMeta;
-            }
-        }
-        $fields = [];
-        foreach ($columns as $fetched) {
-            $fields[] = [
-                'name' => $fetched['name'],
-                'commontype' => $this->getCommonType($fetched['name'], $fetched['native_type']),
-                'table' => $fetched['table'] ?? '',
-            ];
-        }
-        $this->cachedGetFields = $fields;
-        return $fields;
-    }
 
-    /**
-     * Private function to get the common type from the information of the field
-     */
-    private function getCommonType(string $fieldName, string $nativeType): string
-    {
-        if (isset($this->overrideTypes[$fieldName])) {
-            return $this->overrideTypes[$fieldName];
-        }
-        $nativeType = strtolower($nativeType);
-        return self::TYPES[$nativeType] ?? CommonTypes::TTEXT;
+        return $this->cachedGetFields;
     }
 
     public function getIdFields(): bool
