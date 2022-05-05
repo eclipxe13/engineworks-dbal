@@ -668,7 +668,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
     /**
      * Return an associative array of fields, the key is the field name
      * and the content is an array containing name, common type and table
-     * @return array<string, array<string, mixed>>
+     * @return array<string, array{name: string, table: string, commontype: string}>
      */
     final public function getFields(): array
     {

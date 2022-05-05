@@ -8,7 +8,7 @@ use EngineWorks\DBAL\Recordset;
 use Iterator;
 
 /**
- * @implements Iterator<int|string, array<string, mixed>>
+ * @implements Iterator<int|string, array<string, scalar|null>>
  */
 class RecordsetIterator implements Iterator
 {
