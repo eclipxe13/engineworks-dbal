@@ -71,9 +71,8 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
     {
         $array = $this->getFixedValues($idFrom, $idTo);
         $keys = ['albumid', 'title', 'votes', 'lastview', 'isfree', 'collect'];
-        $count = count($array);
-        for ($i = 0; $i < $count; $i++) {
-            $array[$i] = array_combine($keys, $array[$i]) ?: [];
+        foreach ($array as $i => $item) {
+            $array[$i] = array_combine($keys, $item) ?: [];
         }
         return $array;
     }

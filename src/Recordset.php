@@ -156,7 +156,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
             $this->entity = $overrideEntity;
         }
         // set the id fields if did not override
-        if (! count($overrideKeys)) {
+        if ([] === $overrideKeys) {
             $this->idFields = $this->result()->getIdFields() ?: [];
         } else {
             // validate overrideKeys
@@ -374,7 +374,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
             $conditions[] = "($extraWhereClause)";
         }
         $ids = $this->getIdFields();
-        if (! count($ids)) {
+        if ([] === $ids) {
             $this->getLogger()->warning('Recordset: cannot get the ids to locate the current the record,'
                 . ' will use all the fields to create the where clause'
                 . "\n"
@@ -414,7 +414,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
             $escapedFieldName = $this->dbal->sqlFieldEscape($field['name']);
             $inserts[$escapedFieldName] = $this->dbal->sqlQuote($value, $field['commontype'], true);
         }
-        if (! count($inserts)) {
+        if ([] === $inserts) {
             throw new LogicException('Recordset: Insert does not have any fields to insert');
         }
         return 'INSERT INTO ' . $this->dbal->sqlTableEscape($this->entity)
@@ -434,7 +434,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
         // get the conditions to alter the current record
         $conditions = $this->sqlWhereConditions($extraWhereClause);
         // if no conditions then log error and return false
-        if (! count($conditions)) {
+        if ([] === $conditions) {
             throw new LogicException('Recordset: The current record does not have any conditions to update');
         }
         // get the fields that have changed compared to originalValues
@@ -449,7 +449,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
             }
         }
         // if nothing to update, log error and return empty string
-        if (! count($updates)) {
+        if ([] === $updates) {
             return '';
         }
         // return the update statement
@@ -470,7 +470,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
         // get the conditions to alter the current record
         $conditions = $this->sqlWhereConditions($extraWhereClause);
         // if no conditions then log error and return false
-        if (! count($conditions)) {
+        if ([] === $conditions) {
             throw new LogicException('Recordset: The current record does not have any conditions to delete');
         }
         return 'DELETE'
@@ -668,7 +668,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
     /**
      * Return an associative array of fields, the key is the field name
      * and the content is an array containing name, common type and table
-     * @return array<string, array<string, mixed>>
+     * @return array<string, array{name: string, table: string, commontype: string}>
      */
     final public function getFields(): array
     {

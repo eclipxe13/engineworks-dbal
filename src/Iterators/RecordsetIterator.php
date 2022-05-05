@@ -8,7 +8,7 @@ use EngineWorks\DBAL\Recordset;
 use Iterator;
 
 /**
- * @implements Iterator<int|string, array<string, mixed>>
+ * @implements Iterator<int|string, array<string, scalar|null>>
  */
 class RecordsetIterator implements Iterator
 {
@@ -60,7 +60,7 @@ class RecordsetIterator implements Iterator
     #[\ReturnTypeWillChange]
     public function key()
     {
-        if (! count($this->keyFields)) {
+        if ([] === $this->keyFields) {
             return $this->index;
         }
 

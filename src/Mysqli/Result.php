@@ -56,7 +56,7 @@ class Result implements ResultInterface
 
     /**
      * The place where getFields result is cached
-     * @var array<int, array<string, scalar|null>>|null
+     * @var array<int, array{name: string, table: string, commontype: string, flags: int}>|null
      */
     private $cachedGetFields;
 
@@ -86,11 +86,22 @@ class Result implements ResultInterface
         $this->query->free();
     }
 
+    /**
+     * @inheritDoc
+     * @return array<int, array{name: string, table: string, commontype: string, flags: int}>
+     */
     public function getFields(): array
     {
-        if (null !== $this->cachedGetFields) {
-            return $this->cachedGetFields;
+        if (null === $this->cachedGetFields) {
+            $this->cachedGetFields = $this->obtainFields();
         }
+
+        return $this->cachedGetFields;
+    }
+
+    /** @return array<int, array{name: string, table: string, commontype: string, flags: int}> */
+    private function obtainFields(): array
+    {
         $fields = [];
         $fetchedFields = $this->query->fetch_fields() ?: [];
         foreach ($fetchedFields as $fetched) {
@@ -107,7 +118,6 @@ class Result implements ResultInterface
                 'flags' => $fetched->flags,  // extra: used for getting the ids in the query
             ];
         }
-        $this->cachedGetFields = $fields;
         return $fields;
     }
 

@@ -11,7 +11,7 @@ use IteratorAggregate;
  * Interface Result, this interface must be implemented by the Drivers
  *
  * @package EngineWorks\DBAL
- * @extends IteratorAggregate<int, array<scalar|null>>
+ * @extends IteratorAggregate<int, array<string, scalar|null>>
  */
 interface Result extends IteratorAggregate, Countable
 {
@@ -24,7 +24,7 @@ interface Result extends IteratorAggregate, Countable
     /**
      * Return an array with the information of the fields
      * Each row must contain the keys: [name, commontype, table]
-     * @return array<int, array<string, scalar|null>>
+     * @return array<int, array{name: string, table: string, commontype: string}>
      */
     public function getFields(): array;
 
