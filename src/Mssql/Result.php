@@ -38,7 +38,7 @@ class Result implements ResultInterface
 
     /**
      * The place where getFields result is cached
-     * @var array<int, array<string, scalar|null>>|null
+     * @var array<int, array{name: string, table: string, commontype: string}>|null
      */
     private $cachedGetFields;
 

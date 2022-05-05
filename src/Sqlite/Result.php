@@ -47,7 +47,7 @@ class Result implements ResultInterface
 
     /**
      * The place where getFields result is cached
-     * @var array<int, array<string, scalar|null>>|null
+     * @var array<int, array{name: string, table: string, commontype: string}>|null
      */
     private $cachedGetFields;
 
@@ -144,9 +144,16 @@ class Result implements ResultInterface
 
     public function getFields(): array
     {
-        if (null !== $this->cachedGetFields) {
-            return $this->cachedGetFields;
+        if (null === $this->cachedGetFields) {
+            $this->cachedGetFields = $this->obtainFields();
         }
+
+        return $this->cachedGetFields;
+    }
+
+    /** @return array<int, array{name: string, table: string, commontype: string}> */
+    private function obtainFields(): array
+    {
         $fields = [];
         $numcolumns = $this->query->numColumns();
         for ($i = 0; $i < $numcolumns; $i++) {
@@ -157,7 +164,6 @@ class Result implements ResultInterface
                 'table' => '',
             ];
         }
-        $this->cachedGetFields = $fields;
         return $fields;
     }
 
