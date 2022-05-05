@@ -68,7 +68,7 @@ final class RecordsetTester
         $recordset = $this->test->createRecordset($sql, 'albums', ['albumid']);
         $this->test->assertSame($sql, $recordset->getSource());
         $this->test->assertSame(45, $recordset->getRecordCount());
-        $this->test->assertSame(45, count($recordset));
+        $this->test->assertCount(45, $recordset);
         for ($i = 1; $i <= 45; $i++) {
             $this->test->assertFalse($recordset->eof());
             $this->test->assertSame($i, $recordset->values['albumid']);

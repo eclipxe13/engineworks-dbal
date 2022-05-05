@@ -246,7 +246,7 @@ abstract class BaseDBAL implements DBAL
         string $commonType = CommonTypes::TTEXT,
         bool $includeNull = false
     ): string {
-        if (0 === count($values)) {
+        if ([] === $values) {
             throw new RuntimeException('The array of values passed to DBAL::sqlQuoteIn is empty');
         }
         return '('
@@ -270,7 +270,7 @@ abstract class BaseDBAL implements DBAL
             );
             return $this->sqlNotIn($field, $values, $commonType, $includeNull);
         }
-        if (0 === count($values)) {
+        if ([] === $values) {
             return '0 = 1';
         }
         return $field . ' IN ' . $this->sqlQuoteIn($values, $commonType, $includeNull);
@@ -282,7 +282,7 @@ abstract class BaseDBAL implements DBAL
         string $commonType = CommonTypes::TTEXT,
         bool $includeNull = false
     ): string {
-        if (0 === count($values)) {
+        if ([] === $values) {
             return '1 = 1';
         }
         return $field . ' NOT IN ' . $this->sqlQuoteIn($values, $commonType, $includeNull);

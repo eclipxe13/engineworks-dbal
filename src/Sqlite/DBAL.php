@@ -125,7 +125,7 @@ class DBAL extends BaseDBAL
 
     public function sqlConcatenate(...$strings): string
     {
-        if (! count($strings)) {
+        if ([] === $strings) {
             return $this->sqlQuote('', CommonTypes::TTEXT);
         }
         return implode(' || ', $strings);

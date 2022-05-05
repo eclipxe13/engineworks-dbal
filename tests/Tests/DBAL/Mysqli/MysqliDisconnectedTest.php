@@ -34,10 +34,9 @@ class MysqliDisconnectedTest extends WithDbalTestCase
             'info: -- Connection fail',
             'error: ',
         ];
-        $expectedLogsCount = count($expectedLogs);
         $actualLogs = $this->logger->allMessages();
-        for ($i = 0; $i < $expectedLogsCount; $i++) {
-            $this->assertStringStartsWith($expectedLogs[$i], $actualLogs[$i]);
+        foreach ($expectedLogs as $i => $expectedLog) {
+            $this->assertStringStartsWith($expectedLog, $actualLogs[$i]);
         }
     }
 

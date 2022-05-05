@@ -60,7 +60,7 @@ class RecordsetIterator implements Iterator
     #[\ReturnTypeWillChange]
     public function key()
     {
-        if (! count($this->keyFields)) {
+        if ([] === $this->keyFields) {
             return $this->index;
         }
 

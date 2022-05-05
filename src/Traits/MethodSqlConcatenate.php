@@ -11,7 +11,7 @@ trait MethodSqlConcatenate
 {
     public function sqlConcatenate(...$strings): string
     {
-        if (! count($strings)) {
+        if ([] === $strings) {
             return $this->sqlQuote('');
         }
         return 'CONCAT(' . implode(', ', $strings) . ')';
