@@ -2,6 +2,12 @@
 
 - See [Version 3](VERSION_3.md) for major changes
 
+# Version 2.3.2 2022-05-05
+
+- Improve typing on `Recordset` and `RecordsetIterator`.
+- Improve comparison to check for empty arrays, avoid `count`.
+- Refactor and improve logic for `Result::getFields()`.
+
 # Version 2.3.1 2022-04-04
 
 - Fix bug when escaping chars on method `Mssql\DBAL::sqlLike()` and `Sqlsrv\DBAL::sqlLike()`.
