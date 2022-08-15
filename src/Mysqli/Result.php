@@ -14,6 +14,9 @@ use mysqli_result;
 
 class Result implements ResultInterface
 {
+    use ResultImplementsCountable;
+    use ResultImplementsIterator;
+
     private const TYPES = [
         // MYSQLI_TYPE_BIT => CommonTypes::T,
         MYSQLI_TYPE_BLOB => CommonTypes::TTEXT,
@@ -44,9 +47,6 @@ class Result implements ResultInterface
         MYSQLI_TYPE_VAR_STRING => CommonTypes::TTEXT,
         MYSQLI_TYPE_YEAR => CommonTypes::TINT,
     ];
-
-    use ResultImplementsCountable;
-    use ResultImplementsIterator;
 
     /**
      * Mysqli element

@@ -18,14 +18,14 @@ use SQLite3Result;
  */
 class Result implements ResultInterface
 {
+    use ResultImplementsCountable;
+    use ResultImplementsIterator;
+
     private const TYPES = [
         SQLITE3_INTEGER => CommonTypes::TINT,
         SQLITE3_FLOAT => CommonTypes::TNUMBER,
         SQLITE3_TEXT => CommonTypes::TTEXT,
     ];
-
-    use ResultImplementsCountable;
-    use ResultImplementsIterator;
 
     /**
      * Sqlite3 element

@@ -314,7 +314,7 @@ abstract class BaseDBAL implements DBAL
         return $field
             . ' BETWEEN ' . $this->sqlQuote($lowerBound, $commonType)
             . ' AND ' . $this->sqlQuote($upperBound, $commonType)
-            ;
+        ;
     }
 
     final public function sqlIfNull(string $fieldName, string $nullValue): string
