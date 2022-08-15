@@ -9,7 +9,6 @@ on:
 
 # Actions
 # shivammathur/setup-php - https://github.com/marketplace/actions/setup-php-action
-# sudo-bot/action-scrutinizer - https://github.com/marketplace/actions/action-scrutinizer
 
 jobs:
   phpcs:
@@ -121,10 +120,10 @@ jobs:
           testMssql_port: ${{ job.services.mssql.ports[1433] }}
           testSqlsrv_port: ${{ job.services.mssql.ports[1433] }}
       - name: Upload code coverage to scrutinizer
-        uses: sudo-bot/action-scrutinizer@latest
-        with:
-          cli-args: "--format=php-clover build/coverage-clover.xml"
-        continue-on-error: true
+      - run: |
+          mkdir -p build/scrutinizer
+          composer require scrutinizer/ocular:dev-master --working-dir=build/scrutinizer --no-progress
+          php build/scrutinizer/vendor/bin/ocular code-coverage:upload -vvv --no-interaction --format=php-clover build/coverage-clover.xml
 
   phpstan:
     name: Static analysis (phpstan)
