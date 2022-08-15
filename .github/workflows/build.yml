@@ -74,9 +74,11 @@ jobs:
           sudo systemctl start mysql.service
           mysql --host=localhost --user=root --password=root -e \
             "CREATE USER 'admin'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Password-123456' ; GRANT ALL PRIVILEGES ON *.* TO 'admin'@'localhost' ;"
-      # - name: Set up APT
+      - name: Update APT repositories
+        run: |
+          sudo apt-get update -y -qq
+      # - name: Configute microsoft repository
       #   run: |
-      #     sudo apt-get update -y -qq
       #     sudo apt-get install -y -qq gnupg2
       #     sudo curl --no-progress-meter https://packages.microsoft.com/keys/microsoft.asc -o /etc/apt/trusted.gpg.d/microsoft.asc
       #     sudo curl --no-progress-meter https://packages.microsoft.com/config/ubuntu/$(lsb_release -sr)/prod.list -o /etc/apt/sources.list.d/microsoft.list
