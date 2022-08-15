@@ -166,9 +166,11 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
     private function createDatabase(): void
     {
         if (! $this->dbal->connect()) {
-            $this->fail(
-                "Cannot connect to test {$this->getFactoryNamespace()}:\n" . implode("\n", $this->logger->allMessages())
-            );
+            $this->fail(sprintf(
+                'Cannot connect to driver %s for testing: %s',
+                $this->getFactoryNamespace(),
+                "\n" . implode("\n", $this->logger->allMessages())
+            ));
         }
         $this->dbal->isConnected();
         $this->createDatabaseStructure();

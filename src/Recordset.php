@@ -375,13 +375,10 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
         }
         $ids = $this->getIdFields();
         if ([] === $ids) {
-            $this->getLogger()->warning('Recordset: cannot get the ids to locate the current the record,'
-                . ' will use all the fields to create the where clause'
-                . "\n"
-                . print_r([
-                    'entity' => $this->entity,
-                    'values' => $this->values,
-                ], true));
+            $this->getLogger()->warning(sprintf(
+                'Recordset: the where clause will be based on all fields because cannot locate ids.%s',
+                "\n" . print_r(['entity' => $this->entity, 'values' => $this->values], true)
+            ));
             $ids = array_keys($this->datafields);
         }
         foreach ($this->datafields as $fieldname => $field) {
