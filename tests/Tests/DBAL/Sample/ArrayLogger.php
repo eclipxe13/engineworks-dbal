@@ -12,12 +12,16 @@ class ArrayLogger extends AbstractLogger
     /** @var array<string, string[]> */
     private $logs = [];
 
+    /**
+     * @inheritdoc
+     * @param mixed[] $context
+     */
     public function log($level, $message, array $context = []): void
     {
         if (! is_string($level)) {
             throw new InvalidArgumentException('Invalid argument level, expected string');
         }
-        $this->logs[$level][] = $message;
+        $this->logs[$level][] = (string) $message;
     }
 
     /** @return string[] */
