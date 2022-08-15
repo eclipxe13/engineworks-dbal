@@ -120,7 +120,7 @@ jobs:
           testMssql_port: ${{ job.services.mssql.ports[1433] }}
           testSqlsrv_port: ${{ job.services.mssql.ports[1433] }}
       - name: Upload code coverage to scrutinizer
-      - run: |
+        run: |
           mkdir -p build/scrutinizer
           composer require scrutinizer/ocular:dev-master --working-dir=build/scrutinizer --no-progress
           php build/scrutinizer/vendor/bin/ocular code-coverage:upload -vvv --no-interaction --format=php-clover build/coverage-clover.xml
