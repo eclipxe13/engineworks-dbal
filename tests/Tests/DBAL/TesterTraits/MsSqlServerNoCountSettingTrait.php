@@ -24,7 +24,7 @@ trait MsSqlServerNoCountSettingTrait
             BEGIN
                 DECLARE @current INT;
                 SET @current = 0;
-            
+
                 BEGIN TRANSACTION;
                 DELETE FROM ExpensiveTable;
                 BEGIN TRY

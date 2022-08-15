@@ -6,7 +6,6 @@ filter:
 build:
   dependencies:
     override:
-      - composer remove squizlabs/php_codesniffer friendsofphp/php-cs-fixer phpstan/phpstan --dev --no-interaction --no-progress --no-update
       - composer update --no-interaction --prefer-dist
   nodes:
     analysis: # see https://scrutinizer-ci.com/docs/tools/php/php-scrutinizer/

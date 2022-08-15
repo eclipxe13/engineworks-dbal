@@ -2,6 +2,16 @@
 
 - See [Version 3](VERSION_3.md) for major changes
 
+# Version 2.3.3 2022-08-15
+
+- Add compatibility with `psr/log` version 2.0.
+
+- Development environment:
+  - Update development tools.
+  - Update code style to PSR-12.
+  - Remove unused file `test/.env.travis`.
+  - Review GitHub Workflow `build.yml`.
+
 # Version 2.3.2 2022-05-05
 
 - Improve typing on `Recordset` and `RecordsetIterator`.
@@ -96,7 +106,7 @@ If you are hacking or extending the objects of this library then this can be a b
 # Version 2.0.2 2018-08-01
 
 - Sqlsrv\DBAL::queryDriver allow to aks only for affected rows
-  When ask for affected rows it execute instead of prepare statement and execute,  performance increased!
+  When ask for affected rows it executes instead of prepare statement and execute,  performance increased!
 - Make sure that queryAffectedRows always return false or integer greater or equal than zero in all drivers
 - Tests:
     - Rename WithSqlsrvDatabaseTestCase to SqlsrvWithDatabaseTestCase
@@ -121,7 +131,7 @@ If you are hacking or extending the objects of this library then this can be a b
 - `DBAL::sqlQuoteIn` now throws an `\RuntimeException` if empty array is received
 - Add support for **Microsoft Sql Server driver (sqlsrv)** on `EngineWorks\DBAL\Tests\Sqlsrv`
 - Add `$overrideTypes` argument to `DBAL::queryValues` and `DBAL::queryArrayValues`
-- `DBAL::queryArrayOne` returns `false` if the specified field name does not exists
+- `DBAL::queryArrayOne` returns `false` if the specified field name does not exist
 - sqlite: `DBAL::queryRecordset` return `false` if query fails (as other drivers)
 - include phpstan as dependence
 - clear all phpstan issues
@@ -140,7 +150,7 @@ If you are hacking or extending the objects of this library then this can be a b
 - Initialize `$vars` array in `\EngineWorks\DBAL\Mssql\DBAL::getPDOConnectionString`
 - Move logic to parse a number `DBAL::sqlQuote` to `EngineWorks\DBAL\Internal\NumericParser`
     - Now it removes tabulator also
-    - It does not remove anymore currency name (like USD), it never work very well.
+    - It does not remove anymore currency name (like USD), it never works very well.
 - Test sqlQuote to number using different locales: `C, en_US, en_US.utf-8, pt_BR`
 - Test populate database inside a transaction (run faster)
 - Fix some simple phpstan issues
@@ -153,7 +163,7 @@ If you are hacking or extending the objects of this library then this can be a b
   I'm not using annotation `@requires` because it does not work with composite traits.
 
 # version 1.6.9 2018-01-10
-- `Mysqli\DBAL::queryResult` now will warning if the query does not perform a result 
+- `Mysqli\DBAL::queryResult` now will warn if the query does not perform a result 
 - Fix issues discovered by scrutinizer
 - Testing locally using mssql server has been improved by not creating the database but using `tempdb`
 
@@ -165,7 +175,7 @@ If you are hacking or extending the objects of this library then this can be a b
 - Scrutinizer: Update config file to recommended content
 
 # version 1.6.7 2017-06-28
-- Fix bug where a boolean must be quote as an integer and true does not return 1
+- Fix bug where a boolean must be cast as an integer and true does not return 1
 
 # version 1.6.6 2017-06-26
 - Override docblock Result::getIterator() extended from \IteratorAggregate to explicity return an \Iterator object
@@ -178,7 +188,7 @@ If you are hacking or extending the objects of this library then this can be a b
 - Remove development dependence on scrutinizer/ocular, only install on travis
 
 # version 1.6.4 2017-05-04
-- Trigger a E_USER_NOTICE when rollback or commit without a transaction
+- Trigger an E_USER_NOTICE when rollback or commit without a transaction
 - Create TransactionsWithExceptionsTestTrait to probe previous behavior,
   the testers cannot test exceptions since all the execution runs as only one test. 
 
@@ -231,10 +241,10 @@ If you are hacking or extending the objects of this library then this can be a b
     - `sqlFieldEscape(a, b) => "a" as "b"`: New method, escape both, the name and the alias
     - `sqlTable(a, b) => "suffix_a" as "b"`: Not changed
     - `sqlTableEscape(a, b) => "a" as "b"`: Changed from protected to public
-- Change Recordset to use this methods when building the sql sentences.
+- Change Recordset to use these methods when building the sql sentences.
 
 # version 1.3.1 2017-01-31
-- Fix bug when sqlQuote receives a stringable object but it does not take value to parse it as int or float
+- Fix bug when sqlQuote receives a stringable object, but it does not take value to parse it as int or float
 
 # version 1.3.0  2016-11-14
 - Add Mssql driver
@@ -246,7 +256,7 @@ If you are hacking or extending the objects of this library then this can be a b
 
 # version 1.2.3 2016-09-01
 - Rename project to eclipxe/engineworks-dbal
-- Move from gitlab to github
+- Move from GitLab to GitHub
 - Changes on README
 - Introduce CoC, Contributing, TODO, LICENSE
 

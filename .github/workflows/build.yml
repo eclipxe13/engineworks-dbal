@@ -9,7 +9,6 @@ on:
 
 # Actions
 # shivammathur/setup-php - https://github.com/marketplace/actions/setup-php-action
-# sudo-bot/action-scrutinizer - https://github.com/marketplace/actions/action-scrutinizer
 
 jobs:
   phpcs:
@@ -23,7 +22,7 @@ jobs:
         with:
           php-version: '8.0'
           coverage: none
-          tools: composer:v2, cs2pr, phpcs
+          tools: cs2pr, phpcs
         env:
           fail-fast: true
       - name: Coding standards (phpcs)
@@ -40,7 +39,7 @@ jobs:
         with:
           php-version: '8.0'
           coverage: none
-          tools: composer:v2, cs2pr, php-cs-fixer
+          tools: cs2pr, php-cs-fixer
         env:
           fail-fast: true
       - name: Coding standards (php-cs-fixer)
@@ -69,14 +68,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: "0" # required for scrutinizer/ocular
       - name: Start MySQL # mysql is already installed on virtual-environments
         run: |
           sudo systemctl start mysql.service
           mysql --host=localhost --user=root --password=root -e \
             "CREATE USER 'admin'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Password-123456' ; GRANT ALL PRIVILEGES ON *.* TO 'admin'@'localhost' ;"
-      # - name: Set up APT
+      - name: Update APT repositories
+        run: |
+          sudo apt-get update -y -qq
+      # - name: Configute microsoft repository
       #   run: |
-      #     sudo apt-get update -y -qq
       #     sudo apt-get install -y -qq gnupg2
       #     sudo curl --no-progress-meter https://packages.microsoft.com/keys/microsoft.asc -o /etc/apt/trusted.gpg.d/microsoft.asc
       #     sudo curl --no-progress-meter https://packages.microsoft.com/config/ubuntu/$(lsb_release -sr)/prod.list -o /etc/apt/sources.list.d/microsoft.list
@@ -119,9 +122,10 @@ jobs:
           testMssql_port: ${{ job.services.mssql.ports[1433] }}
           testSqlsrv_port: ${{ job.services.mssql.ports[1433] }}
       - name: Upload code coverage to scrutinizer
-        uses: sudo-bot/action-scrutinizer@latest
-        with:
-          cli-args: "--format=php-clover build/coverage-clover.xml"
+        run: |
+          mkdir -p build/scrutinizer
+          composer require scrutinizer/ocular:dev-master --working-dir=build/scrutinizer --no-progress
+          php build/scrutinizer/vendor/bin/ocular code-coverage:upload -vvv --no-interaction --format=php-clover build/coverage-clover.xml
         continue-on-error: true
 
   phpstan:

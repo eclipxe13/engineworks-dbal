@@ -11,8 +11,9 @@
     <arg name="extensions" value="php"/>
     <arg name="cache" value="build/phpcs.cache"/>
 
-    <rule ref="PSR2"/>
+    <rule ref="PSR12"/>
     <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+    <rule ref="Generic.Files.LineLength"/>
     <rule ref="Generic.CodeAnalysis.EmptyStatement"/>
     <rule ref="Generic.CodeAnalysis.UnconditionalIfStatement"/>
     <rule ref="Generic.CodeAnalysis.UnnecessaryFinalModifier"/>
