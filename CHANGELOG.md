@@ -2,6 +2,16 @@
 
 - See [Version 3](VERSION_3.md) for major changes
 
+# Version 2.3.3 2022-08-15
+
+- Add compatibility with `psr/log` version 2.0.
+
+- Development environment:
+  - Update development tools.
+  - Update code style to PSR-12.
+  - Remove unused file `test/.env.travis`.
+  - Review GitHub Workflow `build.yml`.
+
 # Version 2.3.2 2022-05-05
 
 - Improve typing on `Recordset` and `RecordsetIterator`.
