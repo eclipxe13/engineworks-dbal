@@ -10,6 +10,7 @@
 - Improve code style for `php-cs-fixer` tool.
 - Update tests since methods `expectNotice` and `expectDeprecation` are deprecated.
 - GitHub build workflow:
+  - Show PHP information on `phpunit` job to display modules versions.
   - Add PHP 8.2 to test matrix. 
   - No need to install `msodbcsql17|msodbcsql18`, `mssql-tools`, `unixodbc` or `unixodbc-dev`.
   - Run workflows on PHP 8.2.
