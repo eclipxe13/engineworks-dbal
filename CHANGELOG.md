@@ -2,6 +2,18 @@
 
 - See [Version 3](VERSION_3.md) for major changes
 
+# Version 2.3.4 2023-02-15
+
+- Add `psr/log: ^3.0` as a dependency.
+- Update license year. Happy 2023!
+- Update development tools.
+- Improve code style for `php-cs-fixer` tool.
+- Update tests since methods `expectNotice` and `expectDeprecation` are deprecated.
+- GitHub build workflow
+  - Install `msodbcsql18` instead of `msodbcsql17` when PHP greater or equal than 7.4.
+  - Run workflows on PHP 8.2.
+  - Use `GITHUB_OUTPUT` instead of `set-output`.
+
 # Version 2.3.3 2022-08-15
 
 - Add compatibility with `psr/log` version 2.0.
