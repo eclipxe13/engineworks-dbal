@@ -14,6 +14,7 @@
   - No need to install `msodbcsql17|msodbcsql18`, `mssql-tools`, `unixodbc` or `unixodbc-dev`.
   - Run workflows on PHP 8.2.
   - Use `GITHUB_OUTPUT` instead of `set-output`.
+  - Use `sudo-bot/action-scrutinizer` action instead of install package `scrutinizer/ocular`.
 
 # Version 2.3.3 2022-08-15
 
