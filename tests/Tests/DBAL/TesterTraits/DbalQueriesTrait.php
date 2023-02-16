@@ -382,21 +382,30 @@ trait DbalQueriesTrait
     public function testSqlIsNullWithNegationTriggerNotice(): void
     {
         $dbal = $this->getDbal();
-        $this->expectNotice();
-        $dbal->sqlIsNull('foo', false);
+
+        error_clear_last();
+        @$dbal->sqlIsNull('foo', false);
+        $error = error_get_last() ?: [];
+        $this->assertSame(E_USER_NOTICE, intval($error['type'] ?? 0));
     }
 
     public function testSqlInWithNegationTriggerNotice(): void
     {
         $dbal = $this->getDbal();
-        $this->expectNotice();
-        $dbal->sqlIn('foo', ['bar', 'baz'], CommonTypes::TTEXT, false);
+
+        error_clear_last();
+        @$dbal->sqlIn('foo', ['bar', 'baz'], CommonTypes::TTEXT, false);
+        $error = error_get_last() ?: [];
+        $this->assertSame(E_USER_NOTICE, intval($error['type'] ?? 0));
     }
 
     public function testQueryTriggerDeprecation(): void
     {
         $dbal = $this->getDbal();
-        $this->expectDeprecation();
-        $dbal->query('SELECT 1');
+
+        error_clear_last();
+        @$dbal->query('SELECT 1');
+        $error = error_get_last() ?: [];
+        $this->assertSame(E_USER_DEPRECATED, intval($error['type'] ?? 0));
     }
 }
