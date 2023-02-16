@@ -80,22 +80,10 @@ jobs:
       - name: Update APT repositories
         run: |
           sudo apt-get update -y -qq
-      # - name: Configure microsoft repository
-      #   run: |
-      #     sudo apt-get install -y -qq gnupg2
-      #     sudo curl --no-progress-meter https://packages.microsoft.com/keys/microsoft.asc -o /etc/apt/trusted.gpg.d/microsoft.asc
-      #     sudo curl --no-progress-meter https://packages.microsoft.com/config/ubuntu/$(lsb_release -sr)/prod.list -o /etc/apt/sources.list.d/microsoft.list
-      #     sudo apt-get update -y -qq
       - name: Install locales
         run: |
           sudo apt-get install -y -qq tzdata locales
           sudo locale-gen en_US.UTF-8 en_US pt_BR
-      - name: Install packages
-        run: |
-          export MSODBCSQL=$(php -r "echo (PHP_VERSION_ID >= 74000) ? 'msodbcsql18' : 'msodbcsql17'")
-          sudo apt-get install -y -qq $MSODBCSQL mssql-tools unixodbc unixodbc-dev
-        env:
-          ACCEPT_EULA: Y
       - name: Set up environment file
         run: |
           test -e tests/.env || cp -v tests/.env.github tests/.env

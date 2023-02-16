@@ -9,8 +9,9 @@
 - Update development tools.
 - Improve code style for `php-cs-fixer` tool.
 - Update tests since methods `expectNotice` and `expectDeprecation` are deprecated.
-- GitHub build workflow
-  - Install `msodbcsql18` instead of `msodbcsql17` when PHP greater or equal than 7.4.
+- GitHub build workflow:
+  - Add PHP 8.2 to test matrix. 
+  - No need to install `msodbcsql17|msodbcsql18`, `mssql-tools`, `unixodbc` or `unixodbc-dev`.
   - Run workflows on PHP 8.2.
   - Use `GITHUB_OUTPUT` instead of `set-output`.
 
