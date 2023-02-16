@@ -3,10 +3,11 @@
 declare(strict_types=1);
 
 //
-// This script does not depends on anything, it only check connection to ms sql server
+// This script does not depend on anything, it only checks connection to ms sql server
+// php sqlsrv-direct-connection.php server user password database
 //
 
-exit(call_user_func(function ($arguments): int {
+exit(call_user_func(function (string ...$arguments): int {
     $host = $arguments[1] ?? 'localhost';
     $user = $arguments[2] ?? '';
     $pass = $arguments[3] ?? '';
@@ -34,4 +35,4 @@ exit(call_user_func(function ($arguments): int {
         return 1;
     }
     return 0;
-}, $argv));
+}, ...$argv));

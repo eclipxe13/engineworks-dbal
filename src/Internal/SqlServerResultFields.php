@@ -63,7 +63,10 @@ final class SqlServerResultFields
         foreach ($columns as $fetched) {
             $fields[] = [
                 'name' => $fetched['name'],
-                'commontype' => $this->getCommonType($fetched['name'], $fetched[$this->nativeTypeKey]),
+                'commontype' => $this->getCommonType(
+                    $fetched['name'],
+                    is_scalar($fetched[$this->nativeTypeKey]) ? (string) $fetched[$this->nativeTypeKey] : ''
+                ),
                 'table' => $fetched['table'] ?? '',
             ];
         }

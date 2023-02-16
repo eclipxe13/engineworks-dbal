@@ -1,5 +1,7 @@
 <?php
 
+/** @noinspection PhpUsageOfSilenceOperatorInspection */
+
 declare(strict_types=1);
 
 namespace EngineWorks\DBAL\Tests\DBAL\TesterTraits;
@@ -12,13 +14,17 @@ trait TransactionsWithExceptionsTestTrait
 
     public function testCommitThrowsWarningWithOutBegin(): void
     {
-        $this->expectNotice();
-        $this->getDbal()->transCommit();
+        error_clear_last();
+        @$this->getDbal()->transCommit();
+        $error = error_get_last() ?: [];
+        $this->assertSame(E_USER_NOTICE, intval($error['type'] ?? 0));
     }
 
     public function testRollbackThrowsWarningWithOutBegin(): void
     {
-        $this->expectNotice();
-        $this->getDbal()->transRollback();
+        error_clear_last();
+        @$this->getDbal()->transRollback();
+        $error = error_get_last() ?: [];
+        $this->assertSame(E_USER_NOTICE, intval($error['type'] ?? 0));
     }
 }

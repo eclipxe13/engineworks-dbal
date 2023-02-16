@@ -2,6 +2,21 @@
 
 - See [Version 3](VERSION_3.md) for major changes
 
+# Version 2.3.4 2023-02-15
+
+- Add `psr/log: ^3.0` as a dependency.
+- Update license year. Happy 2023!
+- Update development tools.
+- Improve code style for `php-cs-fixer` tool.
+- Update tests since methods `expectNotice` and `expectDeprecation` are deprecated.
+- GitHub build workflow:
+  - Show PHP information on `phpunit` job to display modules versions.
+  - Add PHP 8.2 to test matrix. 
+  - No need to install `msodbcsql17|msodbcsql18`, `mssql-tools`, `unixodbc` or `unixodbc-dev`.
+  - Run workflows on PHP 8.2.
+  - Use `GITHUB_OUTPUT` instead of `set-output`.
+  - Use `sudo-bot/action-scrutinizer` action instead of install package `scrutinizer/ocular`.
+
 # Version 2.3.3 2022-08-15
 
 - Add compatibility with `psr/log` version 2.0.
