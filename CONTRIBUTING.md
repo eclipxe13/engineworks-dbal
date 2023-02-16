@@ -127,5 +127,5 @@ As documented in [`actions/setup-php-action`](https://github.com/marketplace/act
 you will need to execute the command as:
 
 ```shell
-act -P ubuntu-latest=shivammathur/node:latest
+act --artifact-server-path build/artifacts -P ubuntu-latest=shivammathur/node:2204
 ```
