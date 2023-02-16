@@ -88,9 +88,10 @@ jobs:
         run: |
           sudo apt-get install -y -qq tzdata locales
           sudo locale-gen en_US.UTF-8 en_US pt_BR
-      - name: Install unixodbc-dev
+      - name: Install packages
         run: |
-          sudo apt-get install -y -qq msodbcsql17 mssql-tools unixodbc unixodbc-dev
+          export MSODBCSQL=$(php -r "echo (PHP_VERSION_ID >= 74000) ? 'msodbcsql18' : 'msodbcsql17'")
+          sudo apt-get install -y -qq $MSODBCSQL mssql-tools unixodbc unixodbc-dev
         env:
           ACCEPT_EULA: Y
       - name: Set up environment file
