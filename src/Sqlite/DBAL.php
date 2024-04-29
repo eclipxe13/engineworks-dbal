@@ -49,7 +49,10 @@ class DBAL extends BaseDBAL
         }
         // OK, we are connected
         $this->logger->info('-- Connection success');
-        $this->sqlite()->enableExceptions((bool) $this->settings->get('enable-exceptions', false));
+        $enableExceptions = (bool) $this->settings->get('enable-exceptions', false);
+        if ($enableExceptions) {
+            $this->sqlite()->enableExceptions(true);
+        }
         return true;
     }
 
