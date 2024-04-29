@@ -78,10 +78,10 @@ jobs:
             "CREATE USER 'admin'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Password-123456' ; GRANT ALL PRIVILEGES ON *.* TO 'admin'@'localhost' ;"
       - name: Update APT repositories
         run: |
-          sudo apt-get update -y -qq
+          sudo apt-get -yqq update
       - name: Install locales
         run: |
-          sudo apt-get install -y -qq tzdata locales
+          sudo apt-get -yqq install tzdata locales
           sudo locale-gen en_US.UTF-8 en_US pt_BR
       - name: Set up environment file
         run: |
