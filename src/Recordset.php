@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EngineWorks\DBAL;
 
 use Countable;
+use EngineWorks\DBAL\Internal\ConvertObjectToStringMethod;
 use InvalidArgumentException;
 use IteratorAggregate;
 use LogicException;
@@ -19,6 +20,8 @@ use RuntimeException;
  */
 class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
 {
+    use ConvertObjectToStringMethod;
+
     public const RSMODE_NOTCONNECTED = 0;
 
     public const RSMODE_CONNECTED_EDIT = 1;
@@ -342,7 +345,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
         }
         // do not continue using the object, convert to string
         if (is_object($current)) {
-            $current = strval($current);
+            $current = self::convertObjectToString($current);
         }
         // strict comparison if types are strings
         if (is_string($original) && is_string($current)) {

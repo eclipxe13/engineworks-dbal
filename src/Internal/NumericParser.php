@@ -11,6 +11,8 @@ namespace EngineWorks\DBAL\Internal;
  */
 class NumericParser
 {
+    use ConvertObjectToStringMethod;
+
     /**
      * Contains the running locale information
      * @var array{decimal_point: string, thousands_sep: string, currency_symbol: string}|null
@@ -31,7 +33,7 @@ class NumericParser
 
         // is object, convert to string
         if (is_object($value)) {
-            $value = strval($value);
+            $value = $this->convertObjectToString($value);
         }
         // is not string, early exit with 0
         if (! is_string($value)) {
