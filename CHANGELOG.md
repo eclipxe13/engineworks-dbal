@@ -2,6 +2,22 @@
 
 - See [Version 3](VERSION_3.md) for major changes
 
+# Version 2.3.5 2024-04-29
+
+- Allow to receive PHP Enums as value to quote.
+  - For regular enums (`UnitEnum`) is parsed as the enum name.
+  - For backed enums (`BackedEnum`) is parsed as the enum value.
+- Avoid calling Sqlite3 to disable exceptions `Sqlite3::enableExceptions(false)` since it is deprecated now.
+- Introduce method to convert object to string.
+- Update license year to 2024.
+- Improve code style for `php-cs-fixer` tool.
+- GitHub build workflow:
+  - Add PHP 8.3 to test matrix.
+  - Run jobs using PHP 8.3.
+  - Quote strings.
+  - Remove `PHP_CS_FIXER_IGNORE_ENV` when running `php-cs-fixer`.
+- Update development tools.
+
 # Version 2.3.4 2023-02-15
 
 - Add `psr/log: ^3.0` as a dependency.

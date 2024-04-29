@@ -7,6 +7,7 @@ namespace EngineWorks\DBAL\Abstracts;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Exceptions\QueryException;
+use EngineWorks\DBAL\Internal\ConvertObjectToStringMethod;
 use EngineWorks\DBAL\Internal\NumericParser;
 use EngineWorks\DBAL\Pager;
 use EngineWorks\DBAL\Recordset;
@@ -15,11 +16,12 @@ use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
-use Stringable;
 use Throwable;
 
 abstract class BaseDBAL implements DBAL
 {
+    use ConvertObjectToStringMethod;
+
     /** @var LoggerInterface */
     protected $logger;
 
@@ -190,15 +192,7 @@ abstract class BaseDBAL implements DBAL
         bool $includeNull = false
     ): string {
         if (is_object($variable)) {
-            if (class_exists(Stringable::class) && $variable instanceof Stringable) {
-                $variable = strval($variable);
-            } elseif (is_callable([$variable, '__toString'])) {
-                $variable = strval($variable);
-            } else {
-                throw new InvalidArgumentException(
-                    sprintf('Value of type %s that cannot be parsed as scalar', get_class($variable))
-                );
-            }
+            $variable = $this->convertObjectToString($variable);
         }
         if ($includeNull && null === $variable) {
             return 'NULL';
