@@ -45,8 +45,6 @@ jobs:
           fail-fast: true
       - name: Coding standards (php-cs-fixer)
         run: php-cs-fixer fix --dry-run --format=checkstyle | cs2pr
-        env:
-          PHP_CS_FIXER_IGNORE_ENV: 1
 
   phpunit:
     name: Tests on PHP ${{ matrix.php-version }} (phpunit)
