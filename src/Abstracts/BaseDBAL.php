@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace EngineWorks\DBAL\Abstracts;
 
-use BackedEnum;
 use EngineWorks\DBAL\CommonTypes;
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Exceptions\QueryException;
@@ -18,7 +17,6 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
 use Throwable;
-use UnitEnum;
 
 abstract class BaseDBAL implements DBAL
 {
@@ -193,11 +191,6 @@ abstract class BaseDBAL implements DBAL
         string $commonType = CommonTypes::TTEXT,
         bool $includeNull = false
     ): string {
-        if (PHP_VERSION_ID > 80100) { // PHP 8.1
-            if ($variable instanceof UnitEnum) { // BackedEnum implements UnitEnum
-                $variable = $variable instanceof BackedEnum ? $variable->value : $variable->name;
-            }
-        }
         if (is_object($variable)) {
             $variable = $this->convertObjectToString($variable);
         }
