@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace EngineWorks\DBAL\Tests\DBAL\TesterCases;
 
 use EngineWorks\DBAL\DBAL;
+use EngineWorks\DBAL\Tests\Utils\ExampleEnum;
+use EngineWorks\DBAL\Tests\Utils\ExampleIntegerBackedEnum;
+use EngineWorks\DBAL\Tests\Utils\ExampleStringBackedEnum;
 use EngineWorks\DBAL\Tests\WithDbalTestCase;
 use PHPUnit\Framework\TestCase;
 use SimpleXMLElement;
@@ -47,6 +50,7 @@ final class SqlQuoteTester
             $this->testSqlQuoteWithLocale(...$arguments);
         }
         $this->testWithInvalidCommonType();
+        $this->testWithEnum();
     }
 
     /** @return array<string, array{string, scalar|object|null, string, bool}> */
@@ -171,5 +175,26 @@ final class SqlQuoteTester
     public function testWithInvalidCommonType(): void
     {
         $this->test->assertSame("'Ñu'", $this->dbal->sqlQuote('Ñu', 'NON-EXISTENT-COMMONTYPE'));
+    }
+
+    public function testWithEnum(): void
+    {
+        if (PHP_VERSION_ID < 80100) { // PHP 8.1
+            return;
+        }
+        // Regular Enum
+        $unitEnum = ExampleEnum::Foo;
+        $expectedQuotedValue = $this->dbal->sqlQuote($unitEnum->name, DBAL::TTEXT);
+        $this->test->assertSame($expectedQuotedValue, $this->dbal->sqlQuote($unitEnum, DBAL::TTEXT));
+
+        // String Enum
+        $backedStringEnum = ExampleStringBackedEnum::Foo;
+        $expectedQuotedValue = $this->dbal->sqlQuote($backedStringEnum->value, DBAL::TTEXT);
+        $this->test->assertSame($expectedQuotedValue, $this->dbal->sqlQuote($backedStringEnum, DBAL::TTEXT));
+
+        // Integer Enum
+        $backedIntegerEnum = ExampleIntegerBackedEnum::Foo;
+        $expectedQuotedValue = $this->dbal->sqlQuote($backedIntegerEnum->value, DBAL::TINT);
+        $this->test->assertSame($expectedQuotedValue, $this->dbal->sqlQuote($backedIntegerEnum, DBAL::TINT));
     }
 }
