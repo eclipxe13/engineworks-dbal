@@ -11,7 +11,8 @@ Development changes:
 
 - Add PHP 8.4 to test matrix.
 - Update `vlucas/phpdotenv` to version 5.6.2.
-- Run jobs using PHP 8.4.
+- Allow manual dispatch for build workflow.
+- Run GitHub workflow jobs using PHP 8.4.
 - Remove Scrutinizer-CI. Thanks!
 - Upgrade development tools.
 

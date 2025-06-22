@@ -1,5 +1,6 @@
 name: build
 on:
+  workflow_dispatch:
   pull_request:
     branches: [ "main" ]
   push:
@@ -116,7 +117,7 @@ jobs:
       - name: Install project dependencies
         run: composer upgrade --no-interaction --no-progress --prefer-dist
       - name: Tests (phpunit)
-        run: vendor/bin/phpunit --testdox --verbose --coverage-clover=build/coverage-clover.xml
+        run: vendor/bin/phpunit --testdox --verbose --coverage-clover=build/coverage-clover.xml --log-junit=build/coverage/junit.xml
         env:
           testMssql_port: ${{ job.services.mssql.ports[1433] }}
           testSqlsrv_port: ${{ job.services.mssql.ports[1433] }}
@@ -131,8 +132,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          coverage: none
           extensions: pdo, sqlite3, mysqli, pdo_sqlsrv, pdo_dblib
+          coverage: none
           tools: composer:v2, phpstan
         env:
           fail-fast: true
