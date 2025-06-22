@@ -18,8 +18,6 @@ use Throwable;
 /**
  * MS Sql Server implementation based on SqlSrv
  * @see https://docs.microsoft.com/en-us/sql/connect/php/microsoft-php-driver-for-sql-server
- * @package EngineWorks\DBAL\Sqlsrv
- *
  * @todo: encoding: $this->settings->get('encoding')
  */
 class DBAL extends BaseDBAL

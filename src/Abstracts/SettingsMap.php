@@ -11,8 +11,6 @@ use InvalidArgumentException;
  * This is a utility class to implement the Settings interface, it is used
  * on Mysqli and Sqlite implementations.
  * On the extended class define the map of properties
- *
- * @package EngineWorks\DBAL\Abstracts
  */
 class SettingsMap implements SettingsInterface
 {

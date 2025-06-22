@@ -18,7 +18,6 @@ use Throwable;
 
 /**
  * Mssql implementation
- * @package EngineWorks\DBAL\Mssql
  */
 class DBAL extends BaseDBAL
 {

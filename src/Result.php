@@ -10,7 +10,6 @@ use IteratorAggregate;
 /**
  * Interface Result, this interface must be implemented by the Drivers
  *
- * @package EngineWorks\DBAL
  * @extends IteratorAggregate<int, array<string, scalar|null>>
  */
 interface Result extends IteratorAggregate, Countable

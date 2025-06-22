@@ -6,7 +6,6 @@ namespace EngineWorks\DBAL;
 
 /**
  * Interface Settings, this must be implemented by drivers
- * @package EngineWorks\DBAL
  */
 interface Settings
 {

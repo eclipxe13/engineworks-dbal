@@ -11,7 +11,6 @@ use RuntimeException;
 
 /**
  * Pagination
- * @package EngineWorks\DBAL
  */
 class Pager
 {

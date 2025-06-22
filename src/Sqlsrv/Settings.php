@@ -19,8 +19,6 @@ use EngineWorks\DBAL\Abstracts\SettingsMap;
  * - timeout: timeout for running queries (5)
  * - prefix: tables prefix
  * - dump: '' => nothing, 'info' => '-- info messages',  'debug' => SELECT... + info
- *
- * @package EngineWorks\DBAL\Mysqli
  */
 class Settings extends SettingsMap
 {
