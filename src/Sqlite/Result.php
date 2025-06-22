@@ -86,10 +86,7 @@ class Result implements ResultInterface
         // since PHP 8.0 the @ operator no longer silences fatal errors
         // on PHP lower than 8.0 it was just a WARNING
         try {
-            /**
-             * @scrutinizer ignore-unhandled
-             * @noinspection PhpUsageOfSilenceOperatorInspection
-             */
+            /** @noinspection PhpUsageOfSilenceOperatorInspection */
             @$this->query->finalize();
         } catch (Error $exception) { // phpcs:ignore
         }

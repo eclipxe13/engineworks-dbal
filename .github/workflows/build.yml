@@ -9,7 +9,6 @@ on:
 
 # Actions
 # shivammathur/setup-php - https://github.com/marketplace/actions/setup-php-action
-# sudo-bot/action-scrutinizer - https://github.com/marketplace/actions/action-scrutinizer
 
 jobs:
   phpcs:
@@ -69,8 +68,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: "0" # required for sudo-bot/action-scrutinizer
       - name: Start MySQL # mysql is already installed on virtual-environments
         run: |
           sudo systemctl start mysql.service
@@ -123,11 +120,6 @@ jobs:
         env:
           testMssql_port: ${{ job.services.mssql.ports[1433] }}
           testSqlsrv_port: ${{ job.services.mssql.ports[1433] }}
-      - name: Upload code coverage to scrutinizer
-        uses: sudo-bot/action-scrutinizer@latest
-        with:
-          cli-args: "--format=php-clover build/coverage-clover.xml"
-        continue-on-error: true
 
   phpstan:
     name: Static analysis (phpstan)

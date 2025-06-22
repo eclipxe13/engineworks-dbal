@@ -12,6 +12,7 @@ Development changes:
 - Add PHP 8.4 to test matrix.
 - Update `vlucas/phpdotenv` to version 5.6.2.
 - Run jobs using PHP 8.4.
+- Remove Scrutinizer-CI. Thanks!
 - Upgrade development tools.
 
 # Version 2.3.5 2024-04-29
