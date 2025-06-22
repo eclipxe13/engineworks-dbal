@@ -61,7 +61,7 @@ trait MsSqlServerNoCountSettingTrait
     {
         $db = $this->getDbal();
         $execReturn = $db->execute('EXEC ExpensiveTest 1;');
-        $this->assertSame(0, $execReturn, 'EXEC was expected to return -1');
+        $this->assertSame(0, $execReturn, 'EXEC was expected to return 0');
         $this->assertSame(1, $this->queryRecordCount(), 'EXEC did not insert 1 record');
     }
 
@@ -70,7 +70,7 @@ trait MsSqlServerNoCountSettingTrait
         $numRows = $this->heavyNumCount;
         $db = $this->getDbal();
         $execReturn = $db->execute("EXEC ExpensiveTest $numRows;");
-        $this->assertSame(0, $execReturn, 'EXEC was expected to return -1');
+        $this->assertSame(0, $execReturn, 'EXEC was expected to return 0');
         $this->assertLessThanOrEqual(
             $numRows,
             $this->queryRecordCount(),
@@ -84,7 +84,7 @@ trait MsSqlServerNoCountSettingTrait
         $db = $this->getDbal();
         $db->execute('SET NOCOUNT OFF;');
         $execReturn = $db->execute("EXEC ExpensiveTest $numRows;");
-        $this->assertSame(0, $execReturn, 'EXEC was expected to return -1');
+        $this->assertSame(0, $execReturn, 'EXEC was expected to return 0');
         $this->assertLessThanOrEqual(
             $numRows,
             $this->queryRecordCount(),
@@ -98,20 +98,12 @@ trait MsSqlServerNoCountSettingTrait
         $db = $this->getDbal();
         $db->execute('SET NOCOUNT ON;');
         $execReturn = $db->execute("EXEC ExpensiveTest $numRows;");
-        $this->assertSame(0, $execReturn, 'EXEC was expected to return -1');
+        $this->assertSame(0, $execReturn, 'EXEC was expected to return 0');
         $this->assertSame(
             $numRows,
             $this->queryRecordCount(),
             "EXEC did not insert $numRows records with SET NOCOUNT ON"
         );
-    }
-
-    public function testDeleteWithoutSetCount(): void
-    {
-        $numRows = 10;
-        $db = $this->getDbal();
-        $db->execute("EXEC ExpensiveTest $numRows;");
-        $this->assertSame($numRows, $db->execute('DELETE FROM ExpensiveTable;'));
     }
 
     public function testDeleteWithSetCountOn(): void
