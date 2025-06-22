@@ -83,14 +83,7 @@ jobs:
         run: |
           sudo apt-get -yqq install tzdata locales
           sudo locale-gen en_US.UTF-8 en_US pt_BR
-      - name: Install MS ODBC driver 17
-        if: matrix.php-version <= '7.3'
-        run: |
-          sudo apt-get -yqq install msodbcsql17
-        env:
-          ACCEPT_EULA: Y
       - name: Install MS ODBC driver 18
-        if: matrix.php-version > '7.3'
         run: |
           sudo apt-get -yqq install msodbcsql18
         env:
@@ -98,6 +91,11 @@ jobs:
       - name: Set up environment file
         run: |
           test -e tests/.env || cp -v tests/.env.github tests/.env
+      - name: Disable test SQLSRV on PHP 7.3 or less
+        # Requires unavailable package msodbcsql17
+        if: matrix.php-version <= '7.3'
+        run: |
+          sed -i "s/^testSqlsrv = 'yes'/testSqlsrv = 'no'/" tests/.env
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
