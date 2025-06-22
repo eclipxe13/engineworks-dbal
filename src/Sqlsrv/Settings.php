@@ -14,7 +14,9 @@ use EngineWorks\DBAL\Abstracts\SettingsMap;
  * - user: server username
  * - password: server password
  * - database: server catalog
- * - encoding: server encoding (UTF8) (NOT IMPLEMENTED YET)
+ * - encoding: connection encoding (PDO::SQLSRV_ENCODING_DEFAULT)
+ *   @see https://learn.microsoft.com/en-us/sql/connect/php/constants-microsoft-drivers-for-php-for-sql-server\
+ *        ?view=sql-server-ver17#encoding-constants
  * - prefix: tables prefix
  * - connect-timeout: timeout for server connection (5)
  * - timeout: timeout for running queries (0)
@@ -30,7 +32,7 @@ class Settings extends SettingsMap
         'user' => '',
         'password' => '',
         'database' => '',
-        // 'encoding' => 'UTF-8', // todo: enable encoding
+        'encoding' => null,
         'prefix' => '',
         'connect-timeout' => 5, // the default timeout can be more than 15 seconds
         'timeout' => 0,

@@ -18,7 +18,6 @@ use Throwable;
 /**
  * MS Sql Server implementation based on SqlSrv
  * @see https://docs.microsoft.com/en-us/sql/connect/php/microsoft-php-driver-for-sql-server
- * @todo: encoding: $this->settings->get('encoding')
  */
 class DBAL extends BaseDBAL
 {
@@ -68,6 +67,7 @@ class DBAL extends BaseDBAL
                 (string) $this->settings->get('password'),
                 [
                     PDO::SQLSRV_ATTR_QUERY_TIMEOUT => max(0, (int) $this->settings->get('timeout')),
+                    PDO::SQLSRV_ATTR_ENCODING => $this->parseEncoding($this->settings->get('encoding')),
                 ]
             );
         } catch (Throwable $ex) {
@@ -316,5 +316,23 @@ class DBAL extends BaseDBAL
             throw new RuntimeException('The current state of the connection is NULL');
         }
         return $this->pdo;
+    }
+
+    /**
+     * Internal procedure to
+     * @param scalar|null $encoding
+     * @return int-mask-of<PDO::SQLSRV_ENCODING_*>
+     */
+    protected function parseEncoding($encoding): int
+    {
+        $encodings = [
+            PDO::SQLSRV_ENCODING_BINARY,
+            PDO::SQLSRV_ENCODING_UTF8,
+            PDO::SQLSRV_ENCODING_SYSTEM,
+        ];
+        if (in_array($encoding, $encodings, true)) {
+            return $encoding;
+        }
+        return PDO::SQLSRV_ENCODING_DEFAULT;
     }
 }
