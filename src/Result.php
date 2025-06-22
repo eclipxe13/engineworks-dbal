@@ -37,7 +37,7 @@ interface Result extends IteratorAggregate, Countable
 
     /**
      * Retrieve the count of the resource
-     * @return int
+     * @return int<0, max>
      */
     public function resultCount(): int;
 

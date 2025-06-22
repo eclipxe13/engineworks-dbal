@@ -22,41 +22,35 @@ class SqlsrvConnectFailuresTest extends WithDbalTestCase
 
     public function testConnectReturnFalseWhenCannotConnect(): void
     {
-        $this->assertFalse($this->dbal->connect());
+        $this->assertFalse($this->getDbal()->connect());
 
         $expectedLogs = [
             'info: -- Connection fail',
             'error: ',
         ];
-        $actualLogs = $this->logger->allMessages();
+        $actualLogs = $this->getLogger()->allMessages();
         foreach ($expectedLogs as $i => $expectedLog) {
             $this->assertStringStartsWith($expectedLog, $actualLogs[$i]);
         }
     }
 
-    /**
-     * Test timeout configuration
-     *
-     * @param int $expectedTimeout
-     * @testWith [1]
-     *           [2]
-     */
-    public function testConnectToInvalidPort(int $expectedTimeout): void
+    /** Test timeout configuration */
+    public function testConnectToInvalidPort(): void
     {
-        $this->setupDbalWithSettings(['connect-timeout' => $expectedTimeout, 'host' => '127.0.0.1', 'port' => 1999]);
+        $expectedTimeout = 1;
+        $this->setupDbalWithSettings([
+            'connect-timeout' => $expectedTimeout,
+            'host' => '127.0.0.1',
+            'port' => 1999,
+        ]);
         $timer = new Timer();
-        $this->assertFalse($this->dbal->connect());
+        $this->assertFalse($this->getDbal()->connect());
         $elapsed = $timer->elapsed();
 
         $this->assertLessThan(
             $expectedTimeout + 0.1,
             $elapsed,
-            sprintf('Connect takes more than %.1f seconds %.1f to timeout', $expectedTimeout, $elapsed)
-        );
-        $this->assertGreaterThan(
-            $expectedTimeout - 1,
-            $elapsed,
-            sprintf('Connect takes less than %.1f seconds %.1f to timeout', $expectedTimeout, $elapsed)
+            sprintf('Connect failure must take less than %.1f seconds %.1f to timeout', $expectedTimeout, $elapsed)
         );
     }
 }

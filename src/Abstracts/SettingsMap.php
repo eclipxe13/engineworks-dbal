@@ -22,6 +22,7 @@ class SettingsMap implements SettingsInterface
      */
     protected $map = [];
 
+    /** @param array<int|string, scalar|null> $settings */
     public function __construct(array $settings = [])
     {
         $this->setAll($settings);
@@ -55,7 +56,7 @@ class SettingsMap implements SettingsInterface
     /**
      * Set an array of settings, ignores non-existent or non-string-key elements
      *
-     * @param array<string, scalar|null> $settings
+     * @param array<int|string, scalar|null> $settings
      */
     public function setAll(array $settings): void
     {

@@ -26,7 +26,10 @@ trait ConvertObjectToStringMethod
             return strval($variable);
         }
         if (is_callable([$variable, '__toString'])) {
-            return $variable->__toString();
+            $value = $variable->__toString();
+            if (is_string($value)) {
+                return $value;
+            }
         }
 
         throw new InvalidArgumentException(

@@ -13,9 +13,15 @@ date_default_timezone_set('UTC');
 // composer
 require_once __DIR__ . '/../vendor/autoload.php';
 
+if (MYSQLI_REPORT_OFF !== (new mysqli_driver())->report_mode) {
+    if (! mysqli_report(MYSQLI_REPORT_OFF)) {
+        throw new Exception('Cannot set Mysqli error report mode to MYSQLI_REPORT_OFF');
+    }
+}
+
 // environment
 call_user_func(function (): void {
-    $dotenv = Dotenv::create(__DIR__);
+    $dotenv = Dotenv::createMutable(__DIR__);
     $dotenv->load();
     $dotenv->required('testMssql')->allowedValues(['yes', 'no']);
     $dotenv->required('testSqlsrv')->allowedValues(['yes', 'no']);

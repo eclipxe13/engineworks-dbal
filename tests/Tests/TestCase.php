@@ -8,6 +8,13 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
     protected function getenv(string $key, string $default = ''): string
     {
-        return strval($_ENV[$key] ?? $_SERVER[$key] ?? $default);
+        $value = $_ENV[$key] ?? $_SERVER[$key] ?? null;
+        if (is_string($value)) {
+            return $value;
+        }
+        if (is_scalar($value)) {
+            return (string) $value;
+        }
+        return $default;
     }
 }

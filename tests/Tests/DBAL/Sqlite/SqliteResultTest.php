@@ -152,17 +152,12 @@ class SqliteResultTest extends SqliteWithDatabaseTestCase
     }
 
     /**
-     * Iterates the result and assert that each item is an array
+     * Iterates the result
      *
      * @return array<int, mixed[]>
      */
     private function getForEach(): array
     {
-        $array = [];
-        foreach ($this->result as $key => $values) {
-            $this->assertIsArray($values);
-            $array[$key] = $values;
-        }
-        return $array;
+        return iterator_to_array($this->result);
     }
 }

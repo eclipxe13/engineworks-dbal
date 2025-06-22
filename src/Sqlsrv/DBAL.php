@@ -166,8 +166,9 @@ class DBAL extends BaseDBAL
 
     protected function getLastErrorMessage(): string
     {
+        /** @phpstan-var array{string, int, string} $info */
         $info = $this->pdo()->errorInfo();
-        return '[' . $info[0] . '] ' . $info[2];
+        return sprintf('[%s] %s', $info[0], $info[2]);
     }
 
     public function sqlTableEscape(string $tableName, string $asTable = ''): string

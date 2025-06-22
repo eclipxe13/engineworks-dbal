@@ -28,7 +28,7 @@ class Result implements ResultInterface
 
     /**
      * The number of the result rows
-     * @var int
+     * @var int<0, max>
      */
     private $numRows;
 

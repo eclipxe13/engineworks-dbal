@@ -6,6 +6,7 @@ namespace EngineWorks\DBAL\Tests\DBAL\Sample;
 
 use InvalidArgumentException;
 use Psr\Log\AbstractLogger;
+use Stringable;
 
 class ArrayLogger extends AbstractLogger
 {
@@ -15,13 +16,16 @@ class ArrayLogger extends AbstractLogger
     /**
      * @inheritdoc
      * @param mixed[] $context
+     * @phpstan-ignore missingType.parameter
      */
     public function log($level, $message, array $context = []): void
     {
         if (! is_string($level)) {
             throw new InvalidArgumentException('Invalid argument level, expected string');
         }
-        $this->logs[$level][] = (string) $message;
+        if (is_string($message) || $message instanceof Stringable) {
+            $this->logs[$level][] = (string) $message;
+        }
     }
 
     /** @return string[] */

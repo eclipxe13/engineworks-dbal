@@ -33,7 +33,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
     protected function tearDown(): void
     {
         parent::tearDown();
-        $this->dbal->disconnect();
+        $this->getDbal()->disconnect();
     }
 
     /**
@@ -45,7 +45,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
      */
     public function createRecordset(string $query, string $entity = '', array $keys = [], array $types = []): Recordset
     {
-        return $this->dbal->createRecordset($query, $entity, $keys, $types);
+        return $this->getDbal()->createRecordset($query, $entity, $keys, $types);
     }
 
     /**
@@ -55,7 +55,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
      */
     public function queryResult(string $query, array $types = []): Result
     {
-        $result = $this->dbal->queryResult($query, $types);
+        $result = $this->getDbal()->queryResult($query, $types);
         if (! $result instanceof Result) {
             throw new LogicException('Unexpected result');
         }
@@ -74,7 +74,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         foreach ($array as $i => $item) {
             $array[$i] = array_combine($keys, $item) ?: [];
         }
-        return $array;
+        return $array; /** @phpstan-ignore-line return.type */
     }
 
     /**
@@ -156,27 +156,28 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
 
     public function executeStatement(string $statement): void
     {
-        $execute = $this->dbal->execute($statement);
+        $execute = $this->getDbal()->execute($statement);
         if (false === $execute) {
-            print_r($this->logger->messages(LogLevel::ERROR));
+            print_r($this->getLogger()->messages(LogLevel::ERROR));
             $this->fail(get_class($this) . ' statement fail: ' . $statement);
         }
     }
 
     private function createDatabase(): void
     {
-        if (! $this->dbal->connect()) {
+        $logger = $this->getLogger();
+        if (! $this->getDbal()->connect()) {
             $this->fail(sprintf(
                 'Cannot connect to driver %s for testing: %s',
                 $this->getFactoryNamespace(),
-                "\n" . implode("\n", $this->logger->allMessages())
+                "\n" . implode("\n", $logger->allMessages())
             ));
         }
-        $this->dbal->isConnected();
+        $this->getDbal()->isConnected();
         $this->createDatabaseStructure();
         $this->createDatabaseData();
 
-        $this->logger->clear();
+        $logger->clear();
     }
 
     private function createDatabaseData(): void
@@ -195,18 +196,19 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
             ];
         }
         $statements = ['DELETE ' . ' FROM albums;'];
+        $db = $this->getDbal();
         foreach ($data as $row) {
             $statements[] = 'INSERT ' . ' INTO albums (albumid, title, votes, lastview, isfree, collect) VALUES'
-                . ' (' . $this->dbal->sqlQuote($row[0], DBAL::TINT)
-                . ', ' . $this->dbal->sqlQuote($row[1], DBAL::TTEXT)
-                . ', ' . $this->dbal->sqlQuote($row[2], DBAL::TINT)
-                . ', ' . $this->dbal->sqlQuote($row[3], DBAL::TDATETIME)
-                . ', ' . $this->dbal->sqlQuote($row[4], DBAL::TBOOL)
-                . ', ' . $this->dbal->sqlQuote($row[5], DBAL::TNUMBER)
+                . ' (' . $db->sqlQuote($row[0], DBAL::TINT)
+                . ', ' . $db->sqlQuote($row[1], DBAL::TTEXT)
+                . ', ' . $db->sqlQuote($row[2], DBAL::TINT)
+                . ', ' . $db->sqlQuote($row[3], DBAL::TDATETIME)
+                . ', ' . $db->sqlQuote($row[4], DBAL::TBOOL)
+                . ', ' . $db->sqlQuote($row[5], DBAL::TNUMBER)
                 . ');';
         }
-        $this->dbal->transBegin();
+        $db->transBegin();
         $this->executeStatements($statements);
-        $this->dbal->transCommit();
+        $db->transCommit();
     }
 }

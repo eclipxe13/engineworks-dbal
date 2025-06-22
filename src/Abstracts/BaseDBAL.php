@@ -47,7 +47,7 @@ abstract class BaseDBAL implements DBAL
      * @param Settings $settings
      * @param LoggerInterface|null $logger If null then a NullLogger will be used
      */
-    public function __construct(Settings $settings, LoggerInterface $logger = null)
+    public function __construct(Settings $settings, ?LoggerInterface $logger = null)
     {
         $this->settings = $settings;
         $this->setLogger($logger ?? new NullLogger());
@@ -141,7 +141,7 @@ abstract class BaseDBAL implements DBAL
         if (0 === $this->transactionLevel) {
             if ($this->transPreventCommit()) {
                 $this->transactionLevel = 1;
-                trigger_error('Try to call final commit with prevent commit enabled', E_USER_ERROR);
+                @trigger_error('Try to call final commit with prevent commit enabled', E_USER_ERROR);
             }
             $this->commandTransactionCommit();
         } else {
@@ -166,7 +166,13 @@ abstract class BaseDBAL implements DBAL
         }
     }
 
-    final public function transPreventCommit(bool $preventCommit = null): bool
+    /**
+     * Get and (optionally) set the prevention commit feature.
+     *
+     * @param bool|null $preventCommit When NULL does not set the feature and only return the current value.
+     * @return bool Return the current value when not set a new value, or the preious value when set a new value.
+     */
+    final public function transPreventCommit(?bool $preventCommit = null): bool
     {
         if (null === $preventCommit) {
             return $this->preventCommit;
@@ -575,7 +581,7 @@ abstract class BaseDBAL implements DBAL
         return '';
     }
 
-    final public function createQueryException(string $query, Throwable $previous = null): QueryException
+    final public function createQueryException(string $query, ?Throwable $previous = null): QueryException
     {
         return new QueryException($this->getLastMessage() ?: 'Database error', $query, 0, $previous);
     }
