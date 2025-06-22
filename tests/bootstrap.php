@@ -13,12 +13,6 @@ date_default_timezone_set('UTC');
 // composer
 require_once __DIR__ . '/../vendor/autoload.php';
 
-if (MYSQLI_REPORT_OFF !== (new mysqli_driver())->report_mode) {
-    if (! mysqli_report(MYSQLI_REPORT_OFF)) {
-        throw new Exception('Cannot set Mysqli error report mode to MYSQLI_REPORT_OFF');
-    }
-}
-
 // environment
 call_user_func(function (): void {
     $dotenv = Dotenv::createMutable(__DIR__);
