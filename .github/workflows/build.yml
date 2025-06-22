@@ -130,6 +130,7 @@ jobs:
         with:
           php-version: '8.4'
           coverage: none
+          extensions: pdo, sqlite3, mysqli, pdo_sqlsrv, pdo_dblib
           tools: composer:v2, phpstan
         env:
           fail-fast: true
