@@ -29,7 +29,6 @@ class MssqlWithDatabaseTestCase extends WithDatabaseTestCase
         return [
             'host' => $this->getenv('testMssql_server'),
             'port' => $this->getenv('testMssql_port'),
-            'database' => '',
             'user' => $this->getenv('testMssql_username'),
             'password' => $this->getenv('testMssql_password'),
             'connect-timeout' => $this->getenv('testMssql_connect_timeout'),

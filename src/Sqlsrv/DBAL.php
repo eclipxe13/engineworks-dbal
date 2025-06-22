@@ -30,10 +30,17 @@ class DBAL extends BaseDBAL
 
     protected function getPDOConnectionString(): string
     {
+        /** @see https://www.php.net/manual/en/ref.pdo-sqlsrv.connection.php */
         $vars = [];
         $vars['Server'] = $this->settings->get('host');
         if ($this->settings->exists('port')) {
             $vars['Server'] .= ',' . ((int) $this->settings->get('port'));
+        }
+        if ($this->settings->exists('encrypt')) {
+            $vars['Encrypt'] = $this->settings->get('encrypt') ? 'true' : 'false';
+        }
+        if ($this->settings->exists('trust-server-certificate')) {
+            $vars['TrustServerCertificate'] = $this->settings->get('trust-server-certificate') ? 'true' : 'false';
         }
         if ($this->settings->exists('database')) {
             $vars['Database'] = $this->settings->get('database');
@@ -43,7 +50,7 @@ class DBAL extends BaseDBAL
         }
         $return = 'sqlsrv:';
         foreach ($vars as $key => $value) {
-            $return .= $key . '=' . $value . ';';
+            $return .= sprintf('%s=%s;', $key, $value);
         }
         return $return;
     }

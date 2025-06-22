@@ -37,6 +37,15 @@ class DBAL extends BaseDBAL
         if ($this->settings->exists('port')) {
             $vars['host'] .= ':' . $this->settings->get('port');
         }
+        if ($this->settings->exists('encrypt')) {
+            $vars['host'] .= sprintf(';Encrypt=%s', $this->settings->get('encrypt') ? 'Yes' : 'No');
+        }
+        if ($this->settings->exists('trust-server-certificate')) {
+            $vars['host'] .= sprintf(
+                ';TrustServerCertificate=%s',
+                $this->settings->get('trust-server-certificate') ? 'Yes' : 'No'
+            );
+        }
 
         if ($this->settings->exists('database')) {
             $vars['dbname'] = $this->settings->get('database');
@@ -47,7 +56,7 @@ class DBAL extends BaseDBAL
 
         $return = 'dblib:';
         foreach ($vars as $key => $value) {
-            $return .= $key . '=' . $value . ';';
+            $return .= sprintf('%s=%s;', $key, $value);
         }
         return $return;
     }

@@ -34,7 +34,8 @@ class Settings extends SettingsMap
         'connect-timeout' => 5,
         'freetds-version' => '7.0',
         'socket' => null,
-        'flags' => null,
+        'encrypt' => false,
+        'trust-server-certificate' => true,
         'dump' => '',
     ];
 }
