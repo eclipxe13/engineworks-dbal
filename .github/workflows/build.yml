@@ -121,6 +121,12 @@ jobs:
         env:
           testMssql_port: ${{ job.services.mssql.ports[1433] }}
           testSqlsrv_port: ${{ job.services.mssql.ports[1433] }}
+      - name: Store code coverage
+        uses: actions/upload-artifact@v4
+        if: matrix.php-version == '8.4'
+        with:
+          name: code-coverage
+          path: build/coverage
 
   phpstan:
     name: Static analysis (phpstan)
@@ -150,3 +156,44 @@ jobs:
         run: composer upgrade --no-interaction --no-progress --prefer-dist
       - name: Static analysis (phpstan)
         run: phpstan analyse --no-progress --verbose
+
+  sonarqube:
+    name: SonarQube Scan and Report
+    needs: [ "phpunit" ]
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Unshallow clone to provide blame information
+        run: git fetch --unshallow
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo, sqlite3, mysqli, pdo_sqlsrv, pdo_dblib
+          coverage: none
+          tools: composer:v2
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: "${{ steps.composer-cache.outputs.dir }}"
+          key: "${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}"
+          restore-keys: "${{ runner.os }}-composer-"
+      - name: Install project dependencies
+        run: composer upgrade --no-interaction --no-progress --prefer-dist
+      - name: Obtain code coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: code-coverage
+          path: build/coverage
+      - name: Prepare SonarCloud Code Coverage Files
+        run: |
+          sed 's#'$GITHUB_WORKSPACE'#/github/workspace#g' build/coverage/junit.xml > build/sonar-junit.xml
+          sed 's#'$GITHUB_WORKSPACE'#/github/workspace#g' build/coverage/clover.xml > build/sonar-coverage.xml
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
