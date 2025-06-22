@@ -141,7 +141,7 @@ abstract class BaseDBAL implements DBAL
         if (0 === $this->transactionLevel) {
             if ($this->transPreventCommit()) {
                 $this->transactionLevel = 1;
-                @trigger_error('Try to call final commit with prevent commit enabled', E_USER_ERROR);
+                throw new RuntimeException('Try to call final commit with prevent commit enabled');
             }
             $this->commandTransactionCommit();
         } else {
