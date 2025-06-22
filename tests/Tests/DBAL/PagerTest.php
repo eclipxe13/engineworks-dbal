@@ -15,7 +15,7 @@ class PagerTest extends SqliteWithDatabaseTestCase
     {
         $sql = 'SELECT * FROM albums;';
         $sqlCount = 'SELECT COUNT(*) FROM albums;';
-        $pager = new Pager($this->dbal, $sql, $sqlCount);
+        $pager = new Pager($this->getDbal(), $sql, $sqlCount);
 
         $this->assertSame(Pager::COUNT_METHOD_QUERY, $pager->getCountMethod());
         $this->checkPagerStatus($pager);
@@ -24,7 +24,7 @@ class PagerTest extends SqliteWithDatabaseTestCase
     public function testPagerWithSelect(): void
     {
         $sql = 'SELECT * FROM albums;';
-        $pager = new Pager($this->dbal, $sql);
+        $pager = new Pager($this->getDbal(), $sql);
 
         $this->assertSame(Pager::COUNT_METHOD_SELECT, $pager->getCountMethod());
         $this->checkPagerStatus($pager);
@@ -33,7 +33,7 @@ class PagerTest extends SqliteWithDatabaseTestCase
     public function testPagerWithRecordcount(): void
     {
         $sql = 'SELECT * FROM albums;';
-        $pager = new Pager($this->dbal, $sql);
+        $pager = new Pager($this->getDbal(), $sql);
 
         $pager->setCountMethod(Pager::COUNT_METHOD_RECORDCOUNT);
         $this->assertSame(Pager::COUNT_METHOD_RECORDCOUNT, $pager->getCountMethod());
@@ -43,7 +43,7 @@ class PagerTest extends SqliteWithDatabaseTestCase
     public function testSetCountMethod(): void
     {
         $sql = 'SELECT * FROM albums;';
-        $pager = new Pager($this->dbal, $sql);
+        $pager = new Pager($this->getDbal(), $sql);
 
         $pager->setCountMethod(Pager::COUNT_METHOD_RECORDCOUNT);
         $this->assertSame(Pager::COUNT_METHOD_RECORDCOUNT, $pager->getCountMethod());
@@ -58,7 +58,7 @@ class PagerTest extends SqliteWithDatabaseTestCase
     public function testSetPageSize(): void
     {
         $sql = 'SELECT * FROM albums;';
-        $pager = new Pager($this->dbal, $sql);
+        $pager = new Pager($this->getDbal(), $sql);
 
         $this->assertSame(20, $pager->getPageSize(), 'The default page size is not 20');
 

@@ -7,17 +7,19 @@ namespace EngineWorks\DBAL\Tests;
 use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Factory;
 use EngineWorks\DBAL\Tests\DBAL\Sample\ArrayLogger;
+use LogicException;
+use Psr\Log\AbstractLogger;
 
 abstract class WithDbalTestCase extends TestCase
 {
-    /** @var Factory */
-    protected $factory;
+    /** @var Factory|null */
+    protected $factory = null;
 
-    /** @var DBAL */
-    protected $dbal;
+    /** @var DBAL|null */
+    protected $dbal = null;
 
-    /** @var ArrayLogger */
-    protected $logger;
+    /** @var ArrayLogger|null */
+    protected $logger = null;
 
     abstract protected function getFactoryNamespace(): string;
 
@@ -29,17 +31,27 @@ abstract class WithDbalTestCase extends TestCase
 
     public function getFactory(): Factory
     {
-        return $this->factory;
+        if ($this->factory instanceof Factory) {
+            return $this->factory;
+        }
+
+        throw new LogicException('Factory has not been set.');
     }
 
     public function getDbal(): DBAL
     {
-        return $this->dbal;
+        if ($this->dbal instanceof DBAL) {
+            return $this->dbal;
+        }
+        throw new LogicException('DBAL has not been set.');
     }
 
     public function getLogger(): ArrayLogger
     {
-        return $this->logger;
+        if ($this->logger instanceof AbstractLogger) {
+            return $this->logger;
+        }
+        throw new LogicException('Logger has not been set.');
     }
 
     /**
@@ -48,7 +60,8 @@ abstract class WithDbalTestCase extends TestCase
      */
     protected function createDbalWithSettings(array $settingsArray = []): DBAL
     {
-        $dbal = $this->factory->dbal($this->factory->settings($settingsArray));
+        $factory = $this->getFactory();
+        $dbal = $factory->dbal($factory->settings($settingsArray));
         if ($dbal->isConnected()) {
             $this->fail('The DBAL should be disconnected after creation');
         }
@@ -60,8 +73,10 @@ abstract class WithDbalTestCase extends TestCase
      */
     protected function setupDbalWithSettings(array $settingsArray = []): void
     {
-        $this->dbal = $this->createDbalWithSettings($settingsArray);
-        $this->logger = new ArrayLogger();
-        $this->dbal->setLogger($this->logger);
+        $logger = new ArrayLogger();
+        $db = $this->createDbalWithSettings($settingsArray);
+        $db->setLogger($logger);
+        $this->logger = $logger;
+        $this->dbal = $db;
     }
 }

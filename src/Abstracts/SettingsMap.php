@@ -11,8 +11,6 @@ use InvalidArgumentException;
  * This is a utility class to implement the Settings interface, it is used
  * on Mysqli and Sqlite implementations.
  * On the extended class define the map of properties
- *
- * @package EngineWorks\DBAL\Abstracts
  */
 class SettingsMap implements SettingsInterface
 {
@@ -22,6 +20,7 @@ class SettingsMap implements SettingsInterface
      */
     protected $map = [];
 
+    /** @param array<int|string, scalar|null> $settings */
     public function __construct(array $settings = [])
     {
         $this->setAll($settings);
@@ -55,7 +54,7 @@ class SettingsMap implements SettingsInterface
     /**
      * Set an array of settings, ignores non-existent or non-string-key elements
      *
-     * @param array<string, scalar|null> $settings
+     * @param array<int|string, scalar|null> $settings
      */
     public function setAll(array $settings): void
     {

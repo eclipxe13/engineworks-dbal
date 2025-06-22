@@ -76,7 +76,7 @@ interface DBAL extends CommonTypes, LoggerAwareInterface
      * @param bool|null $preventCommit
      * @return bool
      */
-    public function transPreventCommit(bool $preventCommit = null): bool;
+    public function transPreventCommit(?bool $preventCommit = null): bool;
 
     /**
      * Escapes a table name including its prefix and optionally renames it.
@@ -522,5 +522,5 @@ interface DBAL extends CommonTypes, LoggerAwareInterface
      * @param Throwable|null $previous
      * @return QueryException
      */
-    public function createQueryException(string $query, Throwable $previous = null): QueryException;
+    public function createQueryException(string $query, ?Throwable $previous = null): QueryException;
 }

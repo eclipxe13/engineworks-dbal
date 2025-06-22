@@ -26,7 +26,7 @@ class Result implements ResultInterface
 
     /**
      * The number of the result rows
-     * @var int
+     * @var int<0, max>
      */
     private $numRows;
 
@@ -67,6 +67,7 @@ class Result implements ResultInterface
 
     /**
      * Internal method to retrieve the number of rows if not supplied from constructor
+     * @return int<0, max>
      */
     private function obtainNumRows(): int
     {
@@ -100,6 +101,7 @@ class Result implements ResultInterface
 
     public function fetchRow()
     {
+        /** @phpstan-var array<string, scalar|null>|false $return */
         $return = $this->stmt->fetch(PDO::FETCH_ASSOC);
         return (! is_array($return)) ? false : $return;
     }

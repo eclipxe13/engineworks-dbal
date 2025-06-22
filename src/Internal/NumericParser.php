@@ -74,6 +74,13 @@ class NumericParser
             return ['decimal_point' => '.', 'thousands_sep' => ',', 'currency_symbol' => '$'];
         }
 
+        /**
+         * @phpstan-var array{
+         *     decimal_point: string|null,
+         *     thousands_sep: string|null,
+         *     currency_symbol: string|null
+         * } $locale
+         */
         $locale = localeconv();
         return [
             'decimal_point' => strval($locale['decimal_point'] ?? '.'),

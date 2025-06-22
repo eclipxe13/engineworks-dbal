@@ -19,7 +19,6 @@ use RuntimeException;
 
 /**
  * Mysqli implementation
- * @package EngineWorks\DBAL\Mysqli
  */
 class DBAL extends BaseDBAL
 {

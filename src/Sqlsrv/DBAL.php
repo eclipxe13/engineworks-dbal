@@ -18,9 +18,6 @@ use Throwable;
 /**
  * MS Sql Server implementation based on SqlSrv
  * @see https://docs.microsoft.com/en-us/sql/connect/php/microsoft-php-driver-for-sql-server
- * @package EngineWorks\DBAL\Sqlsrv
- *
- * @todo: encoding: $this->settings->get('encoding')
  */
 class DBAL extends BaseDBAL
 {
@@ -32,10 +29,17 @@ class DBAL extends BaseDBAL
 
     protected function getPDOConnectionString(): string
     {
+        /** @see https://www.php.net/manual/en/ref.pdo-sqlsrv.connection.php */
         $vars = [];
         $vars['Server'] = $this->settings->get('host');
         if ($this->settings->exists('port')) {
             $vars['Server'] .= ',' . ((int) $this->settings->get('port'));
+        }
+        if ($this->settings->exists('encrypt')) {
+            $vars['Encrypt'] = $this->settings->get('encrypt') ? 'true' : 'false';
+        }
+        if ($this->settings->exists('trust-server-certificate')) {
+            $vars['TrustServerCertificate'] = $this->settings->get('trust-server-certificate') ? 'true' : 'false';
         }
         if ($this->settings->exists('database')) {
             $vars['Database'] = $this->settings->get('database');
@@ -45,7 +49,7 @@ class DBAL extends BaseDBAL
         }
         $return = 'sqlsrv:';
         foreach ($vars as $key => $value) {
-            $return .= $key . '=' . $value . ';';
+            $return .= sprintf('%s=%s;', $key, $value);
         }
         return $return;
     }
@@ -63,6 +67,7 @@ class DBAL extends BaseDBAL
                 (string) $this->settings->get('password'),
                 [
                     PDO::SQLSRV_ATTR_QUERY_TIMEOUT => max(0, (int) $this->settings->get('timeout')),
+                    PDO::SQLSRV_ATTR_ENCODING => $this->parseEncoding($this->settings->get('encoding')),
                 ]
             );
         } catch (Throwable $ex) {
@@ -166,8 +171,9 @@ class DBAL extends BaseDBAL
 
     protected function getLastErrorMessage(): string
     {
+        /** @phpstan-var array{string, int, string} $info */
         $info = $this->pdo()->errorInfo();
-        return '[' . $info[0] . '] ' . $info[2];
+        return sprintf('[%s] %s', $info[0], $info[2]);
     }
 
     public function sqlTableEscape(string $tableName, string $asTable = ''): string
@@ -310,5 +316,23 @@ class DBAL extends BaseDBAL
             throw new RuntimeException('The current state of the connection is NULL');
         }
         return $this->pdo;
+    }
+
+    /**
+     * Internal procedure to
+     * @param scalar|null $encoding
+     * @return int-mask-of<PDO::SQLSRV_ENCODING_*>
+     */
+    protected function parseEncoding($encoding): int
+    {
+        $encodings = [
+            PDO::SQLSRV_ENCODING_BINARY,
+            PDO::SQLSRV_ENCODING_UTF8,
+            PDO::SQLSRV_ENCODING_SYSTEM,
+        ];
+        if (in_array($encoding, $encodings, true)) {
+            return $encoding;
+        }
+        return PDO::SQLSRV_ENCODING_DEFAULT;
     }
 }

@@ -89,7 +89,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
      * @param DBAL $dbal
      * @param LoggerInterface|null $logger If not provided it uses the DBAL Logger
      */
-    public function __construct(DBAL $dbal, LoggerInterface $logger = null)
+    public function __construct(DBAL $dbal, ?LoggerInterface $logger = null)
     {
         $this->dbal = $dbal;
         $this->logger = $logger;
@@ -121,7 +121,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
      * @param string $sql
      * @param string $overrideEntity
      * @param string[] $overrideKeys
-     * @param string[] $overrideTypes
+     * @param array<string, string> $overrideTypes
      *
      * @return true
      */
@@ -167,7 +167,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
                 throw new InvalidArgumentException('Keys contains repeated values');
             }
             foreach ($overrideKeys as $fieldName) {
-                if (! is_string($fieldName)) {
+                if (! is_string($fieldName)) { /** @phpstan-ignore-line function.alreadyNarrowedType */
                     throw new InvalidArgumentException('Keys were set but at least one is not a string');
                 }
                 if (! array_key_exists($fieldName, $this->datafields)) {
@@ -658,7 +658,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
 
     /**
      * Return the number of records in the query
-     * @return int
+     * @return int<0, max>
      */
     final public function getRecordCount(): int
     {

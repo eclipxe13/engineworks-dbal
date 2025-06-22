@@ -16,7 +16,7 @@ class RecordsetTest extends SqliteWithDatabaseTestCase
 {
     public function testValuesHadChangedWithStringZeros(): void
     {
-        $dbal = $this->dbal;
+        $dbal = $this->getDbal();
 
         $sql = 'UPDATE albums SET title = ' . $dbal->sqlQuote('00000', CommonTypes::TTEXT) . ' WHERE (albumid = 1);';
         $dbal->execute($sql);
@@ -61,20 +61,22 @@ class RecordsetTest extends SqliteWithDatabaseTestCase
 
     public function testDbalCreateRecordsetUsesDbalLogger(): void
     {
-        $recordset = $this->dbal->createRecordset('SELECT 1');
-        $this->assertSame($recordset->getLogger(), $this->dbal->getLogger());
+        $db = $this->getDbal();
+        $recordset = $db->createRecordset('SELECT 1');
+        $this->assertSame($recordset->getLogger(), $db->getLogger());
     }
 
     public function testRecordsetUsesDbalLoggerWhenNull(): void
     {
         $logger = new NullLogger();
-        $recordset = new Recordset($this->dbal);
-        $this->assertSame($this->dbal->getLogger(), $recordset->getLogger());
+        $db = $this->getDbal();
+        $recordset = new Recordset($db);
+        $this->assertSame($db->getLogger(), $recordset->getLogger());
 
         $recordset->setLogger($logger);
         $this->assertSame($logger, $recordset->getLogger());
 
         $recordset->setLogger(null);
-        $this->assertSame($this->dbal->getLogger(), $recordset->getLogger());
+        $this->assertSame($db->getLogger(), $recordset->getLogger());
     }
 }

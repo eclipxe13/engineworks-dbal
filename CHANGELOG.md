@@ -2,6 +2,20 @@
 
 - See [Version 3](VERSION_3.md) for major changes
 
+# Version 2.3.6 2025-06-22
+
+- Compatibility with PHP 8.4.
+- Update license year to 2025.
+
+Development changes:
+
+- Add PHP 8.4 to test matrix.
+- Update `vlucas/phpdotenv` to version 5.6.2.
+- Allow manual dispatch for build workflow.
+- Run GitHub workflow jobs using PHP 8.4.
+- Remove Scrutinizer-CI. Thanks!
+- Upgrade development tools.
+
 # Version 2.3.5 2024-04-29
 
 - Allow to receive PHP Enums as value to quote.

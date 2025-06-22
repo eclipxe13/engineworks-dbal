@@ -84,10 +84,7 @@ class DBAL extends BaseDBAL
     /** @return Result|false */
     public function queryResult(string $query, array $overrideTypes = [])
     {
-        /**
-         * @scrutinizer ignore-unhandled
-         * @noinspection PhpUsageOfSilenceOperatorInspection
-         */
+        /** @noinspection PhpUsageOfSilenceOperatorInspection */
         $rslt = @$this->sqlite()->query($query);
         if ($rslt instanceof SQLite3Result) {
             return new Result($rslt, $overrideTypes);

@@ -102,11 +102,13 @@ If you don't have one you can use Docker with the image `microsoft/mssql-server-
 docker pull mcr.microsoft.com/mssql/server
 
 # run an instance of mssql
-docker run --name dbal-mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Password-123456' -p 1433:1433 -d mcr.microsoft.com/mssql/server
+docker run --name dbal-mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Password-123456' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2022-latest
 
 # access the instance and run mssql
 docker exec -it dbal-mssql /bin/bash
-/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Password-123456
+/opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P Password-123456 -C
+
+docker exec -it dbal-mssql /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P Password-123456 -C -Q 'SELECT @@VERSION;'
 
 # stop the instance
 docker stop dbal-mssql

@@ -17,7 +17,7 @@ class MysqliWithDatabaseTestCase extends WithDatabaseTestCase
             $this->markTestSkipped('Environment does not have the extension mysqli');
         }
         if (MYSQLI_REPORT_OFF !== (new mysqli_driver())->report_mode) {
-            if (! mysqli_report(MYSQLI_REPORT_OFF)) {
+            if (! mysqli_report(MYSQLI_REPORT_OFF)) { /** @phpstan-ignore-line */
                 $this->markTestSkipped('Cannot set Mysqli error report mode to MYSQLI_REPORT_OFF');
             }
         }

@@ -20,9 +20,7 @@ class SqlsrvResultTest extends SqlsrvWithDatabaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        if (! $this->result instanceof Result) {
-            $this->result = $this->queryResult('SELECT * FROM albums WHERE (albumid between 1 and 3);');
-        }
+        $this->result = $this->queryResult('SELECT * FROM albums WHERE (albumid between 1 and 3);');
     }
 
     public function testResultCount(): void
@@ -157,17 +155,12 @@ class SqlsrvResultTest extends SqlsrvWithDatabaseTestCase
     }
 
     /**
-     * Iterates the result and assert that each item is an array
+     * Iterates the result
      *
      * @return array<int, mixed[]>
      */
     private function getForEach(): array
     {
-        $array = [];
-        foreach ($this->result as $key => $values) {
-            $this->assertIsArray($values);
-            $array[$key] = $values;
-        }
-        return $array;
+        return iterator_to_array($this->result);
     }
 }

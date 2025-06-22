@@ -35,6 +35,10 @@ trait TransactionsPreventCommitTestTrait
         try {
             $dbal->transCommit();
         } catch (Throwable $exception) {
+            $this->assertSame(
+                'Try to call final commit with prevent commit enabled',
+                $exception->getMessage(),
+            );
             $lastCommitError = true;
         }
         $this->assertTrue($lastCommitError);

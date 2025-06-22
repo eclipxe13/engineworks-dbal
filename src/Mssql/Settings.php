@@ -20,8 +20,6 @@ use EngineWorks\DBAL\Abstracts\SettingsMap;
  * - prefix: tables prefix
  * - flags: null
  * - dump: '' => nothing, 'info' => '-- info messages',  'debug' => SELECT... + info
- *
- * @package EngineWorks\DBAL\Mysqli
  */
 class Settings extends SettingsMap
 {
@@ -36,7 +34,8 @@ class Settings extends SettingsMap
         'connect-timeout' => 5,
         'freetds-version' => '7.0',
         'socket' => null,
-        'flags' => null,
+        'encrypt' => false,
+        'trust-server-certificate' => true,
         'dump' => '',
     ];
 }

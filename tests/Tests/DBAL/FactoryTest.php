@@ -8,6 +8,7 @@ use EngineWorks\DBAL\DBAL;
 use EngineWorks\DBAL\Factory;
 use EngineWorks\DBAL\Settings;
 use LogicException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class FactoryTest extends TestCase
@@ -18,10 +19,8 @@ class FactoryTest extends TestCase
         $factory = new Factory($namespace);
 
         $settings = $factory->settings();
-        $this->assertNotNull($settings);
-
-        $dbal = $factory->dbal($settings);
-        $this->assertNotNull($dbal);
+        $factory->dbal($settings);
+        $this->assertTrue(true, 'No exception was thrown'); /** @phpstan-ignore-line method.alreadyNarrowedType */
     }
 
     public function testSettingWhenClassDoesNotExists(): void
@@ -51,7 +50,7 @@ class FactoryTest extends TestCase
         $namespace = __NAMESPACE__ . '\Sample';
         $dbalname = 'SettingsClass';
         $factory = new Factory($namespace, $dbalname, 'X');
-        /** @var Settings $mockSettings */
+        /** @var Settings&MockObject $mockSettings */
         $mockSettings = $this->createMock(Settings::class);
 
         $this->expectException(LogicException::class);
@@ -65,7 +64,7 @@ class FactoryTest extends TestCase
         $namespace = __NAMESPACE__ . '\Sample';
         $dbalname = 'EmptyObject';
         $factory = new Factory($namespace, $dbalname, 'X');
-        /** @var Settings $mockSettings */
+        /** @var Settings&MockObject $mockSettings */
         $mockSettings = $this->createMock(Settings::class);
 
         $this->expectException(LogicException::class);

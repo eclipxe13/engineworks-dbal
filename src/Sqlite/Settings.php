@@ -16,8 +16,6 @@ use EngineWorks\DBAL\Abstracts\SettingsMap;
  * - prefix: tables prefix
  * - flags: 6 => SQLITE3_OPEN_CREATE + SQLITE3_OPEN_READWRITE
  * - dump: '' => nothing, 'info' => '-- info messages',  'debug' => SELECT... + info
- *
- * @package EngineWorks\DBAL\Sqlite
  */
 class Settings extends SettingsMap
 {

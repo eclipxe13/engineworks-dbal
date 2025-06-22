@@ -10,7 +10,6 @@ use IteratorAggregate;
 /**
  * Interface Result, this interface must be implemented by the Drivers
  *
- * @package EngineWorks\DBAL
  * @extends IteratorAggregate<int, array<string, scalar|null>>
  */
 interface Result extends IteratorAggregate, Countable
@@ -37,7 +36,7 @@ interface Result extends IteratorAggregate, Countable
 
     /**
      * Retrieve the count of the resource
-     * @return int
+     * @return int<0, max>
      */
     public function resultCount(): int;
 

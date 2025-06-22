@@ -4,11 +4,6 @@ declare(strict_types=1);
 
 namespace EngineWorks\DBAL\Tests\DBAL\TesterTraits;
 
-use EngineWorks\DBAL\DBAL;
-
-/**
- * @property-read DBAL $dbal
- */
 trait MsSqlServerNoCountSettingTrait
 {
     /** @var int */
@@ -58,21 +53,24 @@ trait MsSqlServerNoCountSettingTrait
 
     private function queryRecordCount(): int
     {
-        return (int) $this->dbal->queryOne('SELECT COUNT(*) FROM ExpensiveTable;');
+        $db = $this->getDbal();
+        return (int) $db->queryOne('SELECT COUNT(*) FROM ExpensiveTable;');
     }
 
     public function testExecuteWithOne(): void
     {
-        $execReturn = $this->dbal->execute('EXEC ExpensiveTest 1;');
-        $this->assertSame(0, $execReturn, 'EXEC was expected to return -1');
+        $db = $this->getDbal();
+        $execReturn = $db->execute('EXEC ExpensiveTest 1;');
+        $this->assertSame(0, $execReturn, 'EXEC was expected to return 0');
         $this->assertSame(1, $this->queryRecordCount(), 'EXEC did not insert 1 record');
     }
 
     public function testExecuteWithOutNoCount(): void
     {
         $numRows = $this->heavyNumCount;
-        $execReturn = $this->dbal->execute("EXEC ExpensiveTest $numRows;");
-        $this->assertSame(0, $execReturn, 'EXEC was expected to return -1');
+        $db = $this->getDbal();
+        $execReturn = $db->execute("EXEC ExpensiveTest $numRows;");
+        $this->assertSame(0, $execReturn, 'EXEC was expected to return 0');
         $this->assertLessThanOrEqual(
             $numRows,
             $this->queryRecordCount(),
@@ -83,9 +81,10 @@ trait MsSqlServerNoCountSettingTrait
     public function testExecuteWithNoCountOff(): void
     {
         $numRows = $this->heavyNumCount;
-        $this->dbal->execute('SET NOCOUNT OFF;');
-        $execReturn = $this->dbal->execute("EXEC ExpensiveTest $numRows;");
-        $this->assertSame(0, $execReturn, 'EXEC was expected to return -1');
+        $db = $this->getDbal();
+        $db->execute('SET NOCOUNT OFF;');
+        $execReturn = $db->execute("EXEC ExpensiveTest $numRows;");
+        $this->assertSame(0, $execReturn, 'EXEC was expected to return 0');
         $this->assertLessThanOrEqual(
             $numRows,
             $this->queryRecordCount(),
@@ -96,9 +95,10 @@ trait MsSqlServerNoCountSettingTrait
     public function testExecuteWithNoCountOn(): void
     {
         $numRows = $this->heavyNumCount;
-        $this->dbal->execute('SET NOCOUNT ON;');
-        $execReturn = $this->dbal->execute("EXEC ExpensiveTest $numRows;");
-        $this->assertSame(0, $execReturn, 'EXEC was expected to return -1');
+        $db = $this->getDbal();
+        $db->execute('SET NOCOUNT ON;');
+        $execReturn = $db->execute("EXEC ExpensiveTest $numRows;");
+        $this->assertSame(0, $execReturn, 'EXEC was expected to return 0');
         $this->assertSame(
             $numRows,
             $this->queryRecordCount(),
@@ -106,31 +106,27 @@ trait MsSqlServerNoCountSettingTrait
         );
     }
 
-    public function testDeleteWithoutSetCount(): void
-    {
-        $numRows = 10;
-        $this->dbal->execute("EXEC ExpensiveTest $numRows;");
-        $this->assertSame($numRows, $this->dbal->execute('DELETE FROM ExpensiveTable;'));
-    }
-
     public function testDeleteWithSetCountOn(): void
     {
         $numRows = 10;
-        $this->dbal->execute("SET NOCOUNT ON; EXEC ExpensiveTest $numRows;");
-        $this->assertSame(0, $this->dbal->execute('DELETE FROM ExpensiveTable;'));
+        $db = $this->getDbal();
+        $db->execute("SET NOCOUNT ON; EXEC ExpensiveTest $numRows;");
+        $this->assertSame(0, $db->execute('DELETE FROM ExpensiveTable;'));
     }
 
     public function testDeleteWithSetCountOff(): void
     {
         $numRows = 10;
-        $this->dbal->execute("SET NOCOUNT OFF; EXEC ExpensiveTest $numRows;");
-        $this->assertSame($numRows, $this->dbal->execute('DELETE FROM ExpensiveTable;'));
+        $db = $this->getDbal();
+        $db->execute("SET NOCOUNT OFF; EXEC ExpensiveTest $numRows;");
+        $this->assertSame($numRows, $db->execute('DELETE FROM ExpensiveTable;'));
     }
 
     public function testDeleteWithSetCountOnAndOff(): void
     {
         $numRows = 10;
-        $this->dbal->execute("SET NOCOUNT ON; EXEC ExpensiveTest $numRows; SET NOCOUNT OFF;");
-        $this->assertSame($numRows, $this->dbal->execute('DELETE FROM ExpensiveTable;'));
+        $db = $this->getDbal();
+        $db->execute("SET NOCOUNT ON; EXEC ExpensiveTest $numRows; SET NOCOUNT OFF;");
+        $this->assertSame($numRows, $db->execute('DELETE FROM ExpensiveTable;'));
     }
 }

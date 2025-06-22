@@ -134,15 +134,12 @@ trait DbalQueriesTrait
     public function testQueryArrayValues(): void
     {
         $sql = 'SELECT * FROM albums WHERE (albumid BETWEEN 1 AND 5) ORDER BY albumid;';
-        $arrayValues = $this->getDbal()->queryArrayValues($sql, $this->overrideTypes()) ?: [];
+        $arrayValues = $this->getDbal()->queryArrayValues($sql, $this->overrideTypes());
         $this->assertIsArray($arrayValues);
         $this->assertCount(5, $arrayValues);
 
-        $values = $arrayValues[0];
-        $this->assertIsArray($values);
-
         $expectedValues = $this->getFixedValuesWithLabels(1, 1)[0];
-        $this->assertEquals($expectedValues, $values);
+        $this->assertEquals($expectedValues, $arrayValues[0]);
     }
 
     public function testQueryArrayValuesWithNoValues(): void
@@ -196,13 +193,18 @@ trait DbalQueriesTrait
     {
         $sql = 'SELECT * FROM albums WHERE (albumid between 2 and 5);';
         $pairs = $this->getDbal()->queryPairs($sql, 'albumid', 'title', 'X');
-        $expectedPairs = call_user_func(function ($originalRows): array {
-            $converted = [];
-            foreach ($originalRows as $originalRow) {
-                $converted['X' . $originalRow['albumid']] = $originalRow['title'];
-            }
-            return $converted;
-        }, $this->getFixedValuesWithLabels(2, 5));
+        $expectedPairs = call_user_func(
+            /** @phpstan-param array<array<string, scalar|null>> $originalRows */
+            function (array $originalRows): array {
+                $converted = [];
+                /** @phpstan-var array<string, scalar|null> $originalRow */
+                foreach ($originalRows as $originalRow) {
+                    $converted[sprintf('X%s', $originalRow['albumid'])] = $originalRow['title'];
+                }
+                return $converted;
+            },
+            $this->getFixedValuesWithLabels(2, 5)
+        );
 
         $this->assertSame($expectedPairs, $pairs);
     }

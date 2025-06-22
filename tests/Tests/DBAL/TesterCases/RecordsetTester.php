@@ -155,7 +155,7 @@ final class RecordsetTester
         $this->test->assertInstanceOf(Recordset::class, $recordset);
         $this->test->assertSame(5, $recordset->getRecordCount());
         $this->test->assertFalse($recordset->eof());
-        $this->test->assertIsArray($recordset->values);
+        $this->test->assertIsArray($recordset->values); /** @phpstan-ignore-line method.alreadyNarrowedType */
         $this->test->assertEquals(
             ['albumid', 'title', 'votes', 'lastview', 'isfree', 'collect'],
             array_keys($recordset->values)

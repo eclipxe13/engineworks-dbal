@@ -35,7 +35,7 @@ class Result implements ResultInterface
 
     /**
      * The number of the result rows
-     * @var int
+     * @var int<0, max>
      */
     private $numRows;
 
@@ -86,10 +86,7 @@ class Result implements ResultInterface
         // since PHP 8.0 the @ operator no longer silences fatal errors
         // on PHP lower than 8.0 it was just a WARNING
         try {
-            /**
-             * @scrutinizer ignore-unhandled
-             * @noinspection PhpUsageOfSilenceOperatorInspection
-             */
+            /** @noinspection PhpUsageOfSilenceOperatorInspection */
             @$this->query->finalize();
         } catch (Error $exception) { // phpcs:ignore
         }
@@ -126,7 +123,7 @@ class Result implements ResultInterface
     /**
      * Internal method to retrieve the number of rows if not supplied from constructor
      *
-     * @return int
+     * @return int<0, max>
      */
     private function obtainNumRows(): int
     {
@@ -139,7 +136,7 @@ class Result implements ResultInterface
             $count = $count + 1;
         }
         $this->internalReset();
-        return $count;
+        return max(0, $count);
     }
 
     public function getFields(): array
@@ -197,7 +194,7 @@ class Result implements ResultInterface
 
     public function fetchRow()
     {
-        /** @var array<string, scalar|null> $return */
+        /** @var array<string, scalar|null>|false $return */
         $return = $this->internalFetch(SQLITE3_ASSOC);
         return (! is_array($return)) ? false : $return;
     }
