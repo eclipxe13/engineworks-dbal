@@ -2,6 +2,19 @@
 
 - See [Version 3](VERSION_3.md) for major changes
 
+## Version 2.3.7 2025-12-12
+
+- Compatibility with PHP 8.5.
+- Update license year to 2025.
+- Improve code readability.
+
+Development changes:
+
+- Add PHP 8.5 to test matrix.
+- Upgrade integration to SonarQube Cloud action.
+- Run GitHub workflow job `php-cs-fixer` using PHP 8.4.
+- Upgrade development tools.
+
 ## Version 2.3.6 2025-06-22
 
 - Compatibility with PHP 8.4.
