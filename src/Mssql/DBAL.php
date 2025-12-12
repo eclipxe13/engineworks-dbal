@@ -99,7 +99,7 @@ class DBAL extends BaseDBAL
 
     public function isConnected(): bool
     {
-        return ($this->pdo instanceof PDO);
+        return $this->pdo instanceof PDO;
     }
 
     public function lastInsertedID(): int
