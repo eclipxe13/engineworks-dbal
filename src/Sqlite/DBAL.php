@@ -68,7 +68,7 @@ class DBAL extends BaseDBAL
 
     public function isConnected(): bool
     {
-        return ($this->sqlite instanceof SQLite3);
+        return $this->sqlite instanceof SQLite3;
     }
 
     public function lastInsertedID(): int

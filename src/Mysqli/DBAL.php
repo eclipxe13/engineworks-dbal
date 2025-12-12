@@ -94,7 +94,7 @@ class DBAL extends BaseDBAL
 
     public function isConnected(): bool
     {
-        return ($this->mysqli instanceof mysqli);
+        return $this->mysqli instanceof mysqli;
     }
 
     public function lastInsertedID(): int

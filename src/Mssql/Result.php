@@ -134,6 +134,6 @@ class Result implements ResultInterface
         if ($this->resultCount() <= 0) {
             return false;
         }
-        return (false !== $this->stmt->execute());
+        return false !== $this->stmt->execute();
     }
 }

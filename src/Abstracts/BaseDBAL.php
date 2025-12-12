@@ -217,7 +217,7 @@ abstract class BaseDBAL implements DBAL
             return $this->sqlQuoteParseNumber($variable, false);
         }
         if (CommonTypes::TBOOL === $commonType) {
-            return ($variable) ? '1' : '0';
+            return $variable ? '1' : '0';
         }
         if (CommonTypes::TDATE === $commonType) {
             return "'" . date('Y-m-d', (int) $variable) . "'";

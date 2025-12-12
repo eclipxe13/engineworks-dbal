@@ -215,7 +215,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
      */
     final public function hasDBAL(): bool
     {
-        return ($this->dbal->isConnected() || $this->dbal->connect());
+        return $this->dbal->isConnected() || $this->dbal->connect();
     }
 
     /**
@@ -242,7 +242,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
      */
     public function canModify(): bool
     {
-        return (self::RSMODE_NOTCONNECTED !== $this->mode && '' !== $this->entity);
+        return self::RSMODE_NOTCONNECTED !== $this->mode && '' !== $this->entity;
     }
 
     /**
@@ -252,7 +252,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
      */
     final public function eof(): bool
     {
-        return (! is_array($this->originalValues));
+        return ! is_array($this->originalValues);
     }
 
     /**
@@ -349,10 +349,10 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
         }
         // strict comparison if types are strings
         if (is_string($original) && is_string($current)) {
-            return ($original !== $current);
+            return $original !== $current;
         }
         // simple comparison
-        return ($original != $current);
+        return $original != $current;
     }
 
     /**
@@ -504,7 +504,8 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
             $sql = $this->sqlInsert();
         }
         if (self::RSMODE_CONNECTED_EDIT == $this->mode) {
-            if ('' === $sql = $this->sqlUpdate($extraWhereClause)) {
+            $sql = $this->sqlUpdate($extraWhereClause);
+            if ('' === $sql) {
                 return 0;
             }
         }
@@ -566,7 +567,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
      */
     final public function moveNext(): bool
     {
-        return ($this->isOpen() && $this->fetchLoadValues());
+        return $this->isOpen() && $this->fetchLoadValues();
     }
 
     /**
@@ -575,7 +576,7 @@ class Recordset implements LoggerAwareInterface, IteratorAggregate, Countable
      */
     final public function moveFirst(): bool
     {
-        return ($this->isOpen() && $this->result()->moveFirst() && $this->fetchLoadValues());
+        return $this->isOpen() && $this->result()->moveFirst() && $this->fetchLoadValues();
     }
 
     /**
