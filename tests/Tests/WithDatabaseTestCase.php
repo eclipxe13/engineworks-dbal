@@ -74,7 +74,7 @@ abstract class WithDatabaseTestCase extends WithDbalTestCase
         foreach ($array as $i => $item) {
             $array[$i] = array_combine($keys, $item) ?: [];
         }
-        return $array; /** @phpstan-ignore-line return.type */
+        return $array;
     }
 
     /**
